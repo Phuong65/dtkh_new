@@ -7,8 +7,8 @@ type DevelopmentServers = 'server_dev' | 'server_online';
 export const DEPLOYMENTS_FOR_DEV : Record<DevelopmentServers , DeploymentEnvironment> = {
     'server_dev'    : new DeploymentEnvironment( {
         apiServiceConfig    : {
-            title                                : 'Hệ thống quản lý trung tâm học thuật - [AMS]' ,
-            realm                                : 'dacms' ,
+            title                                : 'Hệ thống quản lý Đào tạo kết hợp' ,
+            realm                                : 'lcms' ,
             port                                 : 10091 ,
             googleClientId                       : '196027039836-kjhoo8f8p3i2eldcodouvs94p1gbi4jo.apps.googleusercontent.com' ,
             protocol                             : 'https' ,
@@ -31,8 +31,8 @@ export const DEPLOYMENTS_FOR_DEV : Record<DevelopmentServers , DeploymentEnviron
     } ) ,
     'server_online' : new DeploymentEnvironment( {
         apiServiceConfig    : {
-            title                                : 'Hệ thống quản lý trung tâm học thuật - [AMS]' ,
-            realm                                : 'dacms' ,
+            title                                : 'Hệ thống quản lý Đào tạo kết hợp' ,
+            realm                                : 'lcms' ,
             port                                 : 9081 ,
             googleClientId                       : '196027039836-kjhoo8f8p3i2eldcodouvs94p1gbi4jo.apps.googleusercontent.com' ,
             protocol                             : 'https' ,
