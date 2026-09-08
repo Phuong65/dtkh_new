@@ -5,5 +5,5 @@ import { DEPLOYMENTS_FOR_PRODUCTION } from './deployment';
 export const environment : Environment = {
     appVersion : packageInfo.version ,
     production : true ,
-    deployment : DEPLOYMENTS_FOR_PRODUCTION[ 'ams.ictu.vn' ]
+    deployment : DEPLOYMENTS_FOR_PRODUCTION[ 'dtkh.ictu.vn' ]
 };

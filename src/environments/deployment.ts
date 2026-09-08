@@ -1,6 +1,6 @@
 import { DeploymentEnvironment } from '@environmentModel';
 
-type ProductionDomainName = 'ams.ictu.vn';
+type ProductionDomainName = 'dtkh.ictu.vn';
 
 type DevelopmentServers = 'server_dev' | 'server_online';
 
@@ -56,9 +56,9 @@ export const DEPLOYMENTS_FOR_DEV : Record<DevelopmentServers , DeploymentEnviron
 }
 
 export const DEPLOYMENTS_FOR_PRODUCTION : Record<ProductionDomainName , DeploymentEnvironment> = {
-    'ams.ictu.vn' : new DeploymentEnvironment( {
+    'dtkh.ictu.vn' : new DeploymentEnvironment( {
         apiServiceConfig    : {
-            title                                : 'Hệ thống quản lý trung tâm học thuật - [AMS]' ,
+            title                                : 'Hệ thống quản lý trung tâm học thuật - [DTKH]' ,
             realm                                : 'dacms' ,
             port                                 : 9081 ,
             googleClientId                       : '196027039836-kjhoo8f8p3i2eldcodouvs94p1gbi4jo.apps.googleusercontent.com' ,

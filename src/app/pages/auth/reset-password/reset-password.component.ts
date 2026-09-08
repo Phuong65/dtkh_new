@@ -64,7 +64,7 @@ export default class ResetPasswordComponent implements OnInit , OnDestroy {
 	private submitDataObserver : Subject<number> = new Subject<number>();
 
 	constructor() {
-		this.title.setTitle( '.:: Cập nhật khẩu - [AMS] ::.' );
+		this.title.setTitle( '.:: Cập nhật khẩu - [DTKH] ::.' );
 		this.submitDataObserver.asObservable().pipe(
 			takeUntilDestroyed() ,
 			distinctUntilChanged()
