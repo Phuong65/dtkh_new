@@ -14,6 +14,7 @@ import { NgScrollbar } from 'ngx-scrollbar';
 import { debounceTime , map , Subject , takeUntil , timer } from 'rxjs';
 import { currentUserTimeZone } from '@utilities/syscats';
 import { ENVIRONMENT , getApiRouteLink } from '@env';
+import { staticResource } from '@utilities/helper';
 import { SignInWithThirdParty , SignInWithThirdPartyResponse } from '@pages/auth/interfaces/sign-in-with-third-party';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpClient , HttpParams } from '@angular/common/http';
@@ -57,7 +58,11 @@ export default class LoginComponent implements OnInit , OnDestroy {
 
 	private destroyed$ : Subject<void> = new Subject<void>();
 
+	readonly logo : Signal<string> = staticResource( `images/client/${ ENVIRONMENT.deployment.client }/admin-logo.png` );
+
 	readonly appVersion : WritableSignal<string> = signal( `V${ ENVIRONMENT.appVersion } ${ currentUserTimeZone }` );
+
+	readonly currentYear : number = new Date().getFullYear();
 
 	readonly enableSignInWithGoogle : Signal<boolean> = signal<boolean>( ENVIRONMENT.deployment.enableSignInWithGoogle );
 
