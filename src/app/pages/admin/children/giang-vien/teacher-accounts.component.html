@@ -1,0 +1,57 @@
+<section class="teacher-accounts">
+    <header class="teacher-accounts__header">
+        <div>
+            <p class="teacher-accounts__eyebrow">QUẢN TRỊ HỆ THỐNG</p>
+            <h1>Quản lý tài khoản giáo viên</h1>
+            <p class="teacher-accounts__description">Tạo, cập nhật và kiểm soát tài khoản truy cập của giảng viên.</p>
+        </div>
+        <button class="teacher-accounts__primary-button" type="button" (click)="startCreate()">+ Thêm tài khoản</button>
+    </header>
+
+    <div class="teacher-accounts__toolbar">
+        <label class="teacher-accounts__search">
+            <span>Tìm kiếm</span>
+            <input type="search" [(ngModel)]="searchTerm" (ngModelChange)="applyFilter()" placeholder="Tên, tài khoản, email hoặc số điện thoại">
+        </label>
+        <span class="teacher-accounts__count">{{ filteredAccounts.length }} tài khoản</span>
+    </div>
+
+    <form class="teacher-accounts__editor" *ngIf="editingId !== null || accountForm.dirty" [formGroup]="accountForm" (ngSubmit)="save()">
+        <div class="teacher-accounts__editor-heading">
+            <h2>{{ editingId === null ? 'Tạo tài khoản giáo viên' : 'Cập nhật tài khoản giáo viên' }}</h2>
+            <button type="button" class="teacher-accounts__close-button" (click)="cancelEdit()" aria-label="Đóng">×</button>
+        </div>
+        <div class="teacher-accounts__fields">
+            <label>Tài khoản <input formControlName="username" type="text"></label>
+            <label>Họ và tên <input formControlName="display_name" type="text"></label>
+            <label>Email <input formControlName="email" type="email"></label>
+            <label>Số điện thoại <input formControlName="phone" type="tel"></label>
+            <label>Mật khẩu <input formControlName="password" type="password" [placeholder]="editingId === null ? 'Tối thiểu 8 ký tự' : 'Để trống nếu không đổi'"></label>
+            <label class="teacher-accounts__status-field">Trạng thái
+                <select formControlName="status"><option [ngValue]="1">Đang hoạt động</option><option [ngValue]="0">Đã khóa</option></select>
+            </label>
+        </div>
+        <div class="teacher-accounts__editor-actions">
+            <button type="button" class="teacher-accounts__secondary-button" (click)="cancelEdit()">Hủy</button>
+            <button type="submit" class="teacher-accounts__primary-button" [disabled]="saving">{{ saving ? 'Đang lưu...' : 'Lưu tài khoản' }}</button>
+        </div>
+    </form>
+
+    <div class="teacher-accounts__table-wrap">
+        <div class="teacher-accounts__loading" *ngIf="loading">Đang tải danh sách...</div>
+        <table *ngIf="!loading">
+            <thead><tr><th>Tài khoản</th><th>Họ và tên</th><th>Email</th><th>Điện thoại</th><th>Trạng thái</th><th></th></tr></thead>
+            <tbody>
+                <tr *ngFor="let account of filteredAccounts">
+                    <td class="teacher-accounts__username">{{ account.username }}</td>
+                    <td>{{ account.display_name }}</td>
+                    <td>{{ account.email }}</td>
+                    <td>{{ account.phone || '—' }}</td>
+                    <td><button class="teacher-accounts__status" [class.is-inactive]="!account.status" type="button" (click)="toggleStatus(account)">{{ account.status ? 'Đang hoạt động' : 'Đã khóa' }}</button></td>
+                    <td class="teacher-accounts__actions"><button type="button" (click)="startEdit(account)">Sửa</button><button type="button" (click)="remove(account)">Xóa</button></td>
+                </tr>
+                <tr *ngIf="filteredAccounts.length === 0"><td colspan="6" class="teacher-accounts__empty">Chưa có tài khoản giáo viên phù hợp.</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>

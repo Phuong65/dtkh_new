@@ -1,0 +1,99 @@
+:host {
+    display: block;
+    min-height: 100%;
+    background: #f4f7fb;
+}
+
+.teacher-accounts {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 32px clamp(20px, 4vw, 56px) 48px;
+    color: #17263b;
+}
+
+.teacher-accounts__header,
+.teacher-accounts__toolbar,
+.teacher-accounts__editor-heading,
+.teacher-accounts__editor-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.teacher-accounts__eyebrow {
+    margin: 0 0 8px;
+    color: #087f9e;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+}
+
+h1, h2, p { margin-top: 0; }
+
+h1 {
+    margin-bottom: 8px;
+    color: #123254;
+    font-size: clamp(24px, 3vw, 34px);
+    font-weight: 750;
+}
+
+.teacher-accounts__description { margin-bottom: 0; color: #6a7c91; }
+.teacher-accounts__primary-button,
+.teacher-accounts__secondary-button,
+.teacher-accounts__actions button,
+.teacher-accounts__status {
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+    font: inherit;
+}
+
+.teacher-accounts__primary-button {
+    padding: 12px 18px;
+    color: #fff;
+    background: #087f9e;
+    box-shadow: 0 7px 16px rgba(8, 127, 158, .2);
+}
+
+.teacher-accounts__primary-button:disabled { cursor: wait; opacity: .6; }
+.teacher-accounts__toolbar { margin: 30px 0 14px; }
+.teacher-accounts__search { display: flex; flex: 1; flex-direction: column; gap: 6px; max-width: 500px; color: #61748b; font-size: 12px; font-weight: 600; }
+.teacher-accounts__search input,
+.teacher-accounts__fields input,
+.teacher-accounts__fields select {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #d8e1eb;
+    border-radius: 6px;
+    padding: 11px 12px;
+    color: #20344d;
+    background: #fff;
+    font: inherit;
+}
+.teacher-accounts__count { color: #6a7c91; font-size: 13px; }
+.teacher-accounts__editor { margin-bottom: 18px; padding: 22px; border: 1px solid #cfe2e8; border-radius: 10px; background: #fff; box-shadow: 0 8px 22px rgba(22, 53, 78, .06); }
+.teacher-accounts__editor-heading { margin-bottom: 18px; }
+.teacher-accounts__editor-heading h2 { margin-bottom: 0; font-size: 18px; }
+.teacher-accounts__close-button { border: 0; color: #77889b; background: transparent; cursor: pointer; font-size: 24px; }
+.teacher-accounts__fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.teacher-accounts__fields label { display: grid; gap: 6px; color: #61748b; font-size: 12px; font-weight: 600; }
+.teacher-accounts__editor-actions { justify-content: flex-end; margin-top: 20px; }
+.teacher-accounts__secondary-button { padding: 11px 18px; color: #50647b; background: #edf2f6; }
+.teacher-accounts__table-wrap { overflow: auto; border: 1px solid #dce5ed; border-radius: 10px; background: #fff; box-shadow: 0 8px 22px rgba(22, 53, 78, .05); }
+table { width: 100%; border-collapse: collapse; min-width: 800px; }
+th { padding: 14px 16px; color: #6b7d91; background: #f7f9fb; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-align: left; text-transform: uppercase; }
+td { padding: 15px 16px; border-top: 1px solid #edf1f5; color: #53667b; font-size: 14px; }
+.teacher-accounts__username { color: #123f68; font-weight: 700; }
+.teacher-accounts__status { padding: 6px 10px; color: #14714d; background: #e3f5ed; font-size: 12px; }
+.teacher-accounts__status.is-inactive { color: #9a5a16; background: #fff1dc; }
+.teacher-accounts__actions { white-space: nowrap; text-align: right; }
+.teacher-accounts__actions button { margin-left: 8px; padding: 7px 9px; color: #087f9e; background: #edf8fa; font-size: 12px; }
+.teacher-accounts__actions button:last-child { color: #bd4d4d; background: #fff0f0; }
+.teacher-accounts__loading,
+.teacher-accounts__empty { padding: 38px; color: #7c8b9b; text-align: center; }
+
+@media (max-width: 760px) {
+    .teacher-accounts__header { align-items: flex-start; flex-direction: column; }
+    .teacher-accounts__fields { grid-template-columns: 1fr; }
+}

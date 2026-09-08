@@ -28,6 +28,11 @@ const routes : Routes = [
                 loadChildren : () : Promise<any> => import('@pages/admin/children/account/account.module').then( ( m ) : any => m.AccountModule )
             } ,
             {
+                path          : 'giang-vien/tai-khoan' ,
+                canActivate  : [ adminModuleGuard ] ,
+                loadComponent : () : Promise<any> => import('@pages/admin/children/giang-vien/teacher-accounts.component')
+            } ,
+            {
                 path         : 'thong-bao' ,
                 canActivate  : [ adminModuleGuard ] ,
                 loadChildren : () : Promise<any> => import('@pages/admin/children/thong-bao/thong-bao.module').then( ( m ) : any => m.ThongBaoModule )
