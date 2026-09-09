@@ -10,8 +10,8 @@ import { APP_SIGNING_DATE , httpSignatureGenerator , ICTU_HTTP_HEADER_PARAM_HAND
 import { httpInterceptor } from '@app/interceptor/interceptor';
 import { getSaver , SAVER } from '@app/providers/saver.provider';
 import { MessageService } from 'primeng/api';
-import { APP_REDIRECT_LINKS , createAppRedirectLinks } from '@models/role';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { APP_REDIRECT_LINKS , createAppRedirectLinks } from '@models/role';
 
 export function tokenGetter () : string | null {
     return localStorage.getItem( ACCESS_TOKEN_KEY );
@@ -47,7 +47,6 @@ export const appConfig : ApplicationConfig = {
         { provide : APP_SIGNING_DATE , useValue : 'YYYY-MM-DD HH:mm:00' } ,
         { provide : ICTU_HTTP_HEADER_PARAM_HANDLER , useValue : IctuHttpHeaderParamHandler } ,
         { provide : ICTU_HTTP_SIGNATURE_GENERATOR , useValue : httpSignatureGenerator } ,
-        { provide : APP_REDIRECT_LINKS , useFactory : createAppRedirectLinks } ,
         MatDialog ,
         providePrimeNG( {
             theme       : {
@@ -66,6 +65,7 @@ export const appConfig : ApplicationConfig = {
         } ) ,
         MessageService ,
         provideHttpClient( withInterceptors( [ httpInterceptor ] ) ) ,
-        { provide : SAVER , useFactory : getSaver }
+        { provide : SAVER , useFactory : getSaver } ,
+        { provide : APP_REDIRECT_LINKS , useFactory : createAppRedirectLinks }
     ]
 };

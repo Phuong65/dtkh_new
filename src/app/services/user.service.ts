@@ -7,9 +7,7 @@ import { getApiRouteLink } from "@env";
 
 export type UserUpdatableFields = Pick<User , 'display_name' | 'phone' | 'email' | 'password'>
 
-export type AdminUserPayload = Pick<User , 'username' | 'display_name' | 'phone' | 'email' | 'password' | 'status'> & {
-	role_ids? : string[];
-};
+export type AdminUserPayload = Pick<User , 'username' | 'display_name' | 'phone' | 'email' | 'password' | 'status'>;
 
 @Injectable( {
 	providedIn : 'any'

@@ -7,8 +7,8 @@ import { MatSuffix } from '@angular/material/form-field';
 import { Title } from '@angular/platform-browser';
 import { AuthenticationService } from '@services/authentication.service';
 import { UserSignIn } from '@models/auth';
-import { ActivatedRoute , Router , RouterLink } from '@angular/router';
 import { APP_REDIRECT_LINKS , PickRole , SysRoleName } from '@models/role';
+import { ActivatedRoute , Router , RouterLink } from '@angular/router';
 import { LoadingProgressComponent } from '@theme/components/loading-progress/loading-progress.component';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { debounceTime , map , Subject , takeUntil , timer } from 'rxjs';
@@ -43,9 +43,9 @@ export default class LoginComponent implements OnInit , OnDestroy {
 
 	private router : Router = inject( Router );
 
-	private auth : AuthenticationService = inject( AuthenticationService );
-
 	private redirectLinks : Map<SysRoleName , string> = inject( APP_REDIRECT_LINKS );
+
+	private auth : AuthenticationService = inject( AuthenticationService );
 
 	hide : boolean = true;
 
@@ -143,28 +143,9 @@ export default class LoginComponent implements OnInit , OnDestroy {
 			}
 
 		} else {
-			const maxPowerRoleUser : PickRole | undefined = this.auth.maxPowerRoleUser();
-			const redirectLink : string                   = maxPowerRoleUser ? this.redirectLinks.has( maxPowerRoleUser.name ) ? this.redirectLinks.get( maxPowerRoleUser.name ) : '' : '';
-			if ( redirectLink ) {
-				try {
-					await this.router.navigate( [ redirectLink ] );
-				} catch ( e ) {
-					void this.router.navigate( [ 'throw-error' ] , {
-						queryParams : {
-							fallbackUrl : 'login' ,
-							reason      : 'redirectLinkFailed' ,
-							time        : Date.now()
-						}
-					} );
-				}
-			} else {
-				// cause : user have no valid roles
-				void this.router.navigate( [ 'unauthorized' ] , {
-					queryParams : {
-						time : Date.now()
-					}
-				} );
-			}
+			const highestRole : PickRole | undefined = this.auth.maxPowerRoleUser();
+			const redirectLink : string = highestRole ? this.redirectLinks.get( highestRole.name ) || '' : '';
+			await this.router.navigateByUrl( redirectLink || '/admin/dashboard' );
 		}
 
 	}

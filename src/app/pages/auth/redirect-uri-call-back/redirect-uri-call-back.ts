@@ -32,9 +32,9 @@ export default class RedirectUriCallBack implements OnInit , OnDestroy {
 
     private notification : NotificationService = inject( NotificationService );
 
-    private http : HttpClient = inject( HttpClient );
-
     private redirectLinks : Map<SysRoleName , string> = inject( APP_REDIRECT_LINKS );
+
+    private http : HttpClient = inject( HttpClient );
 
     readonly state : WritableSignal<RedirectUriCallBackState> = signal( 'checking' );
 
@@ -134,29 +134,8 @@ export default class RedirectUriCallBack implements OnInit , OnDestroy {
 
     private async getToDashboard () : Promise<void> {
         const highestRole : PickRole | undefined = this.auth.maxPowerRoleUser();
-        const redirectLink : string                   = highestRole ? this.redirectLinks.has( highestRole.name ) ? this.redirectLinks.get( highestRole.name ) : '' : ''
-        if ( redirectLink ) {
-            try {
-                await this.router.navigateByUrl( redirectLink );
-            }
-            catch ( e ) {
-                void this.router.navigate( [ 'throw-error' ] , {
-                    queryParams : {
-                        fallbackUrl : 'login' ,
-                        reason      : 'redirectLinkFailed' ,
-                        time        : Date.now()
-                    }
-                } );
-            }
-        }
-        else {
-            // cause : user have no valid roles
-            void this.router.navigate( [ 'unauthorized' ] , {
-                queryParams : {
-                    time : Date.now()
-                }
-            } );
-        }
+        const redirectLink : string = highestRole ? this.redirectLinks.get( highestRole.name ) || '' : '';
+        await this.router.navigateByUrl( redirectLink || '/admin/dashboard' );
     }
 
     ngOnDestroy () : void {

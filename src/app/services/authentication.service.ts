@@ -5,11 +5,11 @@ import { BehaviorSubject , catchError , filter , firstValueFrom , forkJoin , map
 import { HttpClient } from '@angular/common/http';
 import weekday from 'dayjs/plugin/weekday';
 import { GoogleSignIn , User , UserSignIn } from '@models/user';
-import { PickRole , SysRoleName } from '@models/role';
 import { Dto , IctuQueryCondition } from '@models/dto';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import * as CryptoJS from 'crypto-js'; // Do not convert to a default import. Pls
 import { Permission , Token , UserPermission } from '@models/auth';
+import { PickRole , SysRoleName } from '@models/role';
 import { SystemConfig } from '@models/system-config';
 import { ACCESS_TOKEN_KEY , AUTH_OPTIONS , ENCRYPT_KEY , ENVIRONMENT , getApiRouteLink , IDENTITY_CODE , PERMISSION_STORAGE_KEY , REFRESH_TOKEN_KEY , SHIFT_CODE_KEY , STUDENT_STORAGE_KEY , USER_META_STORAGE_KEY , USER_STORAGE_KEY } from '@env';
 import { refreshTokenSetter , tokenGetter , tokenSetter } from '@app/app.config';
@@ -198,23 +198,20 @@ export class AuthenticationService {
 		return localStorage.getItem( '--startSessionCode' ) as string;
 	}
 
-	get roles() : readonly PickRole[] {
-		return this.permission ? this.permission.data.roles : [];
-	}
-
 	get userMenu() : IctuNavigation[] {
 		return this.permission ? this.permission.data.menus : [];
 	}
 
-	userHasRole( roleName : SysRoleName[] ) : boolean {
-		return this.roles && this.roles.length ? this.roles.reduce( ( find : boolean , role : PickRole ) : boolean => ( find || roleName.includes( role.name ) ) , false ) : false;
+	get roles() : readonly PickRole[] {
+		return this.permission ? this.permission.data.roles : [];
 	}
 
-	maxPowerRoleUser() : PickRole | undefined {
-		const _maxPowerRoleUse : PickRole | undefined = this.roles.reduce( ( reducer : PickRole | undefined , role : PickRole ) : PickRole | undefined => {
-			return reducer ? ( role.ordering < reducer.ordering ? role : reducer ) : role;
-		} , undefined );
-		return _maxPowerRoleUse ? Object.freeze<PickRole>( { ... _maxPowerRoleUse } ) : undefined;
+	userHasRole ( roleNames : SysRoleName[] ) : boolean {
+		return this.roles.some( ( role : PickRole ) : boolean => roleNames.includes( role.name ) );
+	}
+
+	maxPowerRoleUser () : PickRole | undefined {
+		return this.roles.reduce( ( current : PickRole | undefined , role : PickRole ) : PickRole | undefined => current && current.ordering <= role.ordering ? current : role , undefined );
 	}
 
 	get onUserSetup() : Observable<User> {

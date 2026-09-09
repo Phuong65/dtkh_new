@@ -10,7 +10,6 @@ export interface User extends IctuBaseModel {
 	avatar : string;
 	donvi_id : number;
 	realms : string[];
-	role_ids : string[];
 	status : number;
 }
 

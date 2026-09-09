@@ -28,9 +28,9 @@ const routes : Routes = [
                 loadChildren : () : Promise<any> => import('@pages/admin/children/account/account.module').then( ( m ) : any => m.AccountModule )
             } ,
             {
-                path          : 'giang-vien/tai-khoan' ,
+                path         : 'administrator' ,
                 canActivate  : [ adminModuleGuard ] ,
-                loadComponent : () : Promise<any> => import('@pages/admin/children/giang-vien/teacher-accounts.component')
+                loadChildren : () => import( '@pages/admin/children/administrator/administrator.module' ).then( ( m ) => m.AdministratorModule )
             } ,
             {
                 path         : 'thong-bao' ,

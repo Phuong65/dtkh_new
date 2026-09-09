@@ -42,7 +42,7 @@ export default class TeacherAccountsComponent implements OnInit {
         this.loading = true;
         this.userService.listForAdministration().pipe(finalize(() => this.loading = false)).subscribe({
             next: (accounts: User[]) => {
-                this.accounts = accounts.filter((account: User) => this.isTeacher(account));
+                this.accounts = accounts;
                 this.applyFilter();
             },
             error: () => this.notification.toastError('Không thể tải danh sách tài khoản giáo viên')
@@ -95,8 +95,7 @@ export default class TeacherAccountsComponent implements OnInit {
             email: value.email,
             phone: value.phone,
             password: value.password,
-            status: value.status,
-            role_ids: ['teacher']
+            status: value.status
         };
         if (!payload.password) {
             delete payload.password;
@@ -141,7 +140,4 @@ export default class TeacherAccountsComponent implements OnInit {
         });
     }
 
-    private isTeacher(account: User): boolean {
-        return account.role_ids?.some((role: string) => role === 'teacher' || role === '3') || account.realms?.includes('teacher');
-    }
 }
