@@ -18,7 +18,7 @@
                         optionLabel="title"
                         optionValue="id"
                         placeholder="-- Tất cả đơn vị --"
-                        [showClear]="true"
+                                                [showClear]="true"
                         (onChange)="onChangeDonvi($event.value)"
                     ></p-select>
                     <input [(ngModel)]="_search" class="admin-wrap-table__head-actions__search" pInputText placeholder="Tìm kiếm..." type="text" (keyup.enter)="onSearchData()">
@@ -113,15 +113,7 @@
                         <div class="ictu-form ictu-form--label-on-top">
                             <div class="ictu-form__row">
                                 <label class="ictu-form__label ictu-form__label--required" for="f_donvi">Khoa / Đơn vị chuyên môn</label>
-                                <p-select
-                                    [options]="dmDonviChuyenmon"
-                                    formControlName="donvi_chuyenmon_id"
-                                    id="f_donvi"
-                                    optionLabel="title"
-                                    optionValue="id"
-                                    placeholder="-- Chọn khoa --"
-                                    styleClass="w-100"
-                                ></p-select>
+                                <p-select [options]="dmDonviChuyenmon" appendTo="body" class="ictu-form__input-field" formControlName="donvi_chuyenmon_id" optionLabel="title" optionValue="id" placeholder="-- Chọn khoa --" panelStyleClass="danh-muc-select-panel"></p-select>
                             </div>
                             <div class="ictu-form__row">
                                 <label class="ictu-form__label ictu-form__label--required" for="f_title">Tên ngành</label>

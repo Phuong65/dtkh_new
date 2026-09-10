@@ -1,9 +1,10 @@
 import { inject , Injectable } from '@angular/core';
 import { HttpClient , HttpParams } from '@angular/common/http';
 import { map , Observable } from 'rxjs';
-import { Dto , DtoObject } from '@models/dto';
+import { Dto , DtoObject , IctuConditionParam , IctuQueryCondition , IctuQueryParams } from '@models/dto';
 import { DonVi , NganhBomon } from '@models/danh-muc';
 import { getApiRouteLink } from '@env';
+import { paramsConditionBuilder } from '@utilities/helper';
 
 @Injectable( {
     providedIn : 'root'
@@ -16,18 +17,33 @@ export class DanhMucService {
 
     private readonly apiNganhBomon : string = getApiRouteLink( 'nganh-bomon' );
 
+    private buildRequestParams ( queryParams : IctuQueryParams , conditions : IctuConditionParam[] = [] ) : HttpParams {
+        return paramsConditionBuilder( conditions , new HttpParams( { fromObject : queryParams || {} } ) );
+    }
+
     loadDonVi ( search : string = '' , paged : number = 1 , limit : number = 15 , parentId : number = 0 ) : Observable<DtoObject<DonVi[]>> {
-        let params : HttpParams = new HttpParams()
-            .set( 'paged' , paged.toString() )
-            .set( 'limit' , limit.toString() )
-            .set( 'orderby' , 'title' )
-            .set( 'order' , 'ASC' );
-        if ( parentId !== undefined ) {
-            params = params.set( 'parent_id' , parentId.toString() );
+        const queryParams : IctuQueryParams = {
+            paged ,
+            limit ,
+            orderby : 'title' ,
+            order   : 'ASC'
+        };
+        const conditions : IctuConditionParam[] = [];
+        if ( parentId !== undefined && parentId !== null ) {
+            conditions.push( {
+                conditionName : 'parent_id' ,
+                condition     : IctuQueryCondition.equal ,
+                value         : parentId.toString()
+            } );
         }
         if ( search ) {
-            params = params.set( 'search' , search );
+            conditions.push( {
+                conditionName : 'title' ,
+                condition     : IctuQueryCondition.like ,
+                value         : `%${ search }%`
+            } );
         }
+        const params : HttpParams = this.buildRequestParams( queryParams , conditions );
         return this.http.get<any>( this.apiDonvi , { params } ).pipe(
             map( ( res : any ) : DtoObject<DonVi[]> => {
                 if ( res && Array.isArray( res.data ) ) {
@@ -53,23 +69,40 @@ export class DanhMucService {
     }
 
     getDonViList ( parentId? : number ) : Observable<DonVi[]> {
-        let params : HttpParams = new HttpParams()
-            .set( 'limit' , '-1' )
-            .set( 'orderby' , 'title' )
-            .set( 'order' , 'ASC' );
-        if ( parentId !== undefined ) {
-            params = params.set( 'parent_id' , parentId.toString() );
+        const queryParams : IctuQueryParams = {
+            limit   : -1 ,
+            orderby : 'title' ,
+            order   : 'ASC'
+        };
+        const conditions : IctuConditionParam[] = [];
+        if ( parentId !== undefined && parentId !== null ) {
+            conditions.push( {
+                conditionName : 'parent_id' ,
+                condition     : IctuQueryCondition.equal ,
+                value         : parentId.toString()
+            } );
         }
+        const params : HttpParams = this.buildRequestParams( queryParams , conditions );
         return this.http.get<Dto>( this.apiDonvi , { params } ).pipe(
             map( ( response : Dto ) : DonVi[] => Array.isArray( response.data ) ? response.data : [] )
         );
     }
 
     listDonVi ( filter : { status? : number } = {} ) : Observable<DonVi[]> {
-        let params : HttpParams = new HttpParams().set( 'limit' , '-1' ).set( 'orderby' , 'title' ).set( 'order' , 'ASC' );
-        if ( filter.status !== undefined ) {
-            params = params.set( 'status' , filter.status.toString() );
+        const queryParams : IctuQueryParams = {
+            limit   : -1 ,
+            orderby : 'title' ,
+            order   : 'ASC'
+        };
+        const conditions : IctuConditionParam[] = [];
+        if ( filter.status !== undefined && filter.status !== null ) {
+            conditions.push( {
+                conditionName : 'status' ,
+                condition     : IctuQueryCondition.equal ,
+                value         : filter.status.toString()
+            } );
         }
+        const params : HttpParams = this.buildRequestParams( queryParams , conditions );
         return this.http.get<Dto>( this.apiDonvi , { params } ).pipe(
             map( ( response : Dto ) : DonVi[] => Array.isArray( response.data ) ? response.data : [] )
         );
@@ -94,7 +127,15 @@ export class DanhMucService {
     }
 
     checkDonViCodeExists ( code : string , excludeId? : number ) : Observable<boolean> {
-        const params : HttpParams = new HttpParams().set( 'code' , code ).set( 'limit' , '1' );
+        const queryParams : IctuQueryParams = { limit : 1 };
+        const conditions : IctuConditionParam[] = [
+            {
+                conditionName : 'code' ,
+                condition     : IctuQueryCondition.equal ,
+                value         : code
+            }
+        ];
+        const params : HttpParams = this.buildRequestParams( queryParams , conditions );
         return this.http.get<Dto>( this.apiDonvi , { params } ).pipe(
             map( ( response : Dto ) : boolean => {
                 const list : DonVi[] = Array.isArray( response.data ) ? response.data : [];
@@ -108,18 +149,34 @@ export class DanhMucService {
     }
 
     loadNganhBomon ( type : 'nganh' | 'bomon' , search : string = '' , paged : number = 1 , limit : number = 15 , donviChuyenMonId? : number ) : Observable<DtoObject<NganhBomon[]>> {
-        let params : HttpParams = new HttpParams()
-            .set( 'type' , type )
-            .set( 'paged' , paged.toString() )
-            .set( 'limit' , limit.toString() )
-            .set( 'orderby' , 'ordering' )
-            .set( 'order' , 'ASC' );
+        const queryParams : IctuQueryParams = {
+            paged ,
+            limit ,
+            orderby : 'ordering' ,
+            order   : 'ASC'
+        };
+        const conditions : IctuConditionParam[] = [
+            {
+                conditionName : 'type' ,
+                condition     : IctuQueryCondition.equal ,
+                value         : type
+            }
+        ];
         if ( donviChuyenMonId !== undefined && donviChuyenMonId !== null ) {
-            params = params.set( 'donvi_chuyenmon_id' , donviChuyenMonId.toString() );
+            conditions.push( {
+                conditionName : 'donvi_chuyenmon_id' ,
+                condition     : IctuQueryCondition.equal ,
+                value         : donviChuyenMonId.toString()
+            } );
         }
         if ( search ) {
-            params = params.set( 'search' , search );
+            conditions.push( {
+                conditionName : 'title' ,
+                condition     : IctuQueryCondition.like ,
+                value         : `%${ search }%`
+            } );
         }
+        const params : HttpParams = this.buildRequestParams( queryParams , conditions );
         return this.http.get<any>( this.apiNganhBomon , { params } ).pipe(
             map( ( res : any ) : DtoObject<NganhBomon[]> => {
                 if ( res && Array.isArray( res.data ) ) {
@@ -137,14 +194,26 @@ export class DanhMucService {
     }
 
     getNganhBomonList ( type : 'nganh' | 'bomon' , donviChuyenMonId? : number ) : Observable<NganhBomon[]> {
-        let params : HttpParams = new HttpParams()
-            .set( 'type' , type )
-            .set( 'limit' , '-1' )
-            .set( 'orderby' , 'ordering' )
-            .set( 'order' , 'ASC' );
-        if ( donviChuyenMonId !== undefined ) {
-            params = params.set( 'donvi_chuyenmon_id' , donviChuyenMonId.toString() );
+        const queryParams : IctuQueryParams = {
+            limit   : -1 ,
+            orderby : 'ordering' ,
+            order   : 'ASC'
+        };
+        const conditions : IctuConditionParam[] = [
+            {
+                conditionName : 'type' ,
+                condition     : IctuQueryCondition.equal ,
+                value         : type
+            }
+        ];
+        if ( donviChuyenMonId !== undefined && donviChuyenMonId !== null ) {
+            conditions.push( {
+                conditionName : 'donvi_chuyenmon_id' ,
+                condition     : IctuQueryCondition.equal ,
+                value         : donviChuyenMonId.toString()
+            } );
         }
+        const params : HttpParams = this.buildRequestParams( queryParams , conditions );
         return this.http.get<Dto>( this.apiNganhBomon , { params } ).pipe(
             map( ( response : Dto ) : NganhBomon[] => Array.isArray( response.data ) ? response.data : [] )
         );
@@ -169,7 +238,20 @@ export class DanhMucService {
     }
 
     checkNganhBomonSlugExists ( slug : string , type : 'nganh' | 'bomon' , excludeId? : number ) : Observable<boolean> {
-        const params : HttpParams = new HttpParams().set( 'slug' , slug ).set( 'type' , type ).set( 'limit' , '1' );
+        const queryParams : IctuQueryParams = { limit : 1 };
+        const conditions : IctuConditionParam[] = [
+            {
+                conditionName : 'slug' ,
+                condition     : IctuQueryCondition.equal ,
+                value         : slug
+            } ,
+            {
+                conditionName : 'type' ,
+                condition     : IctuQueryCondition.equal ,
+                value         : type
+            }
+        ];
+        const params : HttpParams = this.buildRequestParams( queryParams , conditions );
         return this.http.get<Dto>( this.apiNganhBomon , { params } ).pipe(
             map( ( response : Dto ) : boolean => {
                 const list : NganhBomon[] = Array.isArray( response.data ) ? response.data : [];

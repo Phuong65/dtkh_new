@@ -119,7 +119,11 @@ const routes: Routes = [
             {
                 path: 'quanly-hocvien',
                 loadComponent: () => import('./children/quanly-hocvien/quanly-hocvien.component')
-            }
+            },
+            {
+                path: 'hinh-thuc-dao-tao',
+                loadComponent: () => import('./children/dao-tao-trainning-mode/dao-tao-trainning-mode.component').then(m => m.DaoTaoTrainningModeComponent)
+            },
         ]
     }
 ];

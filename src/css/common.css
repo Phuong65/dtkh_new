@@ -513,6 +513,21 @@ body .ictu-statistics-block__value__text {
     display: block;
 }
 
+/*------------------- danh-muc select -------------------*/
+.danh-muc-select-panel {
+    --p-select-overlay-border-radius: 6px;
+}
+
+.danh-muc-select-panel .p-select-list-container .p-select-list .p-select-option.p-select-option-selected {
+    background-color: #4680ff;
+    color: #ffffff;
+    border-radius: 4px;
+}
+
+.danh-muc-select-panel .p-select-list-container .p-select-list .p-select-option.p-select-option-selected:hover {
+    background-color: #3a6be0;
+}
+
 /******************* custom ng-scrollbar *********************/
 .ng-scrollbar-style-1 .ng-scrollbar-sticky {
     width: 8px !important;

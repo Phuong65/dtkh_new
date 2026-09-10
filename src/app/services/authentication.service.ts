@@ -15,13 +15,11 @@ import { ACCESS_TOKEN_KEY , AUTH_OPTIONS , ENCRYPT_KEY , ENVIRONMENT , getApiRou
 import { refreshTokenSetter , tokenGetter , tokenSetter } from '@app/app.config';
 import { SysConfigsService } from '@services//sys-configs.service';
 import { IctuNavigation , IctuNavigationItem , IctuNavigationItemPms } from '@theme/types/navigation';
-import { HocSinh } from '@models/hoc-sinh';
 import { Socket , SocketIoConfig } from 'ngx-socket-io';
 import { ManagerOptions } from 'socket.io-client';
 
 interface IdentityStoreData {
 	user : User | null,
-	student : HocSinh | null,
 	permission : Permission | null
 }
 
@@ -36,7 +34,6 @@ const extractPms : ( menu : IctuNavigation ) => IctuNavigationItemPms = ( { pms 
 interface AuthResponse {
 	user : User,
 	permissions : Permission,
-	student : HocSinh,
 	configs : PickSystemConfig[],
 }
 
@@ -96,7 +93,6 @@ export class AuthenticationService {
 
 	private readonly userSetupBehavior : BehaviorSubject<User | null> = new BehaviorSubject<User | null>( null );
 
-	private readonly studentSetupBehavior : BehaviorSubject<HocSinh | null> = new BehaviorSubject<HocSinh | null>( null );
 
 	private readonly permissionSetupBehavior : BehaviorSubject<Permission | null> = new BehaviorSubject<Permission | null>( null );
 
@@ -104,7 +100,6 @@ export class AuthenticationService {
 
 	private readonly observeLastAppVersion : Subject<string> = new Subject<string>();
 
-	private _student : HocSinh | null = null;
 
 	private _user : User | null = null;
 
@@ -115,9 +110,6 @@ export class AuthenticationService {
 	private _options : any[] = [];
 
 	constructor() {
-		const stores : IdentityStoreData = this.loadDataFromStores();
-		this.user                        = stores.user;
-		this.permission                  = stores.permission || nullPermission;
 		const apConfigs : string | null  = localStorage.getItem( '__ap_configs' );
 		this._configs                    = apConfigs ? JSON.parse( apConfigs ) : [];
 		dayjs.extend( weekday );
@@ -138,15 +130,6 @@ export class AuthenticationService {
 	set user( user : User | null ) {
 		this._user = user;
 		this.userSetupBehavior.next( user ? Object.freeze<User>( { ... user } ) : null );
-	}
-
-	get student() : HocSinh | null {
-		return this._student;
-	}
-
-	set student( student : HocSinh | null ) {
-		this.studentSetupBehavior.next( student ? Object.freeze<HocSinh>( { ... student } ) : null );
-		this._student = student;
 	}
 
 	get permission() : Permission | null {
@@ -385,11 +368,6 @@ export class AuthenticationService {
 		return nonce;
 	}
 
-	private saveStudent( student : HocSinh | null ) : void {
-		this.storeData( STUDENT_STORAGE_KEY , student );
-		this.student = student;
-	}
-
 	/*	private storeMySaleTeam ( mySaleTeam : MySaleTeam ) : void {
 	 this._mySaleTeam = mySaleTeam;
 	 this.storeData( MY_SALE_TEAM_STORAGE_KEY , mySaleTeam );
@@ -495,14 +473,6 @@ export class AuthenticationService {
 		return ( _dayjs.weekday() ? _dayjs : _dayjs.subtract( 3 , 'day' ) ).weekday( 1 );
 	}
 
-	private loadDataFromStores() : IdentityStoreData {
-		// const mySaleTeam : MySaleTeam | null = this.getStoredData<MySaleTeam | null>( MY_SALE_TEAM_STORAGE_KEY , null );
-		const user : User | null             = this.getStoredData<User | null>( USER_STORAGE_KEY , null );
-		const permission : Permission | null = this.getStoredData<Permission | null>( PERMISSION_STORAGE_KEY , null );
-		const student : HocSinh | null       = this.getStoredData<HocSinh | null>( STUDENT_STORAGE_KEY , null );
-		return { user , permission , student };
-	}
-
 	private checkAppVersion() : void {
 		const searchParams : URLSearchParams | null = window.location.search ? new URLSearchParams( window.location.search ) : null;
 		const hash : number                         = searchParams && searchParams.has( 'hash-code' ) ? parseInt( searchParams.get( 'hash-code' ) as string , 10 ) : NaN;
@@ -545,18 +515,15 @@ export class AuthenticationService {
 		return forkJoin<{
 			user : Observable<User>,
 			permissions : Observable<Permission>,
-			student : Observable<HocSinh>,
 			configs : Observable<PickSystemConfig[]>,
 		}>( {
 			user        : loadUser$ ,
 			permissions : loadPermissions$ ,
-			student     : of( null ) ,
 			configs     : loadConfigs$
 		} ).pipe(
 			map( ( { user , permissions , configs } : AuthResponse ) : boolean => {
 				this.saveUser( user );
 				this.savePermissions( permissions );
-				this.saveStudent( null );
 				this.saveConfigs( configs );
 				this.connectSocket();
 				return true;

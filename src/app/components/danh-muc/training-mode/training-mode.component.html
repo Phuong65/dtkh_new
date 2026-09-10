@@ -9,23 +9,14 @@
                     <svg>
                         <use href="fonts/custom-icon.svg#custom-folder-open-2"></use>
                     </svg>
-                    Danh sách bộ môn
+                    Danh sách hình thức đào tạo
                 </h4>
                 <div class="admin-wrap-table__head-actions">
-                    <p-select
-                        [options]="dmDonviChuyenmon"
-                        [(ngModel)]="selectedDonviId"
-                        optionLabel="title"
-                        optionValue="id"
-                        placeholder="-- Tất cả đơn vị --"
-                                                [showClear]="true"
-                        (onChange)="onChangeDonvi($event.value)"
-                    ></p-select>
                     <input [(ngModel)]="_search" class="admin-wrap-table__head-actions__search" pInputText placeholder="Tìm kiếm..." type="text" (keyup.enter)="onSearchData()">
-                    <button (click)="deleteSelectedRows()" [disabled]="!dataTable.someItemsChecked()" class="btn ictu-button-danger-gradient" mat-flat-button>
+                    <button (click)="deleteSelectedRows()" [disabled]="!dataTable.someItemsChecked()" class="btn ictu-button-danger-gradient" mat-flat-button aria-label="Xóa các mục đã chọn">
                         <i class="ti ti-trash"></i>
                     </button>
-                    <button (click)="addNewItem()" mat-flat-button class="btn ictu-badge-btn--success-reverse">
+                    <button (click)="addNewItem()" mat-flat-button class="btn ictu-badge-btn--success-reverse" aria-label="Thêm hình thức đào tạo">
                         <i class="ti ti-plus"></i>
                     </button>
                 </div>
@@ -38,12 +29,9 @@
                                 <mat-checkbox [checked]="dataTable.totalChecked()" [indeterminate]="dataTable.partiallyChecked()" (change)="dataTable.selectRow($event.checked)" [disabled]="!dataTable.data().length"></mat-checkbox>
                             </th>
                             <th class="col-index text-center">#</th>
-                            <th class="wid-120 text-center">Mã bộ môn</th>
-                            <th class="text-left">Tên bộ môn</th>
-                            <th class="text-left">Khoa</th>
+                            <th class="wid-150 text-center">Mã hình thức</th>
+                            <th class="text-left">Tên hình thức đào tạo</th>
                             <th class="text-left">Mô tả</th>
-                            <th class="wid-80 text-center">Thứ tự</th>
-                            <th class="wid-120 text-center">Trạng thái</th>
                             <th class="wid-90 text-center px-0">Hành động</th>
                         </tr>
                     </thead>
@@ -54,20 +42,9 @@
                                     <mat-checkbox [checked]="row._ictuDataTableRowChecked" (change)="dataTable.selectRow($event.checked, i)"></mat-checkbox>
                                 </td>
                                 <td class="col-index text-center">{{ dataTable.paginator.startIndex() + i }}</td>
-                                <td class="wid-120 text-center">{{ row.code }}</td>
-                                <td class="text-left font-weight-500">{{ row.title }}</td>
-                                <td class="text-left">{{ row.khoa || '—' }}</td>
-                                <td class="text-left">{{ row.desc || '—' }}</td>
-                                <td class="wid-80 text-center">{{ row.ordering }}</td>
-                                <td class="wid-120 text-center p-0">
-                                    <div class="d-flex w-100 h-100 justify-content-center align-items-center">
-                                        @if (row.status === 1) {
-                                            <span class="ictu-badge ictu-badge--success">Hoạt động</span>
-                                        } @else {
-                                            <span class="ictu-badge ictu-badge--secondary">Tạm khóa</span>
-                                        }
-                                    </div>
-                                </td>
+                                <td class="wid-150 text-center">{{ row.code }}</td>
+                                <td class="text-left font-weight-500">{{ row.name }}</td>
+                                <td class="text-left">{{ row.description || '—' }}</td>
                                 <td class="p-0 wid-90">
                                     <div class="admin-table__btn-actions">
                                         <button (click)="editRow(row)" class="btn ictu-button-info-light" aria-label="Sửa">
@@ -81,7 +58,7 @@
                             </tr>
                         } @empty {
                             <tr>
-                                <td colspan="9" class="text-center p-3">Không có bản ghi nào.</td>
+                                <td colspan="6" class="text-center p-3">Không có bản ghi nào.</td>
                             </tr>
                         }
                     </tbody>
@@ -112,31 +89,16 @@
                     <form [formGroup]="formControl.formGroup">
                         <div class="ictu-form ictu-form--label-on-top">
                             <div class="ictu-form__row">
-                                <label class="ictu-form__label ictu-form__label--required" for="f_donvi_bm">Khoa / Đơn vị chuyên môn</label>
-                                <p-select [options]="dmDonviChuyenmon" appendTo="body" class="ictu-form__input-field" formControlName="donvi_chuyenmon_id" optionLabel="title" optionValue="id" placeholder="-- Chọn khoa --"></p-select>
+                                <label class="ictu-form__label ictu-form__label--required" for="f_name">Tên hình thức đào tạo</label>
+                                <input class="ictu-form__input-field" formControlName="name" id="f_name" pInputText placeholder="Nhập tên hình thức đào tạo" type="text">
                             </div>
                             <div class="ictu-form__row">
-                                <label class="ictu-form__label ictu-form__label--required" for="f_title_bm">Tên bộ môn</label>
-                                <input class="ictu-form__input-field" formControlName="title" id="f_title_bm" pInputText placeholder="Nhập tên bộ môn" type="text" (focusout)="onChangeTitle()">
+                                <label class="ictu-form__label ictu-form__label--required" for="f_code">Mã hình thức</label>
+                                <input class="ictu-form__input-field" formControlName="code" id="f_code" pInputText placeholder="Nhập mã hình thức" type="text" style="text-transform: uppercase;">
                             </div>
                             <div class="ictu-form__row">
-                                <label class="ictu-form__label ictu-form__label--required" for="f_code_bm">Mã bộ môn</label>
-                                <input class="ictu-form__input-field" formControlName="code" id="f_code_bm" pInputText placeholder="Nhập mã bộ môn" type="text" style="text-transform: uppercase;">
-                            </div>
-                            <div class="ictu-form__row">
-                                <label class="ictu-form__label ictu-form__label--required" for="f_slug_bm">Slug</label>
-                                <input class="ictu-form__input-field" formControlName="slug" id="f_slug_bm" pInputText placeholder="Slug" type="text" (focusout)="checkSlug()">
-                                @if (!slugIsValid) {
-                                    <small class="text-danger d-block mt-1">Slug đã tồn tại trong hệ thống.</small>
-                                }
-                            </div>
-                            <div class="ictu-form__row">
-                                <label class="ictu-form__label" for="f_ordering_bm">Thứ tự</label>
-                                <p-inputnumber formControlName="ordering" id="f_ordering_bm" styleClass="w-100"></p-inputnumber>
-                            </div>
-                            <div class="ictu-form__row">
-                                <label class="ictu-form__label" for="f_desc_bm">Mô tả</label>
-                                <textarea class="ictu-form__input-field" formControlName="desc" id="f_desc_bm" pTextarea placeholder="Thêm mô tả cho bộ môn" rows="4"></textarea>
+                                <label class="ictu-form__label" for="f_description">Mô tả</label>
+                                <textarea class="ictu-form__input-field" formControlName="description" id="f_description" pTextarea placeholder="Thêm mô tả" rows="4"></textarea>
                             </div>
                         </div>
                     </form>
@@ -144,7 +106,7 @@
             }
         </div>
         <div class="ictu-p-drawer__content__footer">
-            <button (click)="submitForm()" [disabled]="formControl.formGroup.invalid || !slugIsValid" class="btn ictu-badge-btn--success-reverse" mat-flat-button>Lưu lại</button>
+            <button (click)="submitForm()" [disabled]="formControl.formGroup.invalid || formControl.enableLoading()" class="btn ictu-badge-btn--success-reverse" mat-flat-button>Lưu lại</button>
             <button (click)="formControl.closeForm()" class="btn ictu-badge-btn--secondary-reverse" mat-flat-button>Hủy</button>
         </div>
     </div>
