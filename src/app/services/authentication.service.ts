@@ -14,7 +14,7 @@ import { SystemConfig } from '@models/system-config';
 import { ACCESS_TOKEN_KEY , AUTH_OPTIONS , ENCRYPT_KEY , ENVIRONMENT , getApiRouteLink , IDENTITY_CODE , PERMISSION_STORAGE_KEY , REFRESH_TOKEN_KEY , SHIFT_CODE_KEY , STUDENT_STORAGE_KEY , USER_META_STORAGE_KEY , USER_STORAGE_KEY } from '@env';
 import { refreshTokenSetter , tokenGetter , tokenSetter } from '@app/app.config';
 import { SysConfigsService } from '@services//sys-configs.service';
-import { IctuNavigation , IctuNavigationItemPms } from '@theme/types/navigation';
+import { IctuNavigation , IctuNavigationItem , IctuNavigationItemPms } from '@theme/types/navigation';
 import { HocSinh } from '@models/hoc-sinh';
 import { Socket , SocketIoConfig } from 'ngx-socket-io';
 import { ManagerOptions } from 'socket.io-client';
@@ -199,7 +199,29 @@ export class AuthenticationService {
 	}
 
 	get userMenu() : IctuNavigation[] {
-		return this.permission ? this.permission.data.menus : [];
+		if ( !this.permission?.data?.menus ) {
+			return [];
+		}
+		return this.permission.data.menus.map( ( nav : IctuNavigation ) : IctuNavigation => {
+			if ( !nav.child?.length ) {
+				return nav;
+			}
+			const prefix : string = `${ nav.id }/`;
+			return {
+				...nav ,
+				child : nav.child.map( ( item : IctuNavigationItem ) : IctuNavigationItem => {
+					const hasPrefixId : boolean = !!item.id && item.id.startsWith( prefix );
+					const id : string = hasPrefixId || !item.id ? item.id : `${ prefix }${ item.id }`;
+					const hasPrefixUrl : boolean = !!item.url && ( item.url.startsWith( prefix ) || item.url.startsWith( '/' ) );
+					const url : string = hasPrefixUrl || !item.url ? item.url : `${ prefix }${ item.url }`;
+					return {
+						...item ,
+						id ,
+						url
+					};
+				} )
+			};
+		} );
 	}
 
 	get roles() : readonly PickRole[] {

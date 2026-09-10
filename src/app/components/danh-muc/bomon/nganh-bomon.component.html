@@ -1,0 +1,159 @@
+<section class="admin-section--table position-relative">
+    @if (state() === 'loading') {
+        <app-loading-progress heading="Loading..." backdropFilter="none"></app-loading-progress>
+    }
+    <div class="admin-wrap-table">
+        @if (state() !== 'error') {
+            <div class="admin-wrap-table__head d-flex">
+                <h4 class="admin-wrap-table__heading">
+                    <svg>
+                        <use href="fonts/custom-icon.svg#custom-folder-open-2"></use>
+                    </svg>
+                    Danh sách bộ môn
+                </h4>
+                <div class="admin-wrap-table__head-actions">
+                    <p-select
+                        [options]="dmDonviChuyenmon"
+                        [(ngModel)]="selectedDonviId"
+                        optionLabel="title"
+                        optionValue="id"
+                        placeholder="-- Tất cả đơn vị --"
+                        [showClear]="true"
+                        (onChange)="onChangeDonvi($event.value)"
+                    ></p-select>
+                    <input [(ngModel)]="_search" class="admin-wrap-table__head-actions__search" pInputText placeholder="Tìm kiếm..." type="text" (keyup.enter)="onSearchData()">
+                    <button (click)="deleteSelectedRows()" [disabled]="!dataTable.someItemsChecked()" class="btn ictu-button-danger-gradient" mat-flat-button>
+                        <i class="ti ti-trash"></i>
+                    </button>
+                    <button (click)="addNewItem()" mat-flat-button class="btn ictu-badge-btn--success-reverse">
+                        <i class="ti ti-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="admin-wrap-table__body">
+                <table class="tbl admin-table table-hover">
+                    <thead>
+                        <tr>
+                            <th class="col-checkbox">
+                                <mat-checkbox [checked]="dataTable.totalChecked()" [indeterminate]="dataTable.partiallyChecked()" (change)="dataTable.selectRow($event.checked)" [disabled]="!dataTable.data().length"></mat-checkbox>
+                            </th>
+                            <th class="col-index text-center">#</th>
+                            <th class="wid-120 text-center">Mã bộ môn</th>
+                            <th class="text-left">Tên bộ môn</th>
+                            <th class="text-left">Khoa</th>
+                            <th class="text-left">Mô tả</th>
+                            <th class="wid-80 text-center">Thứ tự</th>
+                            <th class="wid-120 text-center">Trạng thái</th>
+                            <th class="wid-90 text-center px-0">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (row of dataTable.data(); track row.id; let i = $index) {
+                            <tr>
+                                <td class="col-checkbox">
+                                    <mat-checkbox [checked]="row._ictuDataTableRowChecked" (change)="dataTable.selectRow($event.checked, i)"></mat-checkbox>
+                                </td>
+                                <td class="col-index text-center">{{ dataTable.paginator.startIndex() + i }}</td>
+                                <td class="wid-120 text-center">{{ row.code }}</td>
+                                <td class="text-left font-weight-500">{{ row.title }}</td>
+                                <td class="text-left">{{ row.khoa || '—' }}</td>
+                                <td class="text-left">{{ row.desc || '—' }}</td>
+                                <td class="wid-80 text-center">{{ row.ordering }}</td>
+                                <td class="wid-120 text-center p-0">
+                                    <div class="d-flex w-100 h-100 justify-content-center align-items-center">
+                                        @if (row.status === 1) {
+                                            <span class="ictu-badge ictu-badge--success">Hoạt động</span>
+                                        } @else {
+                                            <span class="ictu-badge ictu-badge--secondary">Tạm khóa</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td class="p-0 wid-90">
+                                    <div class="admin-table__btn-actions">
+                                        <button (click)="editRow(row)" class="btn ictu-button-info-light" aria-label="Sửa">
+                                            <i class="ti ti-edit"></i>
+                                        </button>
+                                        <button (click)="deleteRow(row)" class="btn ictu-button-danger-light" aria-label="Xóa">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        } @empty {
+                            <tr>
+                                <td colspan="9" class="text-center p-3">Không có bản ghi nào.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="admin-wrap-table__foot">
+                <div class="d-flex justify-content-center align-items-center w-100">
+                    <ictu-paginator [control]="dataTable.paginator" (onChangePage)="onChangePage($event)"></ictu-paginator>
+                </div>
+            </div>
+        } @else {
+            <div class="admin-table__alert-danger text-center w-100">
+                Tải dữ liệu thất bại. Vui lòng chọn
+                <a (click)="reload($event)" href="javascript:" class="admin-table__alert-danger__btn-reload">tải lại</a>
+            </div>
+        }
+    </div>
+</section>
+
+<p-drawer #pDrawer [(visible)]="formControl.visible" [dismissible]="false" [header]="formControl.heading()" [style]="{'width':'500px', 'max-width':'100%'}" appendTo="body" position="right" styleClass="ictu-p-drawer">
+    <div class="ictu-p-drawer__content position-relative">
+        @if (formControl.enableLoading()) {
+            <app-loading-progress [heading]="formControl.loadingLabel()" backdropFilter="none"></app-loading-progress>
+        }
+        <div class="ictu-p-drawer__content__body position-relative">
+            @switch (formControl.state()) {
+                @case ('READY') {
+                    <form [formGroup]="formControl.formGroup">
+                        <div class="ictu-form ictu-form--label-on-top">
+                            <div class="ictu-form__row">
+                                <label class="ictu-form__label ictu-form__label--required" for="f_donvi_bm">Khoa / Đơn vị chuyên môn</label>
+                                <p-select
+                                    [options]="dmDonviChuyenmon"
+                                    formControlName="donvi_chuyenmon_id"
+                                    id="f_donvi_bm"
+                                    optionLabel="title"
+                                    optionValue="id"
+                                    placeholder="-- Chọn khoa --"
+                                    styleClass="w-100"
+                                ></p-select>
+                            </div>
+                            <div class="ictu-form__row">
+                                <label class="ictu-form__label ictu-form__label--required" for="f_title_bm">Tên bộ môn</label>
+                                <input class="ictu-form__input-field" formControlName="title" id="f_title_bm" pInputText placeholder="Nhập tên bộ môn" type="text" (focusout)="onChangeTitle()">
+                            </div>
+                            <div class="ictu-form__row">
+                                <label class="ictu-form__label ictu-form__label--required" for="f_code_bm">Mã bộ môn</label>
+                                <input class="ictu-form__input-field" formControlName="code" id="f_code_bm" pInputText placeholder="Nhập mã bộ môn" type="text" style="text-transform: uppercase;">
+                            </div>
+                            <div class="ictu-form__row">
+                                <label class="ictu-form__label ictu-form__label--required" for="f_slug_bm">Slug</label>
+                                <input class="ictu-form__input-field" formControlName="slug" id="f_slug_bm" pInputText placeholder="Slug" type="text" (focusout)="checkSlug()">
+                                @if (!slugIsValid) {
+                                    <small class="text-danger d-block mt-1">Slug đã tồn tại trong hệ thống.</small>
+                                }
+                            </div>
+                            <div class="ictu-form__row">
+                                <label class="ictu-form__label" for="f_ordering_bm">Thứ tự</label>
+                                <p-inputnumber formControlName="ordering" id="f_ordering_bm" styleClass="w-100"></p-inputnumber>
+                            </div>
+                            <div class="ictu-form__row">
+                                <label class="ictu-form__label" for="f_desc_bm">Mô tả</label>
+                                <textarea class="ictu-form__input-field" formControlName="desc" id="f_desc_bm" pTextarea placeholder="Thêm mô tả cho bộ môn" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                }
+            }
+        </div>
+        <div class="ictu-p-drawer__content__footer">
+            <button (click)="submitForm()" [disabled]="formControl.formGroup.invalid || !slugIsValid" class="btn ictu-badge-btn--success-reverse" mat-flat-button>Lưu lại</button>
+            <button (click)="formControl.closeForm()" class="btn ictu-badge-btn--secondary-reverse" mat-flat-button>Hủy</button>
+        </div>
+    </div>
+</p-drawer>

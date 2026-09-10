@@ -4,5 +4,6 @@ import { SysRoleName } from '@models/role';
 export const PROVIDED_ROLE = new InjectionToken<SysRoleName>('Administrator role');
 
 export const ROLE_PROVIDER: Record<SysRoleName, ValueProvider> = {
-    administrator: { provide: PROVIDED_ROLE, useValue: 'administrator' }
+    administrator: { provide: PROVIDED_ROLE, useValue: 'administrator' },
+    daotao_ld: { provide: PROVIDED_ROLE, useValue: 'daotao_ld' }
 };

@@ -33,6 +33,11 @@ const routes : Routes = [
                 loadChildren : () => import( '@pages/admin/children/administrator/administrator.module' ).then( ( m ) => m.AdministratorModule )
             } ,
             {
+                path         : 'dao-tao' ,
+                canActivate  : [ adminModuleGuard ] ,
+                loadChildren : () => import( '@pages/admin/children/dao-tao/dao-tao.module' ).then( ( m ) => m.DaoTaoModule )
+            } ,
+            {
                 path         : 'thong-bao' ,
                 canActivate  : [ adminModuleGuard ] ,
                 loadChildren : () : Promise<any> => import('@pages/admin/children/thong-bao/thong-bao.module').then( ( m ) : any => m.ThongBaoModule )
