@@ -5,7 +5,6 @@ import { HocVienComponent } from '@components/hoc-vien/hoc-vien.component';
     standalone  : true ,
     selector    : 'app-quanly-hocvien' ,
     imports     : [ HocVienComponent ] ,
-    templateUrl : './quanly-hocvien.component.html' ,
-    styleUrl    : './quanly-hocvien.component.css'
+    template: '<app-hoc-vien></app-hoc-vien>' ,
 } )
 export default class QuanlyHocvienComponent {}

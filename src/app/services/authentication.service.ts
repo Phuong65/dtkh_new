@@ -119,7 +119,23 @@ export class AuthenticationService {
 			this.checkVersionAfterRouteChanges();
 		} );
 		if ( this.userLoggedIn ) {
+			this.restoreSession();
 			this.connectSocket();
+		}
+	}
+
+	private restoreSession() : void {
+		try {
+			const user : User | null                  = this.getStoredData<User | null>( USER_STORAGE_KEY , null );
+			const permission : Permission | null     = this.getStoredData<Permission | null>( PERMISSION_STORAGE_KEY , null );
+			if ( user ) {
+				this.user = user;
+			}
+			if ( permission?.data && Array.isArray( permission.data.menus ) ) {
+				this.permission = permission;
+			}
+		} catch ( error ) {
+			this.clearSession();
 		}
 	}
 

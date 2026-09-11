@@ -121,7 +121,7 @@ const routes: Routes = [
                 loadComponent: () => import('./children/quanly-hocvien/quanly-hocvien.component')
             },
             {
-                path: 'hinh-thuc-dao-tao',
+                path: 'he-dao-tao',
                 loadComponent: () => import('./children/dao-tao-trainning-mode/dao-tao-trainning-mode.component').then(m => m.DaoTaoTrainningModeComponent)
             },
         ]

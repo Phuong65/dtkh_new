@@ -5,7 +5,6 @@ import { KhoaLopComponent as KhoaLopContentComponent } from '@components/khoa-lo
     standalone  : true ,
     selector    : 'app-khoa-lop-page' ,
     imports     : [ KhoaLopContentComponent ] ,
-    templateUrl : './khoa-lop.component.html' ,
-    styleUrl    : './khoa-lop.component.css'
+    template    : '<app-khoa-lop></app-khoa-lop>'
 } )
 export default class KhoaLopComponent {}
