@@ -47,7 +47,7 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
 
     private readonly authenticationService : AuthenticationService = inject( AuthenticationService );
 
-    readonly permissionControl : IctuPermissionControl = new IctuPermissionControl( this.authenticationService.getUserPermission( 'hinh-thuc-dao-tao' ) );
+    readonly permissionControl : IctuPermissionControl = new IctuPermissionControl( this.authenticationService.getUserPermission( 'he-dao-tao' ) );
 
     private readonly destroy$ : Subject<void> = new Subject<void>();
 
@@ -69,7 +69,7 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
             code        : [ '' , [ Validators.required , Validators.minLength( 2 ) , Validators.maxLength( 50 ) ] ] ,
             description : [ '' ]
         } ) ,
-        objectName     : 'hình thức đào tạo' ,
+        objectName     : 'hệ đào tạo' ,
         drawer         : this.drawer
     } );
 
@@ -80,7 +80,7 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
     private readonly handleEvent : Record<DataTableEventName , ( data : TrainingMode ) => void> = {
         OPEN_FORM_ADD        : () : void => {
             if ( !this.permissionControl.canCreate ) {
-                this.notification.toastWarning( 'Bạn không có quyền thêm hình thức đào tạo' );
+                this.notification.toastWarning( 'Bạn không có quyền thêm hệ đào tạo' );
                 return;
             }
             this.f.reset( {
@@ -92,7 +92,7 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
         } ,
         OPEN_FORM_UPDATE     : ( data : TrainingMode ) : void => {
             if ( !this.permissionControl.canUpdate ) {
-                this.notification.toastWarning( 'Bạn không có quyền sửa hình thức đào tạo' );
+                this.notification.toastWarning( 'Bạn không có quyền sửa hệ đào tạo' );
                 return;
             }
             this.f.reset( {
@@ -104,14 +104,14 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
         } ,
         DELETE_SINGLE_ROW    : ( data : TrainingMode ) : void => {
             if ( !this.permissionControl.canDelete ) {
-                this.notification.toastWarning( 'Bạn không có quyền xóa hình thức đào tạo' );
+                this.notification.toastWarning( 'Bạn không có quyền xóa hệ đào tạo' );
                 return;
             }
             this.deleteRow( data );
         } ,
         DELETE_SELECTED_ROWS : () : void => {
             if ( !this.permissionControl.canDelete ) {
-                this.notification.toastWarning( 'Bạn không có quyền xóa hình thức đào tạo' );
+                this.notification.toastWarning( 'Bạn không có quyền xóa hệ đào tạo' );
                 return;
             }
             this.deleteSelectedRows();
@@ -173,7 +173,7 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
             } ,
             error : () : void => {
                 this.state.set( 'error' );
-                this.notification.toastError( 'Không tải được danh sách hình thức đào tạo' );
+                this.notification.toastError( 'Không tải được danh sách hệ đào tạo' );
             }
         } );
     }
@@ -219,11 +219,11 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
                 takeUntil( this.destroy$ )
             ).subscribe( {
                 next  : () : void => {
-                    this.notification.toastSuccess( 'Xóa hình thức đào tạo thành công' );
+                    this.notification.toastSuccess( 'Xóa hệ đào tạo thành công' );
                     this.loadData( this._temp.paged , false );
                 } ,
                 error : () : void => {
-                    this.notification.toastError( 'Xóa hình thức đào tạo thất bại' );
+                    this.notification.toastError( 'Xóa hệ đào tạo thất bại' );
                 }
             } );
         } );
@@ -246,11 +246,11 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
                 takeUntil( this.destroy$ )
             ).subscribe( {
                 next  : () : void => {
-                    this.notification.toastSuccess( `Xóa thành công ${ selected.length } hình thức đào tạo` );
+                    this.notification.toastSuccess( `Xóa thành công ${ selected.length } hệ đào tạo` );
                     this.loadData( 1 , true );
                 } ,
                 error : () : void => {
-                    this.notification.toastError( 'Xóa danh sách hình thức đào tạo thất bại' );
+                    this.notification.toastError( 'Xóa danh sách hệ đào tạo thất bại' );
                 }
             } );
         } );
@@ -259,11 +259,11 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
     submitForm () : void {
         const isFormAdd : boolean = this.formControl.isFormAdd;
         if ( isFormAdd && !this.permissionControl.canCreate ) {
-            this.notification.toastWarning( 'Bạn không có quyền thêm hình thức đào tạo' );
+            this.notification.toastWarning( 'Bạn không có quyền thêm hệ đào tạo' );
             return;
         }
         if ( !isFormAdd && !this.permissionControl.canUpdate ) {
-            this.notification.toastWarning( 'Bạn không có quyền cập nhật hình thức đào tạo' );
+            this.notification.toastWarning( 'Bạn không có quyền cập nhật hệ đào tạo' );
             return;
         }
         if ( this.f.invalid ) {
@@ -276,8 +276,8 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
         const request : Observable<any> = isFormAdd
             ? this.trainingModeService.create( value )
             : this.trainingModeService.update( this.formControl.object.id , value );
-        const messageSuccess : string = isFormAdd ? 'Thêm mới hình thức đào tạo thành công' : 'Cập nhật hình thức đào tạo thành công';
-        const messageError : string = isFormAdd ? 'Thêm mới hình thức đào tạo thất bại' : 'Cập nhật hình thức đào tạo thất bại';
+        const messageSuccess : string = isFormAdd ? 'Thêm mới hệ đào tạo thành công' : 'Cập nhật hệ đào tạo thành công';
+        const messageError : string = isFormAdd ? 'Thêm mới hệ đào tạo thất bại' : 'Cập nhật hệ đào tạo thất bại';
 
         this.formControl.submit( request ).pipe(
             takeUntil( this.destroy$ )

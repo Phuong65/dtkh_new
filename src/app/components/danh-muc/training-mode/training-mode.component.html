@@ -4,14 +4,14 @@
     }
     <div class="admin-wrap-table">
         @if (!permissionControl.canView) {
-            <div class="admin-table__alert-danger text-center w-100">Bạn không có quyền xem danh sách hình thức đào tạo.</div>
+            <div class="admin-table__alert-danger text-center w-100">Bạn không có quyền xem danh sách hệ đào tạo.</div>
         } @else if (state() !== 'error') {
             <div class="admin-wrap-table__head d-flex">
                 <h4 class="admin-wrap-table__heading">
                     <svg>
                         <use href="fonts/custom-icon.svg#custom-folder-open-2"></use>
                     </svg>
-                    Danh sách hình thức đào tạo
+                    Danh sách hệ đào tạo
                 </h4>
                 <div class="admin-wrap-table__head-actions">
                     <input [(ngModel)]="_search" class="admin-wrap-table__head-actions__search" pInputText placeholder="Tìm kiếm..." type="text" (keyup.enter)="onSearchData()">
@@ -21,7 +21,7 @@
                         </button>
                     }
                     @if (permissionControl.canCreate) {
-                        <button (click)="addNewItem()" mat-flat-button class="btn ictu-badge-btn--success-reverse" aria-label="Thêm hình thức đào tạo">
+                        <button (click)="addNewItem()" mat-flat-button class="btn ictu-badge-btn--success-reverse" aria-label="Thêm hệ đào tạo">
                             <i class="ti ti-plus"></i>
                         </button>
                     }
@@ -31,27 +31,34 @@
                 <table class="tbl admin-table table-hover">
                     <thead>
                         <tr>
-                            <th class="col-checkbox">
-                                <mat-checkbox [checked]="dataTable.totalChecked()" [indeterminate]="dataTable.partiallyChecked()" (change)="dataTable.selectRow($event.checked)" [disabled]="!dataTable.data().length"></mat-checkbox>
-                            </th>
+                            @if (permissionControl.canDelete){
+                                <th class="col-checkbox">
+                                    <mat-checkbox [checked]="dataTable.totalChecked()" [indeterminate]="dataTable.partiallyChecked()" (change)="dataTable.selectRow($event.checked)" [disabled]="!dataTable.data().length"></mat-checkbox>
+                                </th>
+                            }
                             <th class="col-index text-center">#</th>
-                            <th class="wid-150 text-center">Mã hình thức</th>
-                            <th class="text-left">Tên hình thức đào tạo</th>
-                            <th class="text-left">Mô tả</th>
-                            <th class="wid-90 text-center px-0">Hành động</th>
+                            <th class="wid-150 text-center">Mã hệ đào tạo</th>
+                            <th class="wid-250 text-center">Tên hệ đào tạo</th>
+                            <th class="text-center">Mô tả</th>
+                            @if (permissionControl.canUpdate || permissionControl.canDelete){
+                                <th class="wid-90 text-center px-0">Hành động</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
                         @for (row of dataTable.data(); track row.id; let i = $index) {
                             <tr>
-                                <td class="col-checkbox">
-                                    <mat-checkbox [checked]="row._ictuDataTableRowChecked" (change)="dataTable.selectRow($event.checked, i)"></mat-checkbox>
-                                </td>
+                                @if (permissionControl.canDelete){
+                                    <td class="col-checkbox">
+                                        <mat-checkbox [checked]="row._ictuDataTableRowChecked" (change)="dataTable.selectRow($event.checked, i)"></mat-checkbox>
+                                    </td>
+                                }
                                 <td class="col-index text-center">{{ dataTable.paginator.startIndex() + i }}</td>
                                 <td class="wid-150 text-center">{{ row.code }}</td>
                                 <td class="text-left font-weight-500">{{ row.name }}</td>
                                 <td class="text-left">{{ row.description || '—' }}</td>
-                                <td class="p-0 wid-90">
+                                @if (permissionControl.canUpdate || permissionControl.canDelete) {
+                                    <td class="p-0 wid-90">
                                     <div class="admin-table__btn-actions">
                                         @if (permissionControl.canUpdate) {
                                             <button (click)="editRow(row)" class="btn ictu-button-info-light" aria-label="Sửa">
@@ -65,6 +72,7 @@
                                         }
                                     </div>
                                 </td>
+                                }
                             </tr>
                         } @empty {
                             <tr>
@@ -99,12 +107,12 @@
                     <form [formGroup]="formControl.formGroup">
                         <div class="ictu-form ictu-form--label-on-top">
                             <div class="ictu-form__row">
-                                <label class="ictu-form__label ictu-form__label--required" for="f_name">Tên hình thức đào tạo</label>
-                                <input class="ictu-form__input-field" formControlName="name" id="f_name" pInputText placeholder="Nhập tên hình thức đào tạo" type="text">
+                                <label class="ictu-form__label ictu-form__label--required" for="f_name">Tên hệ đào tạo</label>
+                                <input class="ictu-form__input-field" formControlName="name" id="f_name" pInputText placeholder="Nhập tên hệ đào tạo" type="text">
                             </div>
                             <div class="ictu-form__row">
-                                <label class="ictu-form__label ictu-form__label--required" for="f_code">Mã hình thức</label>
-                                <input class="ictu-form__input-field" formControlName="code" id="f_code" pInputText placeholder="Nhập mã hình thức" type="text" style="text-transform: uppercase;">
+                                <label class="ictu-form__label ictu-form__label--required" for="f_code">Mã hệ</label>
+                                <input class="ictu-form__input-field" formControlName="code" id="f_code" pInputText placeholder="Nhập mã hệ" type="text" style="text-transform: uppercase;">
                             </div>
                             <div class="ictu-form__row">
                                 <label class="ictu-form__label" for="f_description">Mô tả</label>

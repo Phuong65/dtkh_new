@@ -22,11 +22,11 @@
                             <th class="col-checkbox"><mat-checkbox [checked]="dataTable.totalChecked()" [indeterminate]="dataTable.partiallyChecked()" (change)="dataTable.selectRow($event.checked)" [disabled]="!dataTable.data().length"></mat-checkbox></th>
                             <th class="col-index text-center">#</th>
                             <th class="wid-130 text-center">Mã học viên</th>
-                            <th class="text-left">Họ và tên</th>
+                            <th class="wid-200 text-center">Họ và tên</th>
                             <th class="wid-120 text-center">Ngày sinh</th>
                             <th class="wid-90 text-center">Giới tính</th>
-                            <th class="text-left">Tài khoản</th>
-                            <th class="text-left">Email</th>
+                            <th class="text-center">Tài khoản</th>
+                            <th class="text-center">Email</th>
                             <th class="wid-130 text-center">Điện thoại</th>
                             <th class="wid-120 text-center">Trạng thái</th>
                             <th class="wid-90 text-center px-0">Hành động</th>
@@ -37,8 +37,8 @@
                             <tr>
                                 <td class="col-checkbox"><mat-checkbox [checked]="row._ictuDataTableRowChecked" (change)="dataTable.selectRow($event.checked, i)"></mat-checkbox></td>
                                 <td class="col-index text-center">{{ dataTable.paginator.startIndex() + i }}</td>
-                                <td class="wid-130 text-center">{{ row.student_code || '—' }}</td>
-                                <td class="text-left font-weight-500">{{ row.full_name || '—' }}</td>
+                                <td class="wid-200 text-left">{{ row.student_code || '—' }}</td>
+                                <td class="text-left fw-500">{{ row.full_name || '—' }}</td>
                                 <td class="wid-120 text-center">{{ row.birthday || '—' }}</td>
                                 <td class="wid-90 text-center">{{ row.reGender || row.gender || '—' }}</td>
                                 <td class="text-left">{{ row.username || '—' }}</td>
