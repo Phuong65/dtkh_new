@@ -11,13 +11,16 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { IctuPaginatorComponent } from '@theme/components/ictu-paginator/ictu-paginator.component';
 import { LoadingProgressComponent } from '@theme/components/loading-progress/loading-progress.component';
 import { DonVi , NganhBomon } from '@models/danh-muc';
+import { TrainingMode } from '@models/training-mode';
 import { DanhMucService } from '@services/danh-muc.service';
 import { NotificationService } from '@services/notification.service';
+import { TrainingModeService } from '@services/training-mode.service';
 import { DataTableEvent , DataTableEventName , IctuDataTable2 , IctuDataTablePaginatorInfo } from '@models/datatable';
 import { IctuFormControl2 } from '@models/ictu-form-control';
 import { AppState } from '@models/app-state';
 import { DtoObject } from '@models/dto';
-import { forkJoin , Observable , Subject , takeUntil } from 'rxjs';
+import { Helper } from '@utilities/helper';
+import { catchError , forkJoin , map , Observable , of , Subject , takeUntil } from 'rxjs';
 
 @Component( {
     selector    : 'app-nganh-bomon' ,
@@ -45,6 +48,8 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
 
     private readonly danhMucService : DanhMucService = inject( DanhMucService );
 
+    private readonly trainingModeService : TrainingModeService = inject( TrainingModeService );
+
     private readonly notification : NotificationService = inject( NotificationService );
 
     private readonly destroy$ : Subject<void> = new Subject<void>();
@@ -56,11 +61,13 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
     readonly drawer : Signal<Drawer> = viewChild<Drawer>( 'pDrawer' );
 
     readonly dataTable : IctuDataTable2<NganhBomon> = new IctuDataTable2<NganhBomon>( {
-        rows         : 15 ,
+        rows         : 20 ,
         pageLinkSize : 5
     } );
 
     dmDonviChuyenmon : DonVi[] = [];
+
+    dmTrainingMode : TrainingMode[] = [];
 
     selectedDonviId : number | null = null;
 
@@ -71,6 +78,7 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
             code               : [ '' , [ Validators.required , Validators.minLength( 2 ) , Validators.maxLength( 50 ) ] ] ,
             slug               : [ '' , [ Validators.required ] ] ,
             donvi_chuyenmon_id : [ null , [ Validators.required ] ] ,
+            training_mode_id   : [ null , [ Validators.required ] ] ,
             desc               : [ '' ] ,
             ordering           : [ 1000 ] ,
             status             : [ 1 ] ,
@@ -93,6 +101,7 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
                 code               : '' ,
                 slug               : '' ,
                 donvi_chuyenmon_id : this.selectedDonviId || ( this.dmDonviChuyenmon[ 0 ]?.id ?? null ) ,
+                training_mode_id   : null ,
                 desc               : '' ,
                 ordering           : 1000 ,
                 status             : 1 ,
@@ -105,8 +114,9 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
             this.f.reset( {
                 title              : data.title ,
                 code               : data.code ,
-                slug               : data.slug || '' ,
+                slug               : Helper.removeAccents( data.title || '' ) ,
                 donvi_chuyenmon_id : data.donvi_chuyenmon_id ,
+                training_mode_id   : data.training_mode_id ?? null ,
                 desc               : data.desc || '' ,
                 ordering           : data.ordering ?? 1000 ,
                 status             : data.status ?? 1 ,
@@ -114,6 +124,7 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
             } );
             this.slugIsValid = true;
             this.formControl.openFormEdit( data );
+            this.checkSlug().subscribe();
         } ,
         DELETE_SINGLE_ROW    : ( data : NganhBomon ) : void => {
             this.deleteRow( data );
@@ -146,11 +157,15 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
     }
 
     private loadDonViAndData () : void {
-        this.danhMucService.getDonViList().pipe(
+        forkJoin( {
+            donVi          : this.danhMucService.getDonViList() ,
+            trainingModes  : this.trainingModeService.query( [] , { limit : -1 , orderby : 'name' , order : 'ASC' } )
+        } ).pipe(
             takeUntil( this.destroy$ )
         ).subscribe( {
-            next : ( list : DonVi[] ) : void => {
-                this.dmDonviChuyenmon = list;
+            next : ( { donVi , trainingModes } : { donVi : DonVi[] ; trainingModes : DtoObject<TrainingMode[]> } ) : void => {
+                this.dmDonviChuyenmon = donVi;
+                this.dmTrainingMode = trainingModes.data || [];
                 this.loadData( 1 , true );
             } ,
             error : () : void => {
@@ -169,7 +184,8 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
             next  : ( response : DtoObject<NganhBomon[]> ) : void => {
                 const mappedData : NganhBomon[] = ( response.data || [] ).map( ( item : NganhBomon ) : NganhBomon => ( {
                     ...item ,
-                    khoa : this.dmDonviChuyenmon.find( ( u : DonVi ) : boolean => u.id === item.donvi_chuyenmon_id )?.title || ''
+                    khoa           : this.dmDonviChuyenmon.find( ( u : DonVi ) : boolean => u.id === item.donvi_chuyenmon_id )?.title || '' ,
+                    training_mode  : this.dmTrainingMode.find( ( t : TrainingMode ) : boolean => t.id === item.training_mode_id )?.name || '—'
                 } ) );
                 this.dataTable.fillRawData( { ...response , data : mappedData } , { paged , resetPaginator } );
                 this.state.set( 'success' );
@@ -211,29 +227,29 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
 
     onChangeTitle () : void {
         const title : string = ( this.f.get( 'title' )?.value || '' ).trim();
-        if ( !title ) {
-            return;
-        }
-        const slug : string = this.slugify( title );
+        const slug : string = Helper.removeAccents( title );
         this.f.get( 'slug' )?.setValue( slug );
-        this.checkSlug( slug );
+        this.checkSlug( slug ).subscribe();
     }
 
-    checkSlug ( slug? : string ) : void {
+    checkSlug ( slug? : string ) : Observable<boolean> {
         const value : string = ( slug || this.f.get( 'slug' )?.value || '' ).trim();
         if ( !value ) {
             this.slugIsValid = true;
-            return;
+            return of( true );
         }
         const excludeId : number | undefined = this.formControl.isFormEdit && this.formControl.object ? this.formControl.object.id : undefined;
-        this.danhMucService.checkNganhBomonSlugExists( value , 'nganh' , excludeId ).subscribe( {
-            next  : ( exists : boolean ) : void => {
+        return this.danhMucService.checkNganhBomonSlugExists( value , 'nganh' , excludeId ).pipe(
+            takeUntil( this.destroy$ ) ,
+            map( ( exists : boolean ) : boolean => {
                 this.slugIsValid = !exists;
-            } ,
-            error : () : void => {
+                return this.slugIsValid;
+            } ) ,
+            catchError( () : Observable<boolean> => {
                 this.slugIsValid = true;
-            }
-        } );
+                return of( true );
+            } )
+        );
     }
 
     deleteRow ( row : NganhBomon ) : void {
@@ -276,33 +292,41 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
     }
 
     submitForm () : void {
-        if ( this.f.invalid || !this.slugIsValid ) {
+        const title : string = ( this.f.get( 'title' )?.value || '' ).trim();
+        const slug : string = Helper.removeAccents( title );
+        this.f.get( 'slug' )?.setValue( slug );
+
+        if ( this.f.invalid ) {
             this.f.markAllAsTouched();
             this.notification.toastWarning( 'Vui lòng kiểm tra lại thông tin' );
             return;
         }
 
-        const value : Partial<NganhBomon> = this.f.getRawValue();
-        const request : Observable<any> = this.formControl.isFormAdd
-            ? this.danhMucService.createNganhBomon( value )
-            : this.danhMucService.updateNganhBomon( this.formControl.object.id , value );
-
-        const messageSuccess : string = this.formControl.isFormAdd ? 'Thêm mới ngành thành công' : 'Cập nhật ngành thành công';
-        const messageError : string = this.formControl.isFormAdd ? 'Thêm mới ngành thất bại' : 'Cập nhật ngành thất bại';
-
-        this.formControl.submit( request ).subscribe( {
-            next  : () : void => {
-                this.notification.toastSuccess( messageSuccess );
-                this.formControl.closeForm();
-                this.loadData( this._temp.paged , this.formControl.isFormAdd );
-            } ,
-            error : () : void => {
-                this.notification.toastError( messageError );
+        this.checkSlug( slug ).subscribe( ( isValid : boolean ) : void => {
+            if ( !isValid ) {
+                this.notification.toastWarning( 'Tên ngành đã tồn tại trong hệ thống' );
+                return;
             }
+
+            const value : Partial<NganhBomon> = this.f.getRawValue();
+            const request : Observable<any> = this.formControl.isFormAdd
+                ? this.danhMucService.createNganhBomon( value )
+                : this.danhMucService.updateNganhBomon( this.formControl.object.id , value );
+
+            const messageSuccess : string = this.formControl.isFormAdd ? 'Thêm mới ngành thành công' : 'Cập nhật ngành thành công';
+            const messageError : string = this.formControl.isFormAdd ? 'Thêm mới ngành thất bại' : 'Cập nhật ngành thất bại';
+
+            this.formControl.submit( request ).subscribe( {
+                next  : () : void => {
+                    this.notification.toastSuccess( messageSuccess );
+                    this.formControl.closeForm();
+                    this.loadData( this._temp.paged , this.formControl.isFormAdd );
+                } ,
+                error : () : void => {
+                    this.notification.toastError( messageError );
+                }
+            } );
         } );
     }
 
-    private slugify ( value : string ) : string {
-        return value.normalize( 'NFD' ).replace( /[̀-ͯ]/g , '' ).toLowerCase().replace( /đ/g , 'd' ).replace( /[^a-z0-9]+/g , '-' ).replace( /(^-|-$)/g , '' );
-    }
 }

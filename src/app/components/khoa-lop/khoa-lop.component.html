@@ -1,406 +1,150 @@
-<div class="layout_component_container" [ngClass]="closeLeft?'close-left-body':''">
-    <div class="layout_component_container-course" style="position: relative;">
-        <button style="margin-left: 5px; padding: 0; min-width: 0; z-index: 50;" (click)="closeLeftBody()"
-                class="btn btn-success button-close-left-body">
-            <i style="margin: 0;vertical-align: middle; font-size: 13px;"
-               [ngClass]="closeLeft?'pi pi-angle-double-right':'pi pi-angle-double-left'"></i>
-        </button>
-        <div class="search-layout">
-            <div style="margin-top: 5px;">
-                <ovic-dropdown (onChange)="onChangeFilterChuyenmon($event)" placeholder="--- chọn khoa ---"
-                               [options]="listDonvi" optionId="id" optionLabel="title" [filter]="true"
-                               [showClear]="false"
-                               [defaultValue]="categoryFilter" filterBy="title">
-                </ovic-dropdown>
-            </div>
-        </div>
-        <div class="list-course-layout">
-            <ng-container *ngIf="listKhoa && listKhoa.length>0 else notKhoa">
-                <div class="khoa-conponent">
-                    <div class="khoa-item" *ngFor="let item of listKhoa"
-                         [ngClass]="khoaSelect_id === item.khoa ? 'active':'' " (click)="btnSelectKhoa(item)">
-                        <div>{{ item['__khoaConvert'] }}</div>
-                    </div>
+<section class="admin-section--table position-relative">
+    @if (state() === 'loading') {
+        <app-loading-progress heading="Loading..." backdropFilter="none"></app-loading-progress>
+    }
+    <div class="admin-wrap-table">
+        @if (state() !== 'error') {
+            <div class="admin-wrap-table__head d-flex">
+                <h4 class="admin-wrap-table__heading">
+                    <svg>
+                        <use href="fonts/custom-icon.svg#custom-folder-open-2"></use>
+                    </svg>
+                    Danh sách lớp quản lý
+                </h4>
+                <div class="admin-wrap-table__head-actions">
+                    <p-select
+                        [options]="listDonVi"
+                        [(ngModel)]="selectedDonViId"
+                        optionLabel="title"
+                        optionValue="id"
+                        placeholder="-- Tất cả khoa --"
+                        [showClear]="true"
+                        (onChange)="onChangeFilter()"
+                    ></p-select>
+                    <p-select
+                        [options]="listKhoa"
+                        [(ngModel)]="selectedKhoa"
+                        placeholder="-- Tất cả khóa --"
+                        [showClear]="true"
+                        (onChange)="onChangeFilter()"
+                    ></p-select>
+                    <p-select
+                        [options]="listNganh"
+                        [(ngModel)]="selectedNganhId"
+                        optionLabel="title"
+                        optionValue="id"
+                        placeholder="-- Tất cả ngành --"
+                        [showClear]="true"
+                        (onChange)="onChangeFilter()"
+                    ></p-select>
+                    <input [(ngModel)]="_search" class="admin-wrap-table__head-actions__search" pInputText placeholder="Tìm kiếm..." type="text" (keyup.enter)="onSearchData()">
+                    <button (click)="deleteSelectedRows()" [disabled]="!dataTable.someItemsChecked()" class="btn ictu-button-danger-gradient" mat-flat-button aria-label="Xóa các lớp đã chọn">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                    <button (click)="addNewItem()" mat-flat-button class="btn ictu-badge-btn--success-reverse" aria-label="Thêm lớp quản lý">
+                        <i class="ti ti-plus"></i>
+                    </button>
                 </div>
-
-            </ng-container>
-            <ng-template #notKhoa>
-                <div class="d-flex justify-content-center align-items-center h-100">Chưa có khóa học nào</div>
-            </ng-template>
-        </div>
-        <!--        <div class="page-layout-set">-->
-        <!--            <p-paginator #paginator (onPageChange)="changePage($event)" [rows]="limitCourse"-->
-        <!--                         [totalRecords]="totalCourse"></p-paginator>-->
-        <!--        </div>-->
-
-    </div>
-    <div class="layout_component_container-noidung view-class">
-        <div class="view-class_top">
-            <div style="margin-top: 5px;gap:5px;" class="d-flex">
-                <ovic-dropdown (onChange)="onChangeNganh($event)" placeholder="--- chọn ngành học ---"
-                               [options]="listNganhBoMon" optionId="id" optionLabel="title" [filter]="true"
-                               [showClear]="false"
-                               [defaultValue]="nganh_bomon_id" [filterBy]="'title'">
-                </ovic-dropdown>
-<!--                <ovic-dropdown (onChange)="onChangeClass($event)" placeholder="-&#45;&#45; chọn lớp quản lý -&#45;&#45;"-->
-<!--                               [options]="listClassManagement" optionId="id" optionLabel="title" [filter]="true"-->
-<!--                               [showClear]="false"-->
-<!--                               [defaultValue]="categoryFilter" [filterBy]="'title'">-->
-<!--                </ovic-dropdown>-->
-
             </div>
-
-            <div style="margin-top: 5px;">
-<!--                <button pButton pRipple icon="pi pi-file-import" label="Import sinh viên " class="p-button-warning mx-2"></button>-->
-                <button pButton pRipple icon="pi pi-plus" label="Thêm lớp QL" class="p-button-success"
-                        (click)="btnOpenFormAdd()"></button>
-            </div>
-
-
-        </div>
-        <div class="view-class_body">
-            <p-table [value]="listClassManagement" styleClass=" tbl-danhSachUser table-scroll-able ovic-ui-table table-border table-able-dropdown-p-table table-none-header">
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th class="text-center ovic-w-50">STT</th>
-                        <th class="text-center ">Mã lớp quản lý</th>
-                        <th class="text-center ">Tên lớp quản lý</th>
-                        <th class="text-center ovic-w-150">Ngành</th>
-                        <th class="text-center ovic-w-100">Số sinh viên</th>
-                        <th class="text-center ovic-w-100">Thao tác</th>
-
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-row>
-                    <tr>
-                        <td class="text-center">{{ row['_index'] }}</td>
-                        <td class="text-center">{{ row['kyhieu'] }}</td>
-                        <td class="text-left">{{ row['title'] }}</td>
-                        <td class="text-center">{{ row['_nganh_converted'] }}</td>
-                        <td class="text-center">{{ row['_totalStudent'] }}</td>
-                        <td class="text-center">
-                                <button pButton pRipple icon="pi pi-file-edit" pTooltip="Cập nhật"
-                                    (click)="btnEditRow(row)"></button>
-                                <button class="ml-1 p-button-success" pButton pRipple icon="pi pi-users" pTooltip="Danh sách sinh viên"
-                                        (click)="btnViewStudentByClassManagement(row)"></button>
-                                <button class="ml-1 p-button-warning" pButton pRipple icon="pi pi-user-plus" pTooltip="Thêm sinh viên vào lớp quản lý"
-                                        (click)="btnViewAddStudentByClass(row)"></button>
-
-                        </td>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="emptymessage">
-                    <tr>
-                        <td colspan="20">Chưa có dữ liệu lớp quản lý</td>
-                    </tr>
-                </ng-template>
-            </p-table>
-
-
-<!--            <p-table [value]="listStudentByClass" styleClass="tbl-danhSachUser">-->
-<!--                <ng-template pTemplate="header">-->
-<!--                    <tr>-->
-<!--                        <th class="text-center ovic-w-50">STT</th>-->
-<!--                        <th class="text-center ">Mã sinh viên</th>-->
-<!--                        <th class="text-center ">Họ và tên</th>-->
-<!--                        <th class="text-center ovic-w-150">Ngày sinh</th>-->
-<!--                        <th class="text-center ovic-w-100">Giới tính</th>-->
-
-<!--                    </tr>-->
-<!--                </ng-template>-->
-<!--                <ng-template pTemplate="body" let-row>-->
-<!--                    <tr>-->
-<!--                        <td class="text-center">{{ row['__index'] }}</td>-->
-<!--                        <td class="text-center">{{ row['student_code'] }}</td>-->
-<!--                        <td class="text-left">{{ row['full_name'] }}</td>-->
-<!--                        <td class="text-center">{{ row['birthday'] }}</td>-->
-<!--                        <td class="text-center">{{ row['gender'] }}</td>-->
-<!--                    </tr>-->
-<!--                </ng-template>-->
-<!--                <ng-template pTemplate="emptymessage">-->
-<!--                    <tr><td colspan="20">Chưa có dữ liệu sinh viên</td></tr>-->
-<!--                </ng-template>-->
-<!--            </p-table>-->
-        </div>
-<!--        <div class="view-class_bottom">-->
-<!--            <p-paginator (onPageChange)="changePage($event)" [rows]="row"-->
-<!--                         [totalRecords]="recordsFiltered"></p-paginator>-->
-<!--        </div>-->
-    </div>
-</div>
-
-
-<ng-template #formInfo let-c="close" let-d="dismiss">
-    <div class="ovic-over-right-section">
-        <div class="ovic-over-right-section__head">
-            <h3 class="ovic-over-right-section__header">Thêm mới lớp quản lý </h3>
-            <button class="btn ovic-over-right-section__close-button" (click)="closeForm()"></button>
-        </div>
-        <div class="ovic-over-right-section__body users-layout-form" style="height: calc(100vh - 57px - 51px - 18px);">
-            <div class="ovic-vertical__inputs">
-                <form [formGroup]="form">
-                    <div class="form-row">
-                        <label>Khoa <span class="ovic-mark">*</span></label>
-                        <ovic-dropdown [options]="listDonvi" (onChange)="onchageDonviByForm($event)" [filter]="true"
-                                       optionId="id" optionLabel="title" [formField]="f['donvi_id']"
-                                       placeholder="--------- Chọn khoa ---------" [filterBy]="'title'"
-                                       [showClear]="false"></ovic-dropdown>
-                    </div>
-                    <div class="form-row">
-                        <label>Ngành học <span class="ovic-mark">*</span></label>
-                        <ovic-dropdown [options]="listNganhBoMonByForm" [defaultValue]="f['nganh_id'].value"
-                                       optionId="id" optionLabel="title" [formField]="f['nganh_id']"
-                                       placeholder="--------- Chọn ngành học ---------" [filterBy]="'title'"
-                                       [showClear]="false"></ovic-dropdown>
-                    </div>
-
-                    <div class="row mx-0 mt-2">
-                        <div class="col-4 p-0">
-                            <div class="form-row">
-                                <label>Khóa <span class="ovic-mark">*</span></label>
-                                <input type="number" formControlName="khoa" placeholder="vd:20,22,...">
-                            </div>
-                        </div>
-                        <div class="col-8 pr-0">
-                            <div class="form-row">
-                                <label>Tùy chọn tạo lớp <span class="ovic-mark">*</span></label>
-                                <div class="khoalop-listRadio">
-                                    <div *ngFor="let item of listTaotudong">
-                                        <p-radioButton formControlName="taotudong"
-                                                       [inputId]="item.value.toString()"
-                                                       [label]="item.title"
-                                                       [value]="item.value"
-                                                       (onClick)="btnChangeRadioInput($event)"
-                                        ></p-radioButton>
+            <div class="admin-wrap-table__body">
+                <table class="tbl admin-table table-hover">
+                    <thead>
+                        <tr>
+                            <th class="col-checkbox">
+                                <mat-checkbox [checked]="dataTable.totalChecked()" [indeterminate]="dataTable.partiallyChecked()" (change)="dataTable.selectRow($event.checked)" [disabled]="!dataTable.data().length"></mat-checkbox>
+                            </th>
+                            <th class="col-index text-center">#</th>
+                            <th class="wid-130 text-center">Ký hiệu</th>
+                            <th class="text-left">Tên lớp quản lý</th>
+                            <th class="wid-120 text-center">Khóa</th>
+                            <th class="text-left">Ngành</th>
+                            <th class="text-left">Khoa</th>
+                            <th class="wid-90 text-center px-0">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (row of dataTable.data(); track row.id; let i = $index) {
+                            <tr>
+                                <td class="col-checkbox">
+                                    <mat-checkbox [checked]="row._ictuDataTableRowChecked" (change)="dataTable.selectRow($event.checked, i)"></mat-checkbox>
+                                </td>
+                                <td class="col-index text-center">{{ dataTable.paginator.startIndex() + i }}</td>
+                                <td class="wid-130 text-center">{{ row.kyhieu || '—' }}</td>
+                                <td class="text-left font-weight-500">{{ row.title }}</td>
+                                <td class="wid-120 text-center">{{ row.khoa }}</td>
+                                <td class="text-left">{{ row._nganh_converted || '—' }}</td>
+                                <td class="text-left">{{ row._donvi_converted || '—' }}</td>
+                                <td class="p-0 wid-90">
+                                    <div class="admin-table__btn-actions">
+                                        <button (click)="editRow(row)" class="btn ictu-button-info-light" aria-label="Sửa">
+                                            <i class="ti ti-edit"></i>
+                                        </button>
+                                        <button (click)="deleteRow(row)" class="btn ictu-button-danger-light" aria-label="Xóa">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <ng-container *ngIf="f['taotudong'].value == 1">
-                        <div class="row mx-0 mt-2">
-                            <div class="col-6 px-0">
-                                <div class="form-row">
-                                    <label>Số lượng lớp <span class="ovic-mark">*</span></label>
-                                    <input class="w-100" type="number" placeholder="vd: 2,3,..."
-                                           formControlName="soluonglop">
-                                </div>
-                            </div>
-                            <div class="col-6 pr-0">
-                                <div class="form-row">
-                                    <label>Ký hiệu lớp <span class="ovic-mark">*</span></label>
-                                    <input class="w-100" type="text" placeholder="vd: CNTT, QTKD,..." formControlName="tiento">
-                                </div>
-
-                            </div>
-                        </div>
-
-
-                    </ng-container>
-                    <ng-container *ngIf="f['taotudong'].value == 0">
-
-                        <div class="row mx-0 mt-2">
-                            <div class="col-8 p-0">
-                                <div class="form-row">
-                                    <label>Tiền tố tên lớp <span class="ovic-mark">*</span></label>
-                                    <input type="text" formControlName="tiento"
-                                           placeholder="vd: CNTT, Công nghệ thông tin,...">
-                                </div>
-                            </div>
-                            <div class="col-4 pr-0">
-                                <div class="form-row">
-                                    <label>Hậu tố tên lớp </label>
-                                    <input type="text" formControlName="hauto" placeholder="vd: A, B,..."  (keypress)="onlyLetters($event)">
-                                </div>
-                            </div>
-                        </div>
-                        <div *ngIf="nameClassNewCreat" class="form-row mt-2">
-                            <label>Tên lớp theo Fomr:</label>
-                            <div class="view-nameClass">
-                                {{nameClassNewCreat}}
-                            </div>
-                        </div>
-
-                    </ng-container>
-
-
-
-                </form>
-
-                <div class="khoalop-ghichu ">
-                    <span><strong>Lưu ý:</strong></span>
-                    <span class="mt-1">- Tiền tố thường là ký hiệu viết tắt của ngành học (Vd: CNTT; KTQT; ...)</span>
-                    <span> - Hậu tố thường là các chứ cái từ A => Z thể hiển nhiều lớp (Trường hợp chỉ có 1 lớp duy nhất thì hậu tố để trống)</span>
-                    <span> - Trường hợp tạo lớp từ động thì hậu tố sẽ tự động điền khi số lớp nhiều hơn 1</span>
+                                </td>
+                            </tr>
+                        } @empty {
+                            <tr>
+                                <td colspan="8" class="text-center p-3">Không có bản ghi nào.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="admin-wrap-table__foot">
+                <div class="d-flex justify-content-center align-items-center w-100">
+                    <ictu-paginator [control]="dataTable.paginator" (onChangePage)="onChangePage($event)"></ictu-paginator>
                 </div>
             </div>
-        </div>
-        <p class="ovic-form-notes ovic-over-right-section__foot-ovic-input-line">
-            <i class="pi pi-info-circle"></i>các trường có đánh dấu ( <span class="ovic-mark">*</span> ) là bắt
-            buộc phải nhập
-        </p>
-        <div class="ovic-over-right-section__foot-wrap-buttons flex-footer-right">
-            <button type="button" class="btn btn-primary" (click)="saveFormData()">
-                <i class="fa fa-floppy-o" ></i>Lưu lại
-            </button>
-            <button type="button" class="btn btn-cancel" (click)="closeForm()">
-                <i class="fa fa-ban" ></i>Hủy thao tác
-            </button>
-        </div>
-    </div>
-</ng-template>
-
-
-<ng-template #formViewStudent>
-    <div class="ovic-over-right-section">
-        <div class="ovic-over-right-section__head">
-            <h3 class="ovic-over-right-section__header">Danh sách sinh viên lớp {{classManagementSelect ? classManagementSelect.title:''}} </h3>
-            <button class="btn ovic-over-right-section__close-button" (click)="closeForm()"></button>
-        </div>
-        <div class="ovic-over-right-section__body users-layout-form" style="height: calc(100vh - 57px - 51px - 18px);">
-            <p-table [value]="listStudentByClass" styleClass="tbl-danhSachUser table-border">
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th class="text-center ovic-w-50">STT</th>
-                        <th class="text-center ">Mã sinh viên</th>
-                        <th class="text-center ">Họ và tên</th>
-                        <th class="text-center ovic-w-150">Ngày sinh</th>
-                        <th class="text-center ovic-w-100">Giới tính</th>
-
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-row>
-                    <tr>
-                        <td class="text-center">{{ row['__index'] }}</td>
-                        <td class="text-center">{{ row['student_code'] }}</td>
-                        <td class="text-left">{{ row['full_name'] }}</td>
-                        <td class="text-center">{{ row['birthday'] }}</td>
-                        <td class="text-center">{{ row['gender'] }}</td>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="emptymessage">
-                    <tr>
-                        <td colspan="20">Chưa có dữ liệu sinh viên</td>
-                    </tr>
-                </ng-template>
-            </p-table>
-        </div>
-<!--        <p class="ovic-form-notes ovic-over-right-section__foot-ovic-input-line">-->
-<!--            <i class="pi pi-info-circle"></i>các trường có đánh dấu ( <span class="ovic-mark">*</span> ) là bắt-->
-<!--            buộc phải nhập-->
-<!--        </p>-->
-        <div class="ovic-over-right-section__foot-wrap-buttons flex-footer-center">
-            <p-paginator (onPageChange)="changePage($event)" [rows]="row" [totalRecords]="recordsFiltered"></p-paginator>
-        </div>
-    </div>
-</ng-template>
-<ng-template #formAddStudent>
-    <div class="ovic-over-right-section --no-footer">
-        <div class="ovic-over-right-section__head">
-            <h3 class="ovic-over-right-section__header">{{classManagementSelect ? classManagementSelect.title:''}} - Thêm sinh viên </h3>
-            <button class="btn ovic-over-right-section__close-button" (click)="closeForm()"></button>
-        </div>
-        <div class="ovic-over-right-section__body users-layout-form" style="height: calc(100vh - 57px);">
-            <div class="add-container">
-                <div class="add-top">
-                    <input type="text" placeholder="Nhập mã SV và enter để tìm kiếm" (keyup.enter)="searchStudent($event['target']['value'])">
-                </div>
-                <div class="add-body">
-                    <ng-container *ngIf="listStudentByFormAdd.length>0 else notData">
-                        <div class="add-listStudent">
-                            <div class="item-list" *ngFor="let item of listStudentByFormAdd">
-                                <div class="item-left">
-                                    <span class="name" >{{item.full_name}}</span>
-                                    <span class="code" >Mã sinh viên: <strong>{{item.student_code}}</strong></span>
-                                    <span class="khoa" >Khóa: <strong>{{'K' + item['khoadaotao']}}</strong></span>
-                                    <span class="tenlop"  [ngClass]="!item['_tenlop'] ? 'not-class' : '' ">Lớp quản lý : <strong>{{item['_tenlop'] ? item['_tenlop']: 'Chưa thuộc lớp quản lý '}}</strong></span>
-                                </div>
-                                <div class="item-right">
-                                    <button pButton pRipple  [label]="!item['_tenlop'] ? 'Thêm lớp quản lý' : 'Thay đổi lớp quản lý'" (click)="btnAddStudentByClass(item)"></button>
-                                </div>
-                            </div>
-                        </div>
-                    </ng-container>
-                    <ng-template #notData>
-                        <div class="d-flex justify-content-center align-items-center h-100" style="font-size:14px;">Không có dữ liệu</div>
-                    </ng-template>
-                </div>
-
+        } @else {
+            <div class="admin-table__alert-danger text-center w-100">
+                Tải dữ liệu thất bại. Vui lòng chọn
+                <a (click)="reload($event)" href="javascript:" class="admin-table__alert-danger__btn-reload">tải lại</a>
             </div>
-
-
-        </div>
-
+        }
     </div>
-</ng-template>
+</section>
 
-<ng-template #formEditManagevent>
-        <div class="ovic-over-right-section">
-            <div class="ovic-over-right-section__head">
-                <h3 class="ovic-over-right-section__header">Cập nhật lớp quản lý </h3>
-                <button class="btn ovic-over-right-section__close-button" (click)="closeForm()"></button>
-            </div>
-            <div class="ovic-over-right-section__body users-layout-form" style="height: calc(100vh - 57px - 51px - 18px);">
-                <div class="ovic-vertical__inputs">
-                    <form [formGroup]="formEdit">
-                        <div class="form-row">
-                            <label>Tên lớp <span class="ovic-mark">*</span></label>
-                            <input type="text" formControlName="title" placeholder="vd:Công nghệ thông tin...">
-                        </div>
-                        <div class="form-row">
-                            <label>Khoa <span class="ovic-mark">*</span></label>
-                            <ovic-dropdown [options]="listDonvi" (onChange)="onchageDonviByForm($event)" [filter]="true"
-                                           optionId="id" optionLabel="title" [formField]="formEdit.controls['donvi_id']"
-                                           [defaultValue]="formEdit.controls['donvi_id'].value"
-                                           placeholder="--------- Chọn khoa ---------" [filterBy]="'title'"
-                                           [showClear]="false"></ovic-dropdown>
-                        </div>
-                        <div class="form-row">
-                            <label>Ngành học <span class="ovic-mark">*</span></label>
-                            <ovic-dropdown [options]="listNganhBoMon" [defaultValue]="formEdit.controls['nganh_id'].value"
-                                           optionId="id" optionLabel="title" [formField]="formEdit.controls['nganh_id']"
-                                           placeholder="--------- Chọn ngành học ---------" [filterBy]="'title'"
-                                           [showClear]="false"></ovic-dropdown>
-                        </div>
-
-                        <div class="row mx-0 mt-2" >
-                            <div class="col-6 pl-0 pr-1">
-                                <div class="form-row">
-                                    <label>Khóa <span class="ovic-mark">*</span></label>
-                                    <input type="number" formControlName="khoa" placeholder="vd:20,22,...">
-                                </div>
+<p-drawer #pDrawer [(visible)]="formControl.visible" [dismissible]="false" [header]="formControl.heading()" [style]="{'width':'500px', 'max-width':'100%'}" appendTo="body" position="right" styleClass="ictu-p-drawer">
+    <div class="ictu-p-drawer__content position-relative">
+        @if (formControl.enableLoading()) {
+            <app-loading-progress [heading]="formControl.loadingLabel()" backdropFilter="none"></app-loading-progress>
+        }
+        <div class="ictu-p-drawer__content__body position-relative">
+            @switch (formControl.state()) {
+                @case ('READY') {
+                    <form [formGroup]="formControl.formGroup">
+                        <div class="ictu-form ictu-form--label-on-top">
+                            <div class="ictu-form__row">
+                                <label class="ictu-form__label ictu-form__label--required" for="f_donvi">Khoa</label>
+                                <p-select [options]="listDonVi" appendTo="body" class="ictu-form__input-field" formControlName="donvi_id" inputId="f_donvi" optionLabel="title" optionValue="id" placeholder="-- Chọn khoa --"></p-select>
                             </div>
-                            <div class="col-6 pr-0 pl-1">
-                                <div class="form-row">
-                                    <label>Ký hiệu <span class="ovic-mark">*</span></label>
-                                    <input type="text" formControlName="kyhieu" placeholder="vd:...">
-                                </div>
+                            <div class="ictu-form__row">
+                                <label class="ictu-form__label ictu-form__label--required" for="f_nganh">Ngành học</label>
+                                <p-select [options]="listNganh" appendTo="body" class="ictu-form__input-field" formControlName="nganh_id" inputId="f_nganh" optionLabel="title" optionValue="id" placeholder="-- Chọn ngành học --"></p-select>
+                            </div>
+                            <div class="ictu-form__row">
+                                <label class="ictu-form__label ictu-form__label--required" for="f_khoa">Khóa</label>
+                                <input class="ictu-form__input-field" formControlName="khoa" id="f_khoa" pInputText placeholder="Ví dụ: 20, 21, 22" type="text">
+                            </div>
+                            <div class="ictu-form__row">
+                                <label class="ictu-form__label ictu-form__label--required" for="f_kyhieu">Ký hiệu lớp</label>
+                                <input class="ictu-form__input-field" formControlName="kyhieu" id="f_kyhieu" pInputText placeholder="Ví dụ: CNTT" type="text" style="text-transform: uppercase;">
+                            </div>
+                            <div class="ictu-form__row">
+                                <label class="ictu-form__label ictu-form__label--required" for="f_title">Tên lớp quản lý</label>
+                                <input class="ictu-form__input-field" formControlName="title" id="f_title" pInputText placeholder="Nhập tên lớp quản lý" type="text">
                             </div>
                         </div>
-
-
-
-
-
-
-
                     </form>
-
-                </div>
-            </div>
-            <p class="ovic-form-notes ovic-over-right-section__foot-ovic-input-line">
-                <i class="pi pi-info-circle"></i>các trường có đánh dấu ( <span class="ovic-mark">*</span> ) là bắt
-                buộc phải nhập
-            </p>
-            <div class="ovic-over-right-section__foot-wrap-buttons flex-footer-right">
-                <button type="button" class="btn btn-primary" (click)="saveFormEdit()">
-                    <i class="fa fa-floppy-o" ></i>Lưu lại
-                </button>
-                <button type="button" class="btn btn-cancel" (click)="closeForm()">
-                    <i class="fa fa-ban" ></i>Hủy thao tác
-                </button>
-            </div>
+                }
+            }
         </div>
-    </ng-template>
-
+        <div class="ictu-p-drawer__content__footer">
+            <button (click)="submitForm()" [disabled]="formControl.formGroup.invalid || formControl.enableLoading()" class="btn ictu-badge-btn--success-reverse" mat-flat-button>Lưu lại</button>
+            <button (click)="formControl.closeForm()" class="btn ictu-badge-btn--secondary-reverse" mat-flat-button>Hủy</button>
+        </div>
+    </div>
+</p-drawer>

@@ -16,6 +16,8 @@ export interface NganhBomon {
     code: string;
     donvi_chuyenmon_id: number;
     donvi_id?: number;
+    training_mode_id?: number;
+    training_mode?: string;
     type: 'nganh' | 'bomon';
     desc?: string;
     parent_id?: number;

@@ -52,7 +52,7 @@ export class DonviComponent implements OnInit , OnDestroy {
     readonly drawer : Signal<Drawer> = viewChild<Drawer>( 'pDrawer' );
 
     readonly dataTable : IctuDataTable2<DonVi> = new IctuDataTable2<DonVi>( {
-        rows         : 15 ,
+        rows         : 20 ,
         pageLinkSize : 5
     } );
 

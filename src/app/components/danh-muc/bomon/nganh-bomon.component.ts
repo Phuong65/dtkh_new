@@ -56,7 +56,7 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
     readonly drawer : Signal<Drawer> = viewChild<Drawer>( 'pDrawer' );
 
     readonly dataTable : IctuDataTable2<NganhBomon> = new IctuDataTable2<NganhBomon>( {
-        rows         : 15 ,
+        rows         : 20 ,
         pageLinkSize : 5
     } );
 

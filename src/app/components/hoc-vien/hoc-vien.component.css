@@ -1,0 +1,226 @@
+.title_data {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.content_data {
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+
+.ovic-showcase {
+    margin: 0 0 -10px 0 !important;
+    display: inline-block;
+    float: left;
+    clear: both;
+    position: relative;
+    z-index: 9010;
+}
+
+.content_data .fa-check {
+    padding-left: 10px;
+    color: #28a745;
+}
+
+.user-profile-checkpass {
+    width: 29px;
+    height: 29px;
+    min-width: 0px;
+    margin-left: 0px;
+    line-height: 0;
+    padding: 0;
+    font-size: 0;
+    background-color: #cacaca;
+    position: relative;
+}
+
+.user-profile-pass-input {
+    width: calc(100% - 29px);
+}
+
+.user-profile-checkpass:before {
+    content: '';
+    display: block;
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    border-radius: 50%;
+}
+
+.user-profile-checkpass:after {
+    content: "\e909";
+    font-family: primeicons;
+    speak: none;
+    font-style: normal;
+    font-weight: 700;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    display: inline-block;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    color: #34a835;
+    font-size: 11px;
+    transition: all 0.5s ease;
+    transform: scale(0);
+}
+
+.user-profile-checkpass.checked:after {
+    transform: scale(1);
+}
+
+.class-layout-top-option-search {
+    width: 200px;
+    border: 1px solid #c8c8c8;
+    padding-left: 5px;
+    padding-right: 5px;
+    height: 30px;
+}
+
+.class-layout-top-option-search {
+    box-shadow: none !important;
+}
+
+.ui-inputgroup-search {
+    padding: 0px !important;
+}
+
+.ui-inputgroup-search .ui-inputgroup-addon {
+    display: flex;
+    padding: 0px 7px;
+    justify-content: center;
+    align-items: center;
+    border-top-right-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+    border: 1px solid #c8c8c8;
+    border-left: 0px;
+    background: #f2f2f2;
+}
+
+.ui-inputgroup {
+    display: flex;
+}
+
+.dm-hoc-vien-layout-top {
+    padding: 5px !important;
+}
+
+.class-layout-top-option {
+    display: flex;
+    align-items: center;
+}
+
+.class-layout-top-title {
+    flex: 1 0 1rem;
+}
+
+.dm-hoc-vien-layout-top {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid #c8c8c8;
+}
+
+.dm-hoc-vien-layout-top button {
+    margin-left: 5px;
+    line-height: 1 !important;
+    height: 30px;
+    width: 30px;
+    padding: 0px;
+    text-align: center;
+    box-shadow: none !important;
+    border-radius: 0px !important;
+    outline: none;
+}
+
+
+
+.dm-hoc-vien-layout-top button i {
+    vertical-align: middle;
+    font-size: 14px !important;
+}
+
+.dm-hoc-vien-layout-top button span {
+    vertical-align: middle;
+}
+
+.class-layout-top-title {
+    flex: 1 0 1rem;
+    display: flex;
+    align-items: center;
+    color: #2196f3;
+    font-size: 18px;
+}
+
+.button-load-more-class {
+    width: 400px;
+    background: #f4f4f4;
+    border: 1px solid rgb(0 0 0 / 87%);
+    color: black;
+    font-weight: bold;
+}
+
+.ui-inputgroup-search-khoa input {
+    width: 100px !important;
+}
+
+.ui-inputgroup-search {
+    margin-left: 5px;
+}
+
+.action-import-student {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.action-import-student button {
+    padding: 10px 100px;
+    display: flex;
+    align-items: center;
+}
+
+.content-after-import {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+}
+
+.content-after-import .content-after-import-left {
+    width: 50%;
+    overflow: auto;
+    padding: 5px;
+}
+
+.content-after-import .content-after-import-right {
+    overflow: auto;
+    width: calc(50% - 1px);
+    border-left: 1px solid #c8c8c8;
+    padding: 5px;
+}
+
+input:focus-visible {
+    outline: none;
+}
+
+p-radiobutton {
+    margin: 10px;
+}
+
+.btn-copy{
+    font-size:40px; color:#0a58ca;
+}
+.btn-copy:hover{
+    cursor: pointer;
+    color:#0caa30;
+}

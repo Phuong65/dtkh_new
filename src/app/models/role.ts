@@ -3,7 +3,7 @@ import { InjectionToken } from '@angular/core';
 export interface Role {
     id: number;
     description: string;
-    name: 'administrator';
+    name: SysRoleName;
     ordering: number;
     title: string;
 }
@@ -15,5 +15,5 @@ export const APP_REDIRECT_LINKS = new InjectionToken<Map<SysRoleName, string>>('
 
 export const createAppRedirectLinks = (): Map<SysRoleName, string> => new Map([
     ['administrator', '/admin/dashboard'],
-    ['daotao_ld', '/admin/dao-tao/dashboard']
+    ['daotao_ld', '/admin/daotao_ld/dashboard']
 ]);

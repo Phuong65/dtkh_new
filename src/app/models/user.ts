@@ -13,29 +13,27 @@ export interface User extends IctuBaseModel {
 	status : number;
 }
 
-// export type ConstructUser = Pick<User , 'username' | 'display_name' | 'phone' | 'email' | 'password'>
-//
-// export type StudentSocialName = 'facebook' | 'twitter' | 'instagram' | 'linkedin'
-//
-// export type StudentSocials = Record<StudentSocialName , string>;
-//
-// export interface Student {
-// 	id : number;
-// 	user_id : number;
-// 	email : string;
-// 	student_code : string; // neu la sinh vien ==> luu ma sinh vien
-// 	full_name : string;
-// 	full_name_slug : string;
-// 	name : string; //ten nay dung de sap xep theo A-Z
-// 	birthday : string;
-// 	gender : string;
-// 	address : string;
-// 	social_link : StudentSocials;
-// 	created_at : string;
-// 	updated_at : string;
-// }
-//
-// export type PickStudent = Pick<Student , 'user_id' | 'student_code' | 'email' | 'full_name' | 'full_name_slug' | 'name' | 'birthday' | 'gender' | 'address'>;
+// export type ConstructUser = Pick<User , 'username' | 'display_name' | 'phone' | 'email' | 'password'>;
+
+export interface Student extends IctuBaseModel {
+    id : number;
+    hoten : string;
+    ten : string;
+    student_code : string;
+    ngaysinh : string;
+    gioitinh : string;
+    email : string;
+    phone : string;
+    diachi : string;
+    status : number;
+    user_id? : number;
+    category_name? : string;
+    tenlop_quanly? : string;
+    khoadaotao? : string | number;
+    birthday_format? : string;
+    reGender? : string;
+    index_? : number;
+}
 
 
 export interface UserSignIn {

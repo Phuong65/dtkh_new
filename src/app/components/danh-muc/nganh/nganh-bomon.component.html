@@ -41,6 +41,7 @@
                             <th class="wid-120 text-center">Mã ngành</th>
                             <th class="text-left">Tên ngành</th>
                             <th class="text-left">Khoa</th>
+                            <th class="text-left">Hình thức đào tạo</th>
                             <th class="text-left">Mô tả</th>
                             <th class="wid-80 text-center">Thứ tự</th>
                             <th class="wid-120 text-center">Trạng thái</th>
@@ -57,6 +58,7 @@
                                 <td class="wid-120 text-center">{{ row.code }}</td>
                                 <td class="text-left font-weight-500">{{ row.title }}</td>
                                 <td class="text-left">{{ row.khoa || '—' }}</td>
+                                <td class="text-left">{{ row.training_mode || '—' }}</td>
                                 <td class="text-left">{{ row.desc || '—' }}</td>
                                 <td class="wid-80 text-center">{{ row.ordering }}</td>
                                 <td class="wid-120 text-center p-0">
@@ -81,7 +83,7 @@
                             </tr>
                         } @empty {
                             <tr>
-                                <td colspan="9" class="text-center p-3">Không có bản ghi nào.</td>
+                                <td colspan="10" class="text-center p-3">Không có bản ghi nào.</td>
                             </tr>
                         }
                     </tbody>
@@ -116,19 +118,19 @@
                                 <p-select [options]="dmDonviChuyenmon" appendTo="body" class="ictu-form__input-field" formControlName="donvi_chuyenmon_id" optionLabel="title" optionValue="id" placeholder="-- Chọn khoa --" panelStyleClass="danh-muc-select-panel"></p-select>
                             </div>
                             <div class="ictu-form__row">
+                                <label class="ictu-form__label ictu-form__label--required" for="f_training_mode">Hình thức đào tạo</label>
+                                <p-select [options]="dmTrainingMode" appendTo="body" class="ictu-form__input-field" formControlName="training_mode_id" inputId="f_training_mode" optionLabel="name" optionValue="id" placeholder="-- Chọn hình thức đào tạo --"></p-select>
+                            </div>
+                            <div class="ictu-form__row">
                                 <label class="ictu-form__label ictu-form__label--required" for="f_title">Tên ngành</label>
                                 <input class="ictu-form__input-field" formControlName="title" id="f_title" pInputText placeholder="Nhập tên ngành" type="text" (focusout)="onChangeTitle()">
+                                @if (!slugIsValid) {
+                                    <small class="text-danger d-block mt-1">Tên ngành đã tồn tại trong hệ thống.</small>
+                                }
                             </div>
                             <div class="ictu-form__row">
                                 <label class="ictu-form__label ictu-form__label--required" for="f_code">Mã ngành</label>
                                 <input class="ictu-form__input-field" formControlName="code" id="f_code" pInputText placeholder="Nhập mã ngành" type="text" style="text-transform: uppercase;">
-                            </div>
-                            <div class="ictu-form__row">
-                                <label class="ictu-form__label ictu-form__label--required" for="f_slug">Slug</label>
-                                <input class="ictu-form__input-field" formControlName="slug" id="f_slug" pInputText placeholder="Slug" type="text" (focusout)="checkSlug()">
-                                @if (!slugIsValid) {
-                                    <small class="text-danger d-block mt-1">Slug đã tồn tại trong hệ thống.</small>
-                                }
                             </div>
                             <div class="ictu-form__row">
                                 <label class="ictu-form__label" for="f_ordering">Thứ tự</label>

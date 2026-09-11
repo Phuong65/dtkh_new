@@ -40,4 +40,20 @@ export class UserService {
 	deleteForAdministration ( id : number ) : Observable<number> {
 		return this.http.delete<DtoObject<number>>( getApiRouteLink( [ 'users' , id ].join( '/' ) ) ).pipe( map( ( response : DtoObject<number> ) : number => response.data ) );
 	}
+
+	listByIds ( ids : number[] ) : Observable<User[]> {
+		if ( ! ids.length ) {
+			return new Observable<User[]>( ( subscriber ) => {
+				subscriber.next( [] );
+				subscriber.complete();
+			} );
+		}
+		const params : HttpParams = new HttpParams()
+			.set( 'include' , ids.join( ',' ) )
+			.set( 'include_by' , 'id' )
+			.set( 'limit' , '-1' );
+		return this.http.get<DtoObject<User[]>>( getApiRouteLink( 'users' ) , { params } ).pipe(
+			map( ( response : DtoObject<User[]> ) : User[] => response.data || [] )
+		);
+	}
 }

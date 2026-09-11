@@ -33,7 +33,7 @@ const routes : Routes = [
                 loadChildren : () => import( '@pages/admin/children/administrator/administrator.module' ).then( ( m ) => m.AdministratorModule )
             } ,
             {
-                path         : 'dao-tao' ,
+                path         : 'daotao_ld' ,
                 canActivate  : [ adminModuleGuard ] ,
                 loadChildren : () => import( '@pages/admin/children/dao-tao/dao-tao.module' ).then( ( m ) => m.DaoTaoModule )
             } ,
