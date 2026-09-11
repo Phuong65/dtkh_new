@@ -3,7 +3,9 @@
         <app-loading-progress heading="Loading..." backdropFilter="none"></app-loading-progress>
     }
     <div class="admin-wrap-table">
-        @if (state() !== 'error') {
+        @if (!permissionControl.canView) {
+            <div class="admin-table__alert-danger text-center w-100">Bạn không có quyền xem danh sách hình thức đào tạo.</div>
+        } @else if (state() !== 'error') {
             <div class="admin-wrap-table__head d-flex">
                 <h4 class="admin-wrap-table__heading">
                     <svg>
@@ -13,12 +15,16 @@
                 </h4>
                 <div class="admin-wrap-table__head-actions">
                     <input [(ngModel)]="_search" class="admin-wrap-table__head-actions__search" pInputText placeholder="Tìm kiếm..." type="text" (keyup.enter)="onSearchData()">
-                    <button (click)="deleteSelectedRows()" [disabled]="!dataTable.someItemsChecked()" class="btn ictu-button-danger-gradient" mat-flat-button aria-label="Xóa các mục đã chọn">
-                        <i class="ti ti-trash"></i>
-                    </button>
-                    <button (click)="addNewItem()" mat-flat-button class="btn ictu-badge-btn--success-reverse" aria-label="Thêm hình thức đào tạo">
-                        <i class="ti ti-plus"></i>
-                    </button>
+                    @if (permissionControl.canDelete) {
+                        <button (click)="deleteSelectedRows()" [disabled]="!dataTable.someItemsChecked()" class="btn ictu-button-danger-gradient" mat-flat-button aria-label="Xóa các mục đã chọn">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    }
+                    @if (permissionControl.canCreate) {
+                        <button (click)="addNewItem()" mat-flat-button class="btn ictu-badge-btn--success-reverse" aria-label="Thêm hình thức đào tạo">
+                            <i class="ti ti-plus"></i>
+                        </button>
+                    }
                 </div>
             </div>
             <div class="admin-wrap-table__body">
@@ -47,12 +53,16 @@
                                 <td class="text-left">{{ row.description || '—' }}</td>
                                 <td class="p-0 wid-90">
                                     <div class="admin-table__btn-actions">
-                                        <button (click)="editRow(row)" class="btn ictu-button-info-light" aria-label="Sửa">
-                                            <i class="ti ti-edit"></i>
-                                        </button>
-                                        <button (click)="deleteRow(row)" class="btn ictu-button-danger-light" aria-label="Xóa">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
+                                        @if (permissionControl.canUpdate) {
+                                            <button (click)="editRow(row)" class="btn ictu-button-info-light" aria-label="Sửa">
+                                                <i class="ti ti-edit"></i>
+                                            </button>
+                                        }
+                                        @if (permissionControl.canDelete) {
+                                            <button (click)="deleteRow(row)" class="btn ictu-button-danger-light" aria-label="Xóa">
+                                                <i class="ti ti-trash"></i>
+                                            </button>
+                                        }
                                     </div>
                                 </td>
                             </tr>

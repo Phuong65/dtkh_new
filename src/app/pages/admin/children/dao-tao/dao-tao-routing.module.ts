@@ -102,15 +102,15 @@ const routes: Routes = [
             },
             {
                 path: 'khoa',
-                loadComponent: () => import('@components/danh-muc/donvi/donvi.component').then(m => m.DonviComponent)
+                loadComponent: () => import('./children/khoa/khoa.component') 
             },
             {
                 path: 'nganh',
-                loadComponent: () => import('@components/danh-muc/nganh/nganh-bomon.component').then(m => m.NganhBomonComponent)
+                loadComponent: () => import('./children/nganh/nganh.component')
             },
             {
                 path: 'bomon',
-                loadComponent: () => import('@components/danh-muc/bomon/nganh-bomon.component').then(m => m.NganhBomonComponent)
+                loadComponent: () => import('./children/bomon/bomon.component')
             },
             {
                 path: 'khoa-lop',

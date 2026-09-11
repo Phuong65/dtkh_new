@@ -20,7 +20,7 @@ import { DtoObject } from '@models/dto';
 import { forkJoin , Observable , Subject , takeUntil } from 'rxjs';
 
 @Component( {
-    selector    : 'app-nganh-bomon' ,
+    selector    : 'app-dm-bomon' ,
     imports     : [
         CommonModule ,
         FormsModule ,
@@ -39,7 +39,7 @@ import { forkJoin , Observable , Subject , takeUntil } from 'rxjs';
     styleUrl    : './nganh-bomon.component.css' ,
     standalone  : true
 } )
-export class NganhBomonComponent implements OnInit , OnDestroy {
+export class DmBomonComponent implements OnInit , OnDestroy {
 
     private readonly fb : FormBuilder = inject( FormBuilder );
 

@@ -4,7 +4,9 @@ import { FormBuilder , FormGroup , FormsModule , ReactiveFormsModule , Validator
 import { MatButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { AppState } from '@models/app-state';
+import { IctuPermissionControl } from '@models/ictu-base-model';
 import { DataTableEvent , DataTableEventName , IctuDataTable2 , IctuDataTablePaginatorInfo } from '@models/datatable';
+import { AuthenticationService } from '@services/authentication.service';
 import { DtoObject , IctuConditionParam , IctuQueryCondition , IctuQueryParams } from '@models/dto';
 import { IctuFormControl2 } from '@models/ictu-form-control';
 import { TrainingMode } from '@models/training-mode';
@@ -43,6 +45,10 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
 
     private readonly notification : NotificationService = inject( NotificationService );
 
+    private readonly authenticationService : AuthenticationService = inject( AuthenticationService );
+
+    readonly permissionControl : IctuPermissionControl = new IctuPermissionControl( this.authenticationService.getUserPermission( 'hinh-thuc-dao-tao' ) );
+
     private readonly destroy$ : Subject<void> = new Subject<void>();
 
     private readonly eventObserver$ : Subject<DataTableEvent<TrainingMode>> = new Subject<DataTableEvent<TrainingMode>>();
@@ -73,6 +79,10 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
 
     private readonly handleEvent : Record<DataTableEventName , ( data : TrainingMode ) => void> = {
         OPEN_FORM_ADD        : () : void => {
+            if ( !this.permissionControl.canCreate ) {
+                this.notification.toastWarning( 'Bạn không có quyền thêm hình thức đào tạo' );
+                return;
+            }
             this.f.reset( {
                 name        : '' ,
                 code        : '' ,
@@ -81,6 +91,10 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
             this.formControl.openFormAdd();
         } ,
         OPEN_FORM_UPDATE     : ( data : TrainingMode ) : void => {
+            if ( !this.permissionControl.canUpdate ) {
+                this.notification.toastWarning( 'Bạn không có quyền sửa hình thức đào tạo' );
+                return;
+            }
             this.f.reset( {
                 name        : data.name ,
                 code        : data.code ,
@@ -89,9 +103,17 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
             this.formControl.openFormEdit( data );
         } ,
         DELETE_SINGLE_ROW    : ( data : TrainingMode ) : void => {
+            if ( !this.permissionControl.canDelete ) {
+                this.notification.toastWarning( 'Bạn không có quyền xóa hình thức đào tạo' );
+                return;
+            }
             this.deleteRow( data );
         } ,
         DELETE_SELECTED_ROWS : () : void => {
+            if ( !this.permissionControl.canDelete ) {
+                this.notification.toastWarning( 'Bạn không có quyền xóa hình thức đào tạo' );
+                return;
+            }
             this.deleteSelectedRows();
         } ,
         SUBMIT_FORM          : () : void => {
@@ -119,6 +141,10 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
     }
 
     loadData ( paged : number = 1 , resetPaginator : boolean = true ) : void {
+        if ( !this.permissionControl.canView ) {
+            this.state.set( 'success' );
+            return;
+        }
         this.state.set( 'loading' );
         this._temp = { paged , resetPaginator };
 
@@ -168,14 +194,23 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
     }
 
     addNewItem () : void {
+        if ( !this.permissionControl.canCreate ) {
+            return;
+        }
         this.eventObserver$.next( { name : 'OPEN_FORM_ADD' , data : null } );
     }
 
     editRow ( row : TrainingMode ) : void {
+        if ( !this.permissionControl.canUpdate ) {
+            return;
+        }
         this.eventObserver$.next( { name : 'OPEN_FORM_UPDATE' , data : row } );
     }
 
     deleteRow ( row : TrainingMode ) : void {
+        if ( !this.permissionControl.canDelete ) {
+            return;
+        }
         this.notification.confirmDelete( 1 ).subscribe( ( confirmed : boolean ) : void => {
             if ( !confirmed ) {
                 return;
@@ -195,6 +230,9 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
     }
 
     deleteSelectedRows () : void {
+        if ( !this.permissionControl.canDelete ) {
+            return;
+        }
         const selected : TrainingMode[] = this.dataTable.getSelectedData();
         if ( !selected.length ) {
             return;
@@ -219,6 +257,15 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
     }
 
     submitForm () : void {
+        const isFormAdd : boolean = this.formControl.isFormAdd;
+        if ( isFormAdd && !this.permissionControl.canCreate ) {
+            this.notification.toastWarning( 'Bạn không có quyền thêm hình thức đào tạo' );
+            return;
+        }
+        if ( !isFormAdd && !this.permissionControl.canUpdate ) {
+            this.notification.toastWarning( 'Bạn không có quyền cập nhật hình thức đào tạo' );
+            return;
+        }
         if ( this.f.invalid ) {
             this.f.markAllAsTouched();
             this.notification.toastWarning( 'Vui lòng kiểm tra lại thông tin' );
@@ -226,7 +273,6 @@ export class TrainingModeComponent implements OnInit , OnDestroy {
         }
 
         const value : Partial<TrainingMode> = this.f.getRawValue();
-        const isFormAdd : boolean = this.formControl.isFormAdd;
         const request : Observable<any> = isFormAdd
             ? this.trainingModeService.create( value )
             : this.trainingModeService.update( this.formControl.object.id , value );
