@@ -5,7 +5,6 @@ import { Drawer } from 'primeng/drawer';
 import { InputText } from 'primeng/inputtext';
 import { Textarea } from 'primeng/textarea';
 import { Select } from 'primeng/select';
-import { InputNumber } from 'primeng/inputnumber';
 import { MatButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { IctuPaginatorComponent } from '@theme/components/ictu-paginator/ictu-paginator.component';
@@ -29,7 +28,6 @@ import { forkJoin , Observable , Subject , takeUntil } from 'rxjs';
         InputText ,
         Textarea ,
         Select ,
-        InputNumber ,
         MatButton ,
         MatCheckbox ,
         IctuPaginatorComponent ,
@@ -72,7 +70,6 @@ export class DmBomonComponent implements OnInit , OnDestroy {
             slug               : [ '' , [ Validators.required ] ] ,
             donvi_chuyenmon_id : [ null , [ Validators.required ] ] ,
             desc               : [ '' ] ,
-            ordering           : [ 1000 ] ,
             status             : [ 1 ] ,
             type               : [ 'bomon' ]
         } ) ,
@@ -94,7 +91,6 @@ export class DmBomonComponent implements OnInit , OnDestroy {
                 slug               : '' ,
                 donvi_chuyenmon_id : this.selectedDonviId || ( this.dmDonviChuyenmon[ 0 ]?.id ?? null ) ,
                 desc               : '' ,
-                ordering           : 1000 ,
                 status             : 1 ,
                 type               : 'bomon'
             } );
@@ -108,7 +104,6 @@ export class DmBomonComponent implements OnInit , OnDestroy {
                 slug               : data.slug || '' ,
                 donvi_chuyenmon_id : data.donvi_chuyenmon_id ,
                 desc               : data.desc || '' ,
-                ordering           : data.ordering ?? 1000 ,
                 status             : data.status ?? 1 ,
                 type               : 'bomon'
             } );

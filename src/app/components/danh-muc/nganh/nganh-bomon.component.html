@@ -43,7 +43,6 @@
                             <th class="text-left">Khoa</th>
                             <th class="text-left">Hình thức đào tạo</th>
                             <th class="text-left">Mô tả</th>
-                            <th class="wid-80 text-center">Thứ tự</th>
                             <th class="wid-120 text-center">Trạng thái</th>
                             <th class="wid-90 text-center px-0">Hành động</th>
                         </tr>
@@ -60,7 +59,6 @@
                                 <td class="text-left">{{ row.khoa || '—' }}</td>
                                 <td class="text-left">{{ row.training_mode || '—' }}</td>
                                 <td class="text-left">{{ row.desc || '—' }}</td>
-                                <td class="wid-80 text-center">{{ row.ordering }}</td>
                                 <td class="wid-120 text-center p-0">
                                     <div class="d-flex w-100 h-100 justify-content-center align-items-center">
                                         @if (row.status === 1) {
@@ -83,7 +81,7 @@
                             </tr>
                         } @empty {
                             <tr>
-                                <td colspan="10" class="text-center p-3">Không có bản ghi nào.</td>
+                                <td colspan="9" class="text-center p-3">Không có bản ghi nào.</td>
                             </tr>
                         }
                     </tbody>
@@ -131,10 +129,6 @@
                             <div class="ictu-form__row">
                                 <label class="ictu-form__label ictu-form__label--required" for="f_code">Mã ngành</label>
                                 <input class="ictu-form__input-field" formControlName="code" id="f_code" pInputText placeholder="Nhập mã ngành" type="text" style="text-transform: uppercase;">
-                            </div>
-                            <div class="ictu-form__row">
-                                <label class="ictu-form__label" for="f_ordering">Thứ tự</label>
-                                <p-inputnumber formControlName="ordering" id="f_ordering" styleClass="w-100"></p-inputnumber>
                             </div>
                             <div class="ictu-form__row">
                                 <label class="ictu-form__label" for="f_desc">Mô tả</label>

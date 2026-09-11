@@ -5,7 +5,6 @@ import { Drawer } from 'primeng/drawer';
 import { InputText } from 'primeng/inputtext';
 import { Textarea } from 'primeng/textarea';
 import { Select } from 'primeng/select';
-import { InputNumber } from 'primeng/inputnumber';
 import { MatButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { IctuPaginatorComponent } from '@theme/components/ictu-paginator/ictu-paginator.component';
@@ -32,7 +31,6 @@ import { catchError , forkJoin , map , Observable , of , Subject , takeUntil } f
         InputText ,
         Textarea ,
         Select ,
-        InputNumber ,
         MatButton ,
         MatCheckbox ,
         IctuPaginatorComponent ,
@@ -80,7 +78,6 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
             donvi_chuyenmon_id : [ null , [ Validators.required ] ] ,
             training_mode_id   : [ null , [ Validators.required ] ] ,
             desc               : [ '' ] ,
-            ordering           : [ 1000 ] ,
             status             : [ 1 ] ,
             type               : [ 'nganh' ]
         } ) ,
@@ -103,7 +100,6 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
                 donvi_chuyenmon_id : this.selectedDonviId || ( this.dmDonviChuyenmon[ 0 ]?.id ?? null ) ,
                 training_mode_id   : null ,
                 desc               : '' ,
-                ordering           : 1000 ,
                 status             : 1 ,
                 type               : 'nganh'
             } );
@@ -118,7 +114,6 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
                 donvi_chuyenmon_id : data.donvi_chuyenmon_id ,
                 training_mode_id   : data.training_mode_id ?? null ,
                 desc               : data.desc || '' ,
-                ordering           : data.ordering ?? 1000 ,
                 status             : data.status ?? 1 ,
                 type               : 'nganh'
             } );

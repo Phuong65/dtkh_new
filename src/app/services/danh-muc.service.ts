@@ -152,7 +152,7 @@ export class DanhMucService {
         const queryParams : IctuQueryParams = {
             paged ,
             limit ,
-            orderby : 'ordering' ,
+            orderby : 'title' ,
             order   : 'ASC'
         };
         const conditions : IctuConditionParam[] = [
@@ -196,7 +196,7 @@ export class DanhMucService {
     getNganhBomonList ( type : 'nganh' | 'bomon' , donviChuyenMonId? : number ) : Observable<NganhBomon[]> {
         const queryParams : IctuQueryParams = {
             limit   : -1 ,
-            orderby : 'ordering' ,
+            orderby : 'title' ,
             order   : 'ASC'
         };
         const conditions : IctuConditionParam[] = [

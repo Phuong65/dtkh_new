@@ -20,9 +20,6 @@ export interface NganhBomon {
     training_mode?: string;
     type: 'nganh' | 'bomon';
     desc?: string;
-    parent_id?: number;
-    ordering?: number;
-    icon?: string;
     status?: number;
     sup_code?: string;
     khoa?: string;
