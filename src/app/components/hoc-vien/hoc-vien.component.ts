@@ -11,7 +11,9 @@ import { UserProfile } from '@models/user-profile';
 import { AdminUserPayload , UserService } from '@services/user.service';
 import { UserProfileService } from '@services/user-profile.service';
 import { AppState } from '@models/app-state';
+import { IctuPermissionControl } from '@models/ictu-base-model';
 import { DataTableEvent , DataTableEventName , IctuDataTable2 , IctuDataTablePaginatorInfo } from '@models/datatable';
+import { AuthenticationService } from '@services/authentication.service';
 import { DtoObject , IctuConditionParam , IctuQueryCondition , IctuQueryParams } from '@models/dto';
 import { IctuFormControl2 } from '@models/ictu-form-control';
 import { NotificationService } from '@services/notification.service';
@@ -50,6 +52,10 @@ export class HocVienComponent implements OnInit , OnDestroy {
     private readonly userService : UserService = inject( UserService );
 
     private readonly notification : NotificationService = inject( NotificationService );
+
+    private readonly authenticationService : AuthenticationService = inject( AuthenticationService );
+
+    readonly permissionControl : IctuPermissionControl = new IctuPermissionControl( this.authenticationService.getUserPermission( 'quanly-hocvien' ) );
 
     private readonly destroy$ : Subject<void> = new Subject<void>();
 
@@ -98,10 +104,26 @@ export class HocVienComponent implements OnInit , OnDestroy {
     private _temp : IctuDataTablePaginatorInfo = { paged : 1 , resetPaginator : true };
 
     private readonly handleEvent : Record<DataTableEventName , ( data : UserProfile ) => void> = {
-        OPEN_FORM_ADD        : () : void => this.addForm() ,
-        OPEN_FORM_UPDATE     : ( data : UserProfile ) : void => this.editForm( data ) ,
-        DELETE_SINGLE_ROW    : ( data : UserProfile ) : void => this.deleteRow( data ) ,
-        DELETE_SELECTED_ROWS : () : void => this.deleteSelectedRows() ,
+        OPEN_FORM_ADD        : () : void => {
+            if ( this.permissionControl.canCreate ) {
+                this.addForm();
+            }
+        } ,
+        OPEN_FORM_UPDATE     : ( data : UserProfile ) : void => {
+            if ( this.permissionControl.canUpdate ) {
+                this.editForm( data );
+            }
+        } ,
+        DELETE_SINGLE_ROW    : ( data : UserProfile ) : void => {
+            if ( this.permissionControl.canDelete ) {
+                this.deleteRow( data );
+            }
+        } ,
+        DELETE_SELECTED_ROWS : () : void => {
+            if ( this.permissionControl.canDelete ) {
+                this.deleteSelectedRows();
+            }
+        } ,
         SUBMIT_FORM          : () : void => this.submitForm()
     };
 
@@ -125,6 +147,10 @@ export class HocVienComponent implements OnInit , OnDestroy {
     }
 
     loadData ( paged : number = 1 , resetPaginator : boolean = true ) : void {
+        if ( !this.permissionControl.canView ) {
+            this.state.set( 'success' );
+            return;
+        }
         this.state.set( 'loading' );
         this._temp = { paged , resetPaginator };
         const conditions : IctuConditionParam[] = [];
@@ -194,14 +220,26 @@ export class HocVienComponent implements OnInit , OnDestroy {
     }
 
     addNewItem () : void {
+        if ( !this.permissionControl.canCreate ) {
+            this.notification.toastWarning( 'Bạn không có quyền thêm học viên' );
+            return;
+        }
         this.eventObserver$.next( { name : 'OPEN_FORM_ADD' , data : null } );
     }
 
     editRow ( row : UserProfile ) : void {
+        if ( !this.permissionControl.canUpdate ) {
+            this.notification.toastWarning( 'Bạn không có quyền sửa học viên' );
+            return;
+        }
         this.eventObserver$.next( { name : 'OPEN_FORM_UPDATE' , data : row } );
     }
 
     addForm () : void {
+        if ( !this.permissionControl.canCreate ) {
+            this.notification.toastWarning( 'Bạn không có quyền thêm học viên' );
+            return;
+        }
         this.f.reset( {
             student_code : '' ,
             full_name    : '' ,
@@ -220,6 +258,10 @@ export class HocVienComponent implements OnInit , OnDestroy {
     }
 
     editForm ( row : UserProfile ) : void {
+        if ( !this.permissionControl.canUpdate ) {
+            this.notification.toastWarning( 'Bạn không có quyền sửa học viên' );
+            return;
+        }
         this.f.reset( {
             student_code : row.student_code || '' ,
             full_name    : row.full_name || '' ,
@@ -239,6 +281,10 @@ export class HocVienComponent implements OnInit , OnDestroy {
     }
 
     toggleStatus ( row : UserProfile ) : void {
+        if ( !this.permissionControl.canUpdate ) {
+            this.notification.toastWarning( 'Bạn không có quyền cập nhật trạng thái học viên' );
+            return;
+        }
         const nextStatus : number = ( row.user_status ?? row.status ) === 1 ? 0 : 1;
         const requests : Observable<any>[] = [
             this.userProfileService.update( row.id , { status : nextStatus } )
@@ -259,6 +305,10 @@ export class HocVienComponent implements OnInit , OnDestroy {
     }
 
     deleteRow ( row : UserProfile ) : void {
+        if ( !this.permissionControl.canDelete ) {
+            this.notification.toastWarning( 'Bạn không có quyền xóa học viên' );
+            return;
+        }
         this.notification.confirmDelete( 1 ).pipe(
             takeUntil( this.destroy$ )
         ).subscribe( ( confirmed : boolean ) : void => {
@@ -284,6 +334,10 @@ export class HocVienComponent implements OnInit , OnDestroy {
     }
 
     deleteSelectedRows () : void {
+        if ( !this.permissionControl.canDelete ) {
+            this.notification.toastWarning( 'Bạn không có quyền xóa học viên' );
+            return;
+        }
         const selected : UserProfile[] = this.dataTable.getSelectedData();
         if ( ! selected.length ) {
             return;
@@ -314,6 +368,15 @@ export class HocVienComponent implements OnInit , OnDestroy {
     }
 
     submitForm () : void {
+        const isFormAdd : boolean = this.formControl.isFormAdd;
+        if ( isFormAdd && !this.permissionControl.canCreate ) {
+            this.notification.toastWarning( 'Bạn không có quyền thêm học viên' );
+            return;
+        }
+        if ( !isFormAdd && !this.permissionControl.canUpdate ) {
+            this.notification.toastWarning( 'Bạn không có quyền cập nhật học viên' );
+            return;
+        }
         if ( this.f.invalid ) {
             this.f.markAllAsTouched();
             this.notification.toastWarning( 'Vui lòng kiểm tra lại thông tin' );
@@ -335,7 +398,6 @@ export class HocVienComponent implements OnInit , OnDestroy {
             userPayload.password = value.password;
         }
 
-        const isFormAdd : boolean = this.formControl.isFormAdd;
         let operation$ : Observable<any>;
 
         if ( isFormAdd ) {

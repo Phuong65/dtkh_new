@@ -3,7 +3,9 @@
         <app-loading-progress heading="Loading..." backdropFilter="none"></app-loading-progress>
     }
     <div class="admin-wrap-table">
-        @if (state() !== 'error') {
+        @if (!permissionControl.canView) {
+            <div class="admin-table__alert-danger text-center w-100">Bạn không có quyền xem danh sách học viên.</div>
+        } @else if (state() !== 'error') {
             <div class="admin-wrap-table__head d-flex">
                 <h4 class="admin-wrap-table__heading">
                     <svg><use href="fonts/custom-icon.svg#custom-folder-open-2"></use></svg>
@@ -11,15 +13,21 @@
                 </h4>
                 <div class="admin-wrap-table__head-actions">
                     <input [(ngModel)]="_search" class="admin-wrap-table__head-actions__search" pInputText placeholder="Tìm mã học viên..." type="text" (keyup.enter)="onSearchData()">
-                    <button (click)="deleteSelectedRows()" [disabled]="!dataTable.someItemsChecked()" class="btn ictu-button-danger-gradient" mat-flat-button aria-label="Xóa các học viên đã chọn"><i class="ti ti-trash"></i></button>
-                    <button (click)="addNewItem()" mat-flat-button class="btn ictu-badge-btn--success-reverse" aria-label="Thêm học viên"><i class="ti ti-plus"></i></button>
+                    @if (permissionControl.canDelete) {
+                        <button (click)="deleteSelectedRows()" [disabled]="!dataTable.someItemsChecked()" class="btn ictu-button-danger-gradient" mat-flat-button aria-label="Xóa các học viên đã chọn"><i class="ti ti-trash"></i></button>
+                    }
+                    @if (permissionControl.canCreate) {
+                        <button (click)="addNewItem()" mat-flat-button class="btn ictu-badge-btn--success-reverse" aria-label="Thêm học viên"><i class="ti ti-plus"></i></button>
+                    }
                 </div>
             </div>
             <div class="admin-wrap-table__body">
                 <table class="tbl admin-table table-hover">
                     <thead>
                         <tr>
-                            <th class="col-checkbox"><mat-checkbox [checked]="dataTable.totalChecked()" [indeterminate]="dataTable.partiallyChecked()" (change)="dataTable.selectRow($event.checked)" [disabled]="!dataTable.data().length"></mat-checkbox></th>
+                            @if (permissionControl.canDelete) {
+                                <th class="col-checkbox"><mat-checkbox [checked]="dataTable.totalChecked()" [indeterminate]="dataTable.partiallyChecked()" (change)="dataTable.selectRow($event.checked)" [disabled]="!dataTable.data().length"></mat-checkbox></th>
+                            }
                             <th class="col-index text-center">#</th>
                             <th class="wid-130 text-center">Mã học viên</th>
                             <th class="wid-200 text-center">Họ và tên</th>
@@ -29,13 +37,17 @@
                             <th class="text-center">Email</th>
                             <th class="wid-130 text-center">Điện thoại</th>
                             <th class="wid-120 text-center">Trạng thái</th>
-                            <th class="wid-90 text-center px-0">Hành động</th>
+                            @if (permissionControl.canUpdate || permissionControl.canDelete) {
+                                <th class="wid-90 text-center px-0">Hành động</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
                         @for (row of dataTable.data(); track row.id; let i = $index) {
                             <tr>
-                                <td class="col-checkbox"><mat-checkbox [checked]="row._ictuDataTableRowChecked" (change)="dataTable.selectRow($event.checked, i)"></mat-checkbox></td>
+                                @if (permissionControl.canDelete) {
+                                    <td class="col-checkbox"><mat-checkbox [checked]="row._ictuDataTableRowChecked" (change)="dataTable.selectRow($event.checked, i)"></mat-checkbox></td>
+                                }
                                 <td class="col-index text-center">{{ dataTable.paginator.startIndex() + i }}</td>
                                 <td class="wid-200 text-left">{{ row.student_code || '—' }}</td>
                                 <td class="text-left fw-500">{{ row.full_name || '—' }}</td>
@@ -44,8 +56,17 @@
                                 <td class="text-left">{{ row.username || '—' }}</td>
                                 <td class="text-left">{{ row.email || '—' }}</td>
                                 <td class="wid-130 text-center">{{ row.phone || '—' }}</td>
-                                <td class="wid-120 text-center p-0"><button type="button" class="ictu-badge border-0 cursor-pointer" [class.ictu-badge--success]="row.user_status === 1" [class.ictu-badge--secondary]="row.user_status !== 1" (click)="toggleStatus(row)">{{ row.user_status === 1 ? 'Hoạt động' : 'Tạm khóa' }}</button></td>
-                                <td class="p-0 wid-90"><div class="admin-table__btn-actions"><button (click)="editRow(row)" class="btn ictu-button-info-light" aria-label="Sửa"><i class="ti ti-edit"></i></button><button (click)="deleteRow(row)" class="btn ictu-button-danger-light" aria-label="Xóa"><i class="ti ti-trash"></i></button></div></td>
+                                <td class="wid-120 text-center p-0"><button type="button" class="ictu-badge border-0 cursor-pointer" [disabled]="!permissionControl.canUpdate" [class.ictu-badge--success]="row.user_status === 1" [class.ictu-badge--secondary]="row.user_status !== 1" (click)="toggleStatus(row)">{{ row.user_status === 1 ? 'Hoạt động' : 'Tạm khóa' }}</button></td>
+                                @if (permissionControl.canUpdate || permissionControl.canDelete) {
+                                    <td class="p-0 wid-90"><div class="admin-table__btn-actions">
+                                        @if (permissionControl.canUpdate) {
+                                            <button (click)="editRow(row)" class="btn ictu-button-info-light" aria-label="Sửa"><i class="ti ti-edit"></i></button>
+                                        }
+                                        @if (permissionControl.canDelete) {
+                                            <button (click)="deleteRow(row)" class="btn ictu-button-danger-light" aria-label="Xóa"><i class="ti ti-trash"></i></button>
+                                        }
+                                    </div></td>
+                                }
                             </tr>
                         } @empty {
                             <tr><td colspan="11" class="text-center p-3">Không có học viên nào.</td></tr>
