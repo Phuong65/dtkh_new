@@ -9,7 +9,7 @@
                     <svg>
                         <use href="fonts/custom-icon.svg#custom-folder-open-2"></use>
                     </svg>
-                    Danh sách đơn vị
+                    Danh sách khoa
                 </h4>
                 <div class="admin-wrap-table__head-actions">
                     <input [(ngModel)]="_search" class="admin-wrap-table__head-actions__search" pInputText placeholder="Tìm kiếm..." type="text" (keyup.enter)="onSearchData()">
@@ -29,8 +29,8 @@
                                 <mat-checkbox [checked]="dataTable.totalChecked()" [indeterminate]="dataTable.partiallyChecked()" (change)="dataTable.selectRow($event.checked)" [disabled]="!dataTable.data().length"></mat-checkbox>
                             </th>
                             <th class="col-index text-center">#</th>
-                            <th class="wid-150 text-center">Mã đơn vị</th>
-                            <th class="text-left">Tên đơn vị</th>
+                            <th class="wid-150 text-center">Mã khoa</th>
+                            <th class="text-left">Tên khoa</th>
                             <th class="text-left">Mô tả</th>
                             <th class="wid-120 text-center">Trạng thái</th>
                             <th class="wid-90 text-center px-0">Hành động</th>

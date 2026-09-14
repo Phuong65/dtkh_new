@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component , inject , OnDestroy , OnInit , signal , Signal , viewChild , WritableSignal } from '@angular/core';
+import { Component , computed , inject , OnDestroy , OnInit , signal , Signal , viewChild , WritableSignal } from '@angular/core';
 import { FormBuilder , FormGroup , FormsModule , ReactiveFormsModule , Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
@@ -19,6 +19,7 @@ import { IctuFormControl2 } from '@models/ictu-form-control';
 import { NotificationService } from '@services/notification.service';
 import { IctuPaginatorComponent } from '@theme/components/ictu-paginator/ictu-paginator.component';
 import { LoadingProgressComponent } from '@theme/components/loading-progress/loading-progress.component';
+import { PasswordCriteria , REACTIVE_PASSWORD_VALIDATOR } from '@utilities/validators';
 
 interface GenderOption {
     label : string;
@@ -81,17 +82,35 @@ export class HocVienComponent implements OnInit , OnDestroy {
         { label : 'Tạm khóa' , value : 0 }
     ];
 
+    readonly passwordInputField : WritableSignal<'password' | 'text'> = signal<'password' | 'text'>( 'password' );
+
+    private readonly _passwordGuide : WritableSignal<Record<PasswordCriteria , boolean>> = signal<Record<PasswordCriteria , boolean>>( {
+        length           : false ,
+        uppercase        : false ,
+        lowercase        : false ,
+        number           : false ,
+        whitespace       : false ,
+        specialCharacter : false
+    } );
+
+    readonly passwordMatchedLength : Signal<boolean>           = computed<boolean>( () : boolean => this._passwordGuide().length );
+    readonly passwordMatchedUppercase : Signal<boolean>        = computed<boolean>( () : boolean => this._passwordGuide().uppercase );
+    readonly passwordMatchedLowercase : Signal<boolean>        = computed<boolean>( () : boolean => this._passwordGuide().lowercase );
+    readonly passwordMatchedNumber : Signal<boolean>           = computed<boolean>( () : boolean => this._passwordGuide().number );
+    readonly passwordMatchedWhitespace : Signal<boolean>       = computed<boolean>( () : boolean => this._passwordGuide().whitespace );
+    readonly passwordMatchedSpecialCharacter : Signal<boolean> = computed<boolean>( () : boolean => this._passwordGuide().specialCharacter );
+
     readonly formControl : IctuFormControl2<UserProfile> = new IctuFormControl2<UserProfile>( {
         dropdownFields : [] ,
         formGroup      : this.fb.group( {
             student_code : [ '' , [ Validators.required , Validators.maxLength( 50 ) ] ] ,
             full_name    : [ '' , [ Validators.required , Validators.minLength( 2 ) , Validators.maxLength( 255 ) ] ] ,
             username     : [ '' , [ Validators.required , Validators.minLength( 3 ) , Validators.maxLength( 50 ) ] ] ,
-            password     : [ '' , [ Validators.minLength( 6 ) ] ] ,
+            password     : [ '' , [ REACTIVE_PASSWORD_VALIDATOR ] ] ,
             birthday     : [ '' , [ Validators.maxLength( 20 ) ] ] ,
             gender       : [ 'nam' , Validators.required ] ,
-            email        : [ '' , [ Validators.required , Validators.email , Validators.maxLength( 100 ) ] ] ,
-            phone        : [ '' , [ Validators.maxLength( 20 ) ] ] ,
+            email        : [ '' , [ Validators.email , Validators.maxLength( 100 ) ] ] ,
+            phone        : [ '' , [ Validators.required , Validators.maxLength( 20 ) ] ] ,
             address      : [ '' , [ Validators.maxLength( 255 ) ] ] ,
             status       : [ 1 , Validators.required ]
         } ) ,
@@ -135,6 +154,25 @@ export class HocVienComponent implements OnInit , OnDestroy {
         this.eventObserver$.pipe(
             takeUntil( this.destroy$ )
         ).subscribe( ( { name , data } : DataTableEvent<UserProfile> ) : void => this.handleEvent[ name ]( data ) );
+
+        this.f.controls[ 'password' ].valueChanges.pipe(
+            takeUntil( this.destroy$ )
+        ).subscribe( ( value : string ) : void => this.updatePasswordGuide( value || '' ) );
+    }
+
+    changePasswordVisibility () : void {
+        this.passwordInputField.update( ( value : 'password' | 'text' ) : 'password' | 'text' => value === 'password' ? 'text' : 'password' );
+    }
+
+    private updatePasswordGuide ( value : string ) : void {
+        this._passwordGuide.set( {
+            length           : /.{8,30}/.test( value ) ,
+            uppercase        : /[A-Z]/.test( value ) ,
+            lowercase        : /[a-z]/.test( value ) ,
+            number           : /\d/.test( value ) ,
+            whitespace       : ! /\s/.test( value ) && value.length > 0 ,
+            specialCharacter : /[#?!@$%^&*-]/.test( value )
+        } );
     }
 
     ngOnInit () : void {
@@ -240,6 +278,7 @@ export class HocVienComponent implements OnInit , OnDestroy {
             this.notification.toastWarning( 'Bạn không có quyền thêm học viên' );
             return;
         }
+        this.passwordInputField.set( 'password' );
         this.f.reset( {
             student_code : '' ,
             full_name    : '' ,
@@ -252,7 +291,7 @@ export class HocVienComponent implements OnInit , OnDestroy {
             address      : '' ,
             status       : 1
         } );
-        this.f.controls[ 'password' ].setValidators( [ Validators.required , Validators.minLength( 6 ) ] );
+        this.f.controls[ 'password' ].setValidators( [ Validators.required , REACTIVE_PASSWORD_VALIDATOR ] );
         this.f.controls[ 'password' ].updateValueAndValidity();
         this.formControl.openFormAdd();
     }
@@ -262,6 +301,7 @@ export class HocVienComponent implements OnInit , OnDestroy {
             this.notification.toastWarning( 'Bạn không có quyền sửa học viên' );
             return;
         }
+        this.passwordInputField.set( 'password' );
         this.f.reset( {
             student_code : row.student_code || '' ,
             full_name    : row.full_name || '' ,
@@ -275,7 +315,7 @@ export class HocVienComponent implements OnInit , OnDestroy {
             status       : row.user_status ?? row.status ?? 1
         } );
         this.f.controls[ 'password' ].clearValidators();
-        this.f.controls[ 'password' ].setValidators( [ Validators.minLength( 6 ) ] );
+        this.f.controls[ 'password' ].setValidators( [ REACTIVE_PASSWORD_VALIDATOR ] );
         this.f.controls[ 'password' ].updateValueAndValidity();
         this.formControl.openFormEdit( row );
     }
@@ -411,7 +451,6 @@ export class HocVienComponent implements OnInit , OnDestroy {
                         birthday     : value.birthday ,
                         gender       : value.gender ,
                         address      : value.address ,
-                        email        : value.email ,
                         phone        : value.phone ,
                         status       : value.status
                     };
@@ -427,7 +466,6 @@ export class HocVienComponent implements OnInit , OnDestroy {
                 birthday     : value.birthday ,
                 gender       : value.gender ,
                 address      : value.address ,
-                email        : value.email ,
                 phone        : value.phone ,
                 status       : value.status
             };

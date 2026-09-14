@@ -16,6 +16,7 @@ import { IctuFormControl2 } from '@models/ictu-form-control';
 import { AppState } from '@models/app-state';
 import { DtoObject } from '@models/dto';
 import { forkJoin , Observable , Subject , takeUntil } from 'rxjs';
+import { AuthenticationService } from '@app/services/authentication.service';
 
 @Component( {
     selector    : 'app-donvi' ,
@@ -56,6 +57,10 @@ export class DonviComponent implements OnInit , OnDestroy {
         pageLinkSize : 5
     } );
 
+     private auth : AuthenticationService = inject<AuthenticationService>( AuthenticationService );
+
+     readonly donviId : Signal<number> = signal<number>( this.auth.user.donvi_id );
+
     readonly formControl : IctuFormControl2<DonVi> = new IctuFormControl2<DonVi>( {
         dropdownFields : [] ,
         formGroup      : this.fb.group( {
@@ -65,7 +70,7 @@ export class DonviComponent implements OnInit , OnDestroy {
             parent_id   : [ 0 ] ,
             status      : [ 1 ]
         } ) ,
-        objectName     : 'đơn vị' ,
+        objectName     : 'khoa' ,
         drawer         : this.drawer
     } );
 
@@ -131,7 +136,7 @@ export class DonviComponent implements OnInit , OnDestroy {
     loadData ( paged : number = 1 , resetPaginator : boolean = true ) : void {
         this.state.set( 'loading' );
         this._temp = { paged , resetPaginator };
-        this.danhMucService.loadDonVi( this._search , paged , this.dataTable.paginator.rows() , 0 ).pipe(
+        this.danhMucService.loadDonVi( this._search , paged , this.dataTable.paginator.rows() , this.donviId() ).pipe(
             takeUntil( this.destroy$ )
         ).subscribe( {
             next  : ( response : DtoObject<DonVi[]> ) : void => {

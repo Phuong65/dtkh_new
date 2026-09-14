@@ -14,6 +14,7 @@ import { TrainingMode } from '@models/training-mode';
 import { DanhMucService } from '@services/danh-muc.service';
 import { NotificationService } from '@services/notification.service';
 import { TrainingModeService } from '@services/training-mode.service';
+import { AuthenticationService } from '@services/authentication.service';
 import { DataTableEvent , DataTableEventName , IctuDataTable2 , IctuDataTablePaginatorInfo } from '@models/datatable';
 import { IctuFormControl2 } from '@models/ictu-form-control';
 import { AppState } from '@models/app-state';
@@ -49,6 +50,10 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
     private readonly trainingModeService : TrainingModeService = inject( TrainingModeService );
 
     private readonly notification : NotificationService = inject( NotificationService );
+
+    private readonly auth : AuthenticationService = inject<AuthenticationService>( AuthenticationService );
+
+    readonly donviId : Signal<number> = signal<number>( this.auth.user?.donvi_id ?? 0 );
 
     private readonly destroy$ : Subject<void> = new Subject<void>();
 
@@ -153,13 +158,13 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
 
     private loadDonViAndData () : void {
         forkJoin( {
-            donVi          : this.danhMucService.getDonViList() ,
+            donVi          : this.danhMucService.getDonViList( this.donviId() ) ,
             trainingModes  : this.trainingModeService.query( [] , { limit : -1 , orderby : 'name' , order : 'ASC' } )
         } ).pipe(
             takeUntil( this.destroy$ )
         ).subscribe( {
             next : ( { donVi , trainingModes } : { donVi : DonVi[] ; trainingModes : DtoObject<TrainingMode[]> } ) : void => {
-                this.dmDonviChuyenmon = donVi;
+                this.dmDonviChuyenmon = donVi.filter( ( d : DonVi ) : boolean => d.parent_id === this.donviId() );
                 this.dmTrainingMode = trainingModes.data || [];
                 this.loadData( 1 , true );
             } ,

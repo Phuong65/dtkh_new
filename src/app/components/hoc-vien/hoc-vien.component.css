@@ -213,6 +213,68 @@ input:focus-visible {
     outline: none;
 }
 
+.ictu-form__group--btn-after {
+    width: 100%;
+}
+
+.ictu-form__group--btn-after .ictu-form__input-field {
+    padding-right: 44px;
+}
+
+.ictu-form__group__btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 42px;
+    min-width: 42px;
+    border: 0;
+    background: transparent;
+    color: #6c757d;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ictu-form__group__btn:hover,
+.ictu-form__group__btn:focus-visible {
+    color: #1f6feb;
+}
+
+.ictu-form__group__btn:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -3px;
+}
+
+.ictu-form__group__btn .ti {
+    font-size: 18px;
+}
+
+.password-guide {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+    color: #6c757d;
+    font-size: 12px;
+}
+
+.password-guide li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.password-guide li.is-valid {
+    color: #198754;
+}
+
+.password-guide .ti {
+    font-size: 15px;
+}
+
 p-radiobutton {
     margin: 10px;
 }

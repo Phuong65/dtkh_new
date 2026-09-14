@@ -91,11 +91,26 @@
                         <div class="ictu-form__row"><label class="ictu-form__label ictu-form__label--required" for="f_student_code">Mã học viên</label><input class="ictu-form__input-field" formControlName="student_code" id="f_student_code" pInputText placeholder="Nhập mã học viên" type="text"></div>
                         <div class="ictu-form__row"><label class="ictu-form__label ictu-form__label--required" for="f_full_name">Họ và tên</label><input class="ictu-form__input-field" formControlName="full_name" id="f_full_name" pInputText placeholder="Nhập họ và tên" type="text"></div>
                         <div class="ictu-form__row"><label class="ictu-form__label ictu-form__label--required" for="f_username">Tài khoản</label><input class="ictu-form__input-field" formControlName="username" id="f_username" pInputText placeholder="Nhập tên tài khoản" type="text"></div>
-                        <div class="ictu-form__row"><label class="ictu-form__label" for="f_password">Mật khẩu</label><input class="ictu-form__input-field" formControlName="password" id="f_password" pInputText placeholder="Bắt buộc khi thêm mới; bỏ trống khi sửa" type="password"></div>
+                        <div class="ictu-form__row"><label class="ictu-form__label" for="f_password">Mật khẩu</label>
+                            <div class="ictu-form__group ictu-form__group--btn-after position-relative">
+                                <input class="ictu-form__input-field" formControlName="password" id="f_password" pInputText placeholder="Bắt buộc khi thêm mới; bỏ trống khi sửa" [type]="passwordInputField()" autocomplete="new-password" aria-describedby="password-guide">
+                                <button type="button" class="ictu-form__group__btn" (click)="changePasswordVisibility()" aria-label="Hiện/ẩn mật khẩu" tabindex="0">
+                                    <i [ngClass]="passwordInputField() === 'text' ? 'ti ti-eye-off' : 'ti ti-eye'" class="ti"></i>
+                                </button>
+                            </div>
+                            <ul id="password-guide" class="password-guide" aria-live="polite" aria-label="Yêu cầu mật khẩu">
+                                <li [class.is-valid]="passwordMatchedLength()"><i [ngClass]="passwordMatchedLength() ? 'ti ti-circle-check' : 'ti ti-circle-minus'" aria-hidden="true"></i> Ít nhất 8 ký tự</li>
+                                <li [class.is-valid]="passwordMatchedUppercase()"><i [ngClass]="passwordMatchedUppercase() ? 'ti ti-circle-check' : 'ti ti-circle-minus'" aria-hidden="true"></i> Có chữ in hoa (A-Z)</li>
+                                <li [class.is-valid]="passwordMatchedLowercase()"><i [ngClass]="passwordMatchedLowercase() ? 'ti ti-circle-check' : 'ti ti-circle-minus'" aria-hidden="true"></i> Có chữ in thường (a-z)</li>
+                                <li [class.is-valid]="passwordMatchedNumber()"><i [ngClass]="passwordMatchedNumber() ? 'ti ti-circle-check' : 'ti ti-circle-minus'" aria-hidden="true"></i> Có số (0-9)</li>
+                                <li [class.is-valid]="passwordMatchedSpecialCharacter()"><i [ngClass]="passwordMatchedSpecialCharacter() ? 'ti ti-circle-check' : 'ti ti-circle-minus'" aria-hidden="true"></i> Có ký tự đặc biệt (!&#64;#$...)</li>
+                                <li [class.is-valid]="passwordMatchedWhitespace()"><i [ngClass]="passwordMatchedWhitespace() ? 'ti ti-circle-check' : 'ti ti-circle-minus'" aria-hidden="true"></i> Không chứa khoảng trắng</li>
+                            </ul>
+                        </div>
                         <div class="ictu-form__row"><label class="ictu-form__label" for="f_birthday">Ngày sinh</label><input class="ictu-form__input-field" formControlName="birthday" id="f_birthday" pInputText placeholder="dd/mm/yyyy" type="text"></div>
                         <div class="ictu-form__row"><label class="ictu-form__label ictu-form__label--required" for="f_gender">Giới tính</label><p-select [options]="genderOptions" appendTo="body" class="ictu-form__input-field" formControlName="gender" inputId="f_gender" optionLabel="label" optionValue="value" placeholder="-- Chọn giới tính --"></p-select></div>
-                        <div class="ictu-form__row"><label class="ictu-form__label ictu-form__label--required" for="f_email">Email</label><input class="ictu-form__input-field" formControlName="email" id="f_email" pInputText placeholder="Nhập email" type="email"></div>
-                        <div class="ictu-form__row"><label class="ictu-form__label" for="f_phone">Điện thoại</label><input class="ictu-form__input-field" formControlName="phone" id="f_phone" pInputText placeholder="Nhập số điện thoại" type="tel"></div>
+                        <div class="ictu-form__row"><label class="ictu-form__label" for="f_email">Email</label><input class="ictu-form__input-field" formControlName="email" id="f_email" pInputText placeholder="Nhập email" type="email"></div>
+                        <div class="ictu-form__row"><label class="ictu-form__label ictu-form__label--required" for="f_phone">Điện thoại</label><input class="ictu-form__input-field" formControlName="phone" id="f_phone" pInputText placeholder="Nhập số điện thoại" type="tel"></div>
                         <div class="ictu-form__row"><label class="ictu-form__label" for="f_address">Địa chỉ</label><input class="ictu-form__input-field" formControlName="address" id="f_address" pInputText placeholder="Nhập địa chỉ" type="text"></div>
                         <div class="ictu-form__row"><label class="ictu-form__label ictu-form__label--required" for="f_status">Trạng thái</label><p-select [options]="statusOptions" appendTo="body" class="ictu-form__input-field" formControlName="status" inputId="f_status" optionLabel="label" optionValue="value"></p-select></div>
                     </div>
