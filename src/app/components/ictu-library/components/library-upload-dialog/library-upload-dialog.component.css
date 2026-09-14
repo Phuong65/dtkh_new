@@ -1,0 +1,64 @@
+.upload-dialog {
+    min-height: 300px;
+}
+
+.upload-dialog__dropzone {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 32px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.upload-dialog__dropzone:hover {
+    border-color: #3b82f6;
+    background: #f0f7ff;
+}
+
+.upload-dialog__dropzone--active {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.upload-dialog__queue {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.upload-dialog__queue-item {
+    background: #fafafa;
+}
+
+.upload-dialog__queue-item:hover {
+    background: #f3f4f6;
+}
+
+.progress {
+    background: #e5e7eb;
+}
+
+.progress-bar {
+    background: #3b82f6;
+    transition: width 0.3s;
+}
+
+.badge-primary {
+    color: #fff;
+    background-color: #007bff;
+}
+
+.badge-secondary {
+    color: #fff;
+    background-color: #6c757d;
+}
+
+.badge-danger {
+    color: #fff;
+    background-color: #dc3545;
+}
+
+.badge-success {
+    color: #fff;
+    background-color: #28a745;
+}

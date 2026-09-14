@@ -1,0 +1,101 @@
+<div class="upload-dialog ictu-dialog-layout">
+    <div class="ictu-dialog-layout__wrapper">
+        <div class="ictu-dialog-layout__header">
+            <h4 class="ictu-dialog-layout__heading m-0 text-start w-100 fw-bold">Tải tệp lên thư viện</h4>
+            <button (click)="cancel()" class="btn ictu-badge-btn--danger-reverse ictu-dialog-layout__btn-close" mat-flat-button>
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="upload-dialog__body p-15">
+        <!-- Drag and drop zone -->
+        <div class="upload-dialog__dropzone" [class.upload-dialog__dropzone--active]="isDragging" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" (click)="fileInput.click()">
+            <i class="fa-classic fa-light fa-arrow-down-to-line f-38 text-primary"></i>
+            <p class="f-roboto fw-normal f-16 lh-base m-b-10 m-t-20">Kéo và thả tệp vào đây, hoặc
+                <strong>Click</strong> để duyệt files </p>
+            <div class="d-inline-block text-justify">
+                <small class="f-14 f-roboto fw-normal lh-base text-muted d-block">Hỗ trợ: PDF, Word, Excel, PowerPoint, Hình ảnh, Video, Audio</small>
+                <small class="f-14 f-roboto fw-normal lh-base text-muted d-block">Dung lượng tối đa: 3Gb</small>
+            </div>
+            <input #fileInput type="file" multiple class="d-none" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.bmp,.webp,.svg,.mp4,.avi,.mov,.wmv,.mp3,.wav,.ogg,.txt,.zip,.rar">
+        </div>
+
+        <!-- Upload queue -->
+        @if (uploadQueue.length > 0) {
+            <div class="upload-dialog__queue mt-3">
+                <b class="m-b-10 f-roboto f-15 lh-base fw-medium d-block"> Danh sách tệp
+                    @if (isUploading()) {
+                        <span class="text-primary">(đang tải lên...)</span>
+                    }
+                </b>
+                @for (item of uploadQueue; track $index) {
+                    <div class="upload-dialog__queue-item d-flex align-items-center gap-10 p-10 border rounded m-b-10">
+                        <!-- File icon -->
+                        <div class="upload-dialog__queue-icon">
+                            @switch (item.state()) {
+                                @case ('DONE') {
+                                    <i class="fa-classic fa-solid fa-circle-check f-20 text-success"></i>
+                                }
+                                @case ('ERROR') {
+                                    <i class="fa-classic fa-solid fa-circle-exclamation f-20 text-danger"></i>
+                                }
+                                @default {
+                                    <i class="fa-classic fa-solid fa-circle-notch f-20 text-secondary fa-spin"></i>
+                                }
+                            }
+                        </div>
+
+                        <!-- File info -->
+                        <div class="flex-grow-1 min-w-0">
+                            <b class="upload-dialog__queue-name f-13 f-roboto fw-medium lh-base text-truncate m-0 d-block" style="max-width: calc(570px - 150px);">{{ item.name }}</b>
+                            <small class="text-muted f-12 f-roboto fw-normal lh-base">{{ item.size | formatBytes }}</small>
+                            @if (item.state() !== 'ERROR') {
+                                <mat-progress-bar class="upload-dialog__progress-bar m-t-5 flex-fill ictu-mat-progress-bar" [mode]=" item.state() === 'PENDING' ? 'buffer' : 'determinate'" [value]="item.progress()" style="--mat-progress-bar-active-indicator-height: 4px;--mat-progress-bar-track-height: 4px;--mat-progress-bar-track-shape:4px"></mat-progress-bar>
+                            }
+                            @if (item.errorMessage) {
+                                <small class="text-danger d-block m-0 f-12 f-roboto fw-normal lh-base" style="max-width: calc(570px - 150px);">{{ item.errorMessage }}</small>
+                            }
+                        </div>
+
+                        <!-- State badge -->
+                        <div class="upload-dialog__queue-state">
+                            @switch (item.state()) {
+                                @case ('DONE') {
+                                    <span class="badge f-12 f-roboto lh-base fw-medium b-rad-5 p-y-5 p-x-5 badge-success">Thành công</span>
+                                }
+                                @case ('ERROR') {
+                                    <span class="badge f-12 f-roboto lh-base fw-medium b-rad-5 p-y-5 p-x-5 badge-danger">Thất bại</span>
+                                }
+                                @case ('IN_PROGRESS') {
+                                    <span class="badge f-12 f-roboto lh-base fw-medium b-rad-5 p-y-5 p-x-5 badge-primary">{{ item.progress() }}%</span>
+                                }
+                                @default {
+                                    <span class="badge f-12 f-roboto lh-base fw-medium b-rad-5 p-y-5 p-x-5 badge-secondary">Chờ</span>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!--<div class="upload-dialog__footer d-flex justify-content-end gap-2 p-3 border-top">
+        &lt;!&ndash;        <button class="btn btn-outline-secondary" (click)="cancel()">Hủy</button>&ndash;&gt;
+        &lt;!&ndash;        <button class="btn btn-primary" [disabled]="isUploading()" (click)="close()">&ndash;&gt;
+        &lt;!&ndash;            @if (getCompletedCount() > 0) {&ndash;&gt;
+        &lt;!&ndash;                <span>Hoàn tất ({{ getCompletedCount() }} tệp)</span>&ndash;&gt;
+        &lt;!&ndash;            } @else {&ndash;&gt;
+        &lt;!&ndash;                <span>Đóng</span>&ndash;&gt;
+        &lt;!&ndash;            }&ndash;&gt;
+        &lt;!&ndash;        </button>&ndash;&gt;
+
+        <button (click)="cancel()" mat-flat-button class="btn ictu-badge-btn&#45;&#45;dark-reverse p-y-10 p-x-15" style="user-select: none;border-radius: 999px;">
+            <span class="d-flex align-items-center justify-content-center" style="gap:5px">
+                <i class="fa-classic fa-regular fa-ban f-14"></i>
+                <span class="f-14 f-roboto fw-normal lh-base">Đóng form</span>
+            </span>
+        </button>
+    </div>-->
+</div>

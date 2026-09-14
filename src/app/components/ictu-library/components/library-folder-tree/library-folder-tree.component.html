@@ -1,0 +1,39 @@
+<div class="library-folder-tree position-relative">
+    <div class="library-folder-tree__list d-flex flex-column justify-content-start align-items-start">
+        @for (item of ( folders() | ilFilterRootFolder ); track item.id; ) {
+            <ng-container *ngTemplateOutlet="menuTpl; context: { item: item }"></ng-container>
+        }
+    </div>
+</div>
+<ng-template #menuTpl let-item="item">
+    <div class="library-folder-tree__note d-flex align-items-start" [style.--library-folder-tree-indent]="(item.depth * 16) + 'px'">
+        <span class="library-folder-tree__indent">
+            <span class="library-folder-tree__indent__unit d-block"></span>
+        </span>
+        <button class="library-folder-tree__switcher btn" (click)="btnToggleMenu(item,collapseMenu)" [disabled]="!(folders() | ilIsFolderHasChild : item.id)">
+            <span class="library-folder-tree__switcher-line-icon d-flex w-100 h-100 justify-content-center align-items-center">
+                <svg viewBox="64 64 896 896" width="14" height="14" fill="currentColor" style="width: 14px;height: 14px;">
+                    @if (folders() | ilIsFolderHasChild : item.id) {
+                        @if (folders() | ilIsFolderOpened : item.id) {
+                            <path d="M328 544h368c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8H328c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8z"></path>
+                        } @else {
+                            <path d="M328 544h152v152c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V544h152c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8H544V328c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v152H328c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8z"></path>
+                        }
+                        <path d="M880 112H144c-17.7 0-32 14.3-32 32v736c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V144c0-17.7-14.3-32-32-32zm-40 728H184V184h656v656z"></path>
+                    } @else {
+                        <path d="M880 298.4H521L403.7 186.2a8.15 8.15 0 00-5.5-2.2H144c-17.7 0-32 14.3-32 32v592c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V330.4c0-17.7-14.3-32-32-32zM840 768H184V256h188.5l119.6 114.4H840V768z"></path>
+                    }
+                </svg>
+            </span>
+        </button>
+        <!--<div class="library-folder-tree__node-content-wrapper d-inline-flex flex-fill" [matTooltip]="item.title" matTooltipPosition="above">-->
+        <div class="library-folder-tree__node-content-wrapper d-inline-flex flex-fill">
+            <button (click)="btnActiveMenu(item)" class="btn library-folder-tree__btn-title m-0 f-roboto f-14 fw-normal lh-base" [class.library-folder-tree__btn-title--active]="activeFolder()?.id === item.id">{{ item.title }}</button>
+        </div>
+    </div>
+    <collapse-panel #collapseMenu>
+        @for (child of ( folders() | ilFilterChildrenFolders : item.id ); track child.id; ) {
+            <ng-container *ngTemplateOutlet="menuTpl; context: { item: child }"></ng-container>
+        }
+    </collapse-panel>
+</ng-template>

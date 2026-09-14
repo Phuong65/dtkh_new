@@ -1,0 +1,70 @@
+.library-folder-tree {
+    box-sizing: border-box;
+}
+
+.library-folder-tree__note {
+    padding: 0 0 4px 0;
+    outline: none;
+    --library-folder-tree-indent: 0px;
+}
+
+.library-folder-tree__indent {
+    align-self: stretch;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.library-folder-tree__indent__unit {
+    width: var(--library-folder-tree-indent);
+    max-width: var(--library-folder-tree-indent);
+    min-width: var(--library-folder-tree-indent);
+    height: 36px;
+}
+
+.library-folder-tree__switcher {
+    position: relative;
+    flex: none;
+    align-self: stretch;
+    width: 36px;
+    height: 36px;
+    margin: 0;
+    text-align: center;
+    user-select: none;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    cursor: auto;
+    /*color: rgba(16, 16, 16, 0.5);*/
+    color: inherit;
+}
+
+.library-folder-tree__switcher:not(:disabled) {
+    cursor: pointer;
+}
+
+.library-folder-tree__node-content-wrapper {
+    user-select: none;
+    padding: 0;
+}
+
+.library-folder-tree__btn-title {
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background: transparent;
+    cursor: pointer;
+    color: #374151;
+    padding: 7px;
+    border-radius: 4px;
+    white-space: nowrap; /* Required: Prevents text from wrapping to a new line */
+    overflow: hidden; /* Required: Hides the text that goes past the boundary */
+    text-overflow: ellipsis; /* Required: Adds the "..." at the cutoff point */
+    max-width: calc(239px - 36px - var(--library-folder-tree-indent));
+}
+
+.library-folder-tree__btn-title--active {
+    color: rgba(62, 121, 247, 1);
+    background: rgba(62, 121, 247, 0.1);
+}

@@ -1,0 +1,294 @@
+<section class="admin-section--table position-relative ictu-library">
+    @if (state() === 'loading') {
+        <app-loading-progress heading="Loading..." backdropFilter="none"></app-loading-progress>
+    }
+    <div class="admin-wrap-table">
+        <!-- Header: Breadcrumb + Actions -->
+        <div class="admin-wrap-table__head d-flex flex-wrap">
+            <h4 class="admin-wrap-table__heading">
+                <svg>
+                    <use href="fonts/custom-icon.svg#custom-folder-open-2"></use>
+                </svg>
+                Thư viện cá nhân
+            </h4>
+
+            @if (![ 'undefined' , 'error' ].includes( state() )) {
+                <div class="admin-wrap-table__head-actions d-flex align-items-center gap-2">
+
+                    <!-- Search -->
+                    <input class="admin-wrap-table__head-actions__search" [(ngModel)]="search" pInputText placeholder="Tìm kiếm..." type="text" (keyup.enter)="onSearchData()">
+
+                    <!-- New Folder button -->
+                    <button class="btn ictu-button-info-light p-0 wid-35 hei-35" [disabled]="!activeFolder() || activeFolder().depth > (depth - 1) || !( activeFolder() | ilIsFileOwner : userId())" (click)="openCreateFolderDialog()" matTooltip="Tạo thư mục mới" matTooltipPosition="below">
+                        <i class="fa-classic fa-regular fa-folder-plus"></i>
+                    </button>
+
+                    <!-- Upload button -->
+                    <button class="btn ictu-button-primary-light p-0 wid-35 hei-35" [disabled]="!activeFolder() || !( activeFolder() | ilIsFileOwner : userId())" (click)="openUploadDialog()" matTooltip="Tải tệp lên" matTooltipPosition="below">
+                        <i class="fa-classic fa-regular fa-cloud-upload"></i>
+                    </button>
+
+                </div>
+            }
+        </div>
+        <div class="admin-wrap-table__body d-flex flex-column position-relative" style="padding-left: 1px; height: calc(var(--device-height) - 55px);">
+            @switch (state()) {
+                @case ('error') {
+                    <div class="admin-table__alert-danger text-center m-auto p-x-15 p-y-10 lh-base">
+                        Tải dữ liệu thất bại. Vui lòng chọn
+                        <a (click)="reload($event)" href="javascript:" class="admin-table__alert-danger__btn-reload">tải lại</a>
+                    </div>
+                }
+                @case ('undefined') {
+                    <div class="d-inline-flex m-auto library-content-setup flex-column justify-content-center align-items-center">
+                        <h4 class="f-roboto f-18 fw-bold lh-base p-0 m-b-10" style="color:#1B3F8B;">
+                            <i class="fa-classic fa-solid fa-lightbulb-on text-warning m-r-10"></i>Khởi tạo không gian lưu trữ cá nhân
+                        </h4>
+                        <p class="m-b-15 p-0 f-15 f-roboto fw-normal library-content-setup__note w-100 text-start">Đây là lần đâu tiên bạn truy cập vào
+                            <span class="library-content-setup__note--highlight">Thư viện cá nhân</span>.
+                            <br>Hãy khởi tạo
+                            <span class="library-content-setup__note--highlight">không gian lưu trữ cá nhân</span> để bắt đầu quản lý, lưu trữ và chia sẻ tài nguyên của bạn trên hệ thống AMS.
+                        </p>
+                        <button (click)="btnCreatePersonalStoragePartition()" class="btn ictu-button-info-light p-y-10 p-x-15" style="user-select: none;border-radius: 999px;">
+                            <span class="d-flex align-items-center justify-content-center" style="gap:5px">
+                                <i class="fa-classic fa-solid fa-folder-user f-18"></i>
+                                <span class="f-14 f-roboto fw-normal lh-base">Click để khởi tạo phân vùng lưu trữ</span>
+                            </span>
+                        </button>
+                    </div>
+                }
+                @case ('createPersonalStoragePartition') {
+                    <app-loading-progress heading="Đang khởi tạo phân vùng lưu trữ..." backdropFilter="none"></app-loading-progress>
+                }
+                @default {
+                    <!-- Breadcrumb -->
+                    <div class="library-breadcrumb d-flex align-items-center">
+                        @for (crumb of breadcrumb(); track $index; let last = $last) {
+                            @if (!last) {
+                                <a href="javascript:" (click)="openFolder(crumb.id)" class="library-breadcrumb__link f-roboto f-14 lh-base fw-normal">{{ crumb.name }}</a>
+                                <span class="library-breadcrumb__separator mx-1">/</span>
+                            } @else {
+                                <span class="library-breadcrumb__current f-roboto f-14 lh-base fw-normal">{{ crumb.name }}</span>
+                            }
+                        }
+                        <div class="d-inline-flex justify-content-end align-items-center ms-auto gap-10"></div>
+                    </div>
+
+                    <!-- Main content: Sidebar + Grid -->
+                    <div class="library-content d-flex flex-fill">
+                        <!-- Folder Tree Sidebar -->
+                        <div class="library-sidebar">
+                            <ng-scrollbar orientation="vertical" style="height:calc(var(--device-height) - 55px - 46px); width: 100%;--_scrollbar-hover-thickness-px:10px" visibility="hover">
+                                <app-library-folder-tree class="d-block p-y-15" [(folders)]="folders" [(activeFolder)]="activeFolder" (folderSelect)="openFolder($event)" [userId]="userId()" [depth]="depth"></app-library-folder-tree>
+                            </ng-scrollbar>
+                        </div>
+
+                        <!-- File Grid -->
+                        <div class="library-grid flex-grow-1">
+                            <ng-scrollbar orientation="vertical" style="height:calc(var(--device-height) - 55px - 46px); width: 100%;--_scrollbar-hover-thickness-px:10px" visibility="hover">
+                                <div class="library-grid__container d-flex flex-wrap align-content-start p-20 gap-20">
+                                    @for (item of files(); track item.id) {
+                                        <div class="library-grid__item" [matContextMenuTriggerFor]="contextMenu" [matContextMenuTriggerData]="{item: item}">
+                                            @if (item.type === 'folder') {
+                                                <!-- Folder card -->
+                                                <div class="library-grid__card library-grid__card--folder" (click)="openFolder(item.id)" matTooltip="Mở thư mục" matTooltipPosition="above">
+                                                    <div class="library-grid__icon">
+                                                        <i class="fa-classic fa-light fa-folder" style="font-size: 32px; color: #f59e0b;"></i>
+                                                    </div>
+                                                    <p class="library-grid__name m-b-5 f-roboto lh-base fw-medium f-12">{{ item.title }}</p>
+                                                    <div class="library-grid__meta">
+                                                        <span class="f-roboto f-12 lh-base fw-medium">Thư mục</span>
+                                                    </div>
+                                                    <span class="library-grid__id">#{{ item.id }}</span>
+                                                </div><!--<div class="library-grid__actions d-flex justify-content-center align-items-center">
+                                                    <button class="btn p-0 wid-35 hei-35 btn-sm ictu-button-warning-light" [disabled]="!(item | ilIsFileOwner : userId())" (click)="$event.stopPropagation(); renameItem(item)" matTooltip="Đổi tên" matTooltipPosition="above">
+                                                        <i class="fa-classic fa-regular fa-file-edit f-16"></i>
+                                                    </button>
+                                                    <button class="btn p-0 wid-35 hei-35 btn-sm ictu-button-danger-light" [disabled]="!(item | ilIsFileOwner : userId())" (click)="$event.stopPropagation(); deleteItem(item)" matTooltip="Xóa" matTooltipPosition="above">
+                                                        <i class="fa-classic fa-regular fa-trash-alt f-16"></i>
+                                                    </button>
+                                                </div>-->
+                                            } @else {
+                                                <!-- File card -->
+                                                <div class="library-grid__card library-grid__card--file" (dblclick)="previewFile(item)" matTooltip="Nhấp đúp để xem trước" matTooltipPosition="above">
+                                                    <div class="library-grid__icon">
+                                                        <i class="fa-classic fa-light" [ngClass]="item | ilFileType : 'icon'" [style.color]="item | ilFileType : 'color'" style="font-size: 32px;"></i>
+                                                    </div>
+                                                    <p class="library-grid__name m-b-5 f-roboto lh-base fw-medium f-12">{{ item.title }}</p>
+                                                    <div class="library-grid__meta">
+                                                        @if (item.size) {
+                                                            <span class="f-roboto f-12 lh-base fw-normal">{{ item.size | formatBytes }}</span>
+                                                        }
+                                                        @if (item.ext) {
+                                                            <span class="library-grid__ext f-roboto f-12 lh-base fw-medium">{{ item.ext | uppercase }}</span>
+                                                        }
+                                                    </div>
+                                                    <span class="library-grid__id">#{{ item.id }}</span>
+                                                </div><!--<div class="library-grid__actions d-flex justify-content-center align-items-center">
+                                                    <button class="btn p-0 wid-35 hei-35 btn-sm ictu-button-warning-light" [disabled]="!(item | ilIsFileOwner : userId())" (click)="$event.stopPropagation(); renameItem(item)" matTooltip="Đổi tên" matTooltipPosition="above">
+                                                        <i class="fa-classic fa-regular fa-file-edit f-16"></i>
+                                                    </button>
+                                                    <button class="btn p-0 wid-35 hei-35 btn-sm ictu-button-info-light" (click)="$event.stopPropagation(); downloadFile(item)" matTooltip="Tải xuống" matTooltipPosition="above">
+                                                        <i class="fa-classic fa-regular fa-download f-16"></i>
+                                                    </button>
+                                                    <button class="btn p-0 wid-35 hei-35 btn-sm ictu-button-danger-light" [disabled]="!(item | ilIsFileOwner : userId())" (click)="$event.stopPropagation(); deleteItem(item)" matTooltip="Xóa" matTooltipPosition="above">
+                                                        <i class="fa-classic fa-regular fa-trash-alt f-16"></i>
+                                                    </button>
+                                                </div>-->
+                                                @if (selectedItemId() === item.id) {
+                                                    <div class="position-absolute inset-1 zdx-5 d-flex justify-content-center align-items-center b-rad-8" style="background-color: rgba(255,255,255,.15);user-select: none;backdrop-filter: blur(3px)">
+                                                        <p class="m-0 f-roboto fw-normal f-13 lh-base" style="padding: 10px 15px;background-color: rgb(215 215 215);border-radius: 99px;">Loading ...
+                                                            <i class="fa-classic fa-solid fa-refresh fa-spin"></i>
+                                                        </p>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    } @empty {
+                                        <div class="library-grid__empty w-100 text-center" style="height:calc(var(--device-height) - 55px - 46px - 20px - 20px)">
+                                            @if (activeFolder()) {
+                                                @if (search()) {
+                                                    <div class="library-grid__empty__image">
+                                                        <svg width="184" height="152" viewBox="0 0 184 152" xmlns="http://www.w3.org/2000/svg">
+                                                            <g fill="none" fill-rule="evenodd">
+                                                                <g transform="translate(24 31.67)">
+                                                                    <ellipse fill-opacity=".8" fill="#F5F5F7" cx="67.797" cy="106.89" rx="67.797" ry="12.668"></ellipse>
+                                                                    <path d="M122.034 69.674L98.109 40.229c-1.148-1.386-2.826-2.225-4.593-2.225h-51.44c-1.766 0-3.444.839-4.592 2.225L13.56 69.674v15.383h108.475V69.674z" fill="#AEB8C2"></path>
+                                                                    <path d="M101.537 86.214L80.63 61.102c-1.001-1.207-2.507-1.867-4.048-1.867H31.724c-1.54 0-3.047.66-4.048 1.867L6.769 86.214v13.792h94.768V86.214z" fill="url(#linearGradient-1)" transform="translate(13.56)"></path>
+                                                                    <path d="M33.83 0h67.933a4 4 0 0 1 4 4v93.344a4 4 0 0 1-4 4H33.83a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4z" fill="#F5F5F7"></path>
+                                                                    <path d="M42.678 9.953h50.237a2 2 0 0 1 2 2V36.91a2 2 0 0 1-2 2H42.678a2 2 0 0 1-2-2V11.953a2 2 0 0 1 2-2zM42.94 49.767h49.713a2.262 2.262 0 1 1 0 4.524H42.94a2.262 2.262 0 0 1 0-4.524zM42.94 61.53h49.713a2.262 2.262 0 1 1 0 4.525H42.94a2.262 2.262 0 0 1 0-4.525zM121.813 105.032c-.775 3.071-3.497 5.36-6.735 5.36H20.515c-3.238 0-5.96-2.29-6.734-5.36a7.309 7.309 0 0 1-.222-1.79V69.675h26.318c2.907 0 5.25 2.448 5.25 5.42v.04c0 2.971 2.37 5.37 5.277 5.37h34.785c2.907 0 5.277-2.421 5.277-5.393V75.1c0-2.972 2.343-5.426 5.25-5.426h26.318v33.569c0 .617-.077 1.216-.221 1.789z" fill="#DCE0E6"></path>
+                                                                </g>
+                                                                <path d="M149.121 33.292l-6.83 2.65a1 1 0 0 1-1.317-1.23l1.937-6.207c-2.589-2.944-4.109-6.534-4.109-10.408C138.802 8.102 148.92 0 161.402 0 173.881 0 184 8.102 184 18.097c0 9.995-10.118 18.097-22.599 18.097-4.528 0-8.744-1.066-12.28-2.902z" fill="#DCE0E6"></path>
+                                                                <g transform="translate(149.65 15.383)" fill="#FFF">
+                                                                    <ellipse cx="20.654" cy="3.167" rx="2.849" ry="2.815"></ellipse>
+                                                                    <path d="M5.698 5.63H0L2.898.704zM9.259.704h4.985V5.63H9.259z"></path>
+                                                                </g>
+                                                            </g>
+                                                        </svg>
+                                                    </div>
+                                                    <p class="library-grid__empty__description m-t-10 mb-0" style="color: #455560;">Không tìm thấy kết quả phù hợp.</p>
+                                                } @else {
+                                                    <div class="library-grid__empty__image">
+                                                        <svg width="64" height="41" viewBox="0 0 64 41" xmlns="http://www.w3.org/2000/svg">
+                                                            <g transform="translate(0 1)" fill="none" fill-rule="evenodd">
+                                                                <ellipse fill="#f8f8f9" cx="32" cy="33" rx="32" ry="7"></ellipse>
+                                                                <g fill-rule="nonzero" stroke="#e3e6e7">
+                                                                    <path d="M55 12.76L44.854 1.258C44.367.474 43.656 0 42.907 0H21.093c-.749 0-1.46.474-1.947 1.257L9 12.761V22h46v-9.24z"></path>
+                                                                    <path d="M41.613 15.931c0-1.605.994-2.93 2.227-2.931H55v18.137C55 33.26 53.68 35 52.05 35h-40.1C10.32 35 9 33.259 9 31.137V13h11.16c1.233 0 2.227 1.323 2.227 2.928v.022c0 1.605 1.005 2.901 2.237 2.901h14.752c1.232 0 2.237-1.308 2.237-2.913v-.007z" fill="#fbfcfc"></path>
+                                                                </g>
+                                                            </g>
+                                                        </svg>
+                                                    </div>
+                                                    <p class="library-grid__empty__description m-t-10 mb-0" style="color: rgba(69, 85, 96, 0.25);">Thư mục trống.</p>
+                                                }
+                                            } @else {
+                                                <p class="library-grid__empty__description mb-0" style="color: #72849a;">Chọn một thư mục để hiển thị nội dung.</p>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </ng-scrollbar>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+        <!-- Footer: Paginator -->
+        <!--            <div class="admin-wrap-table__foot">-->
+        <!--                <div class="d-flex justify-content-center align-items-center w-100">-->
+        <!--                    <ictu-paginator [control]="dataTable.paginator" (onChangePage)="onChangePage($event)"></ictu-paginator>-->
+        <!--                </div>-->
+        <!--            </div>-->
+    </div>
+</section>
+
+<p-dialog [(visible)]="enableFormFolderDialog" (onHide)="onHideDialog()" [closable]="false" [draggable]="false" [modal]="true" appendTo="body" styleClass="ictu-dialog-layout ictu-dialog-layout--no-border ictu-dialog-layout--hide-header ictu-dialog-layout--no-footer">
+    <div class="d-inline-flex m-auto library-content-setup flex-column justify-content-center align-items-center position-relative" style="border: none; border-radius: 0;">
+        <h4 class="f-roboto f-18 fw-bold lh-base p-0 m-b-20" style="color:#1B3F8B;">
+            <i class="fa-classic fa-solid m-r-10 f-18" [ngClass]="formInfo().icon"></i>{{ formInfo().title }} </h4>
+        <form [formGroup]="formGroup" class="d-flex m-b-20 p-0 w-100">
+            <label for="i_f_name" class="p-0 m-0 w-100">
+                <input id="i_f_name" type="text" pInputText [placeholder]="formInfo().placeholder" formControlName="title" class="f-roboto f-14 fw-normal lh-base w-100 p-y-10 p-x-15">
+            </label>
+        </form>
+        <div class="d-flex justify-content-evenly align-items-center w-100">
+            <button (click)="hideDialog()" [disabled]="formLoading()" mat-flat-button class="btn ictu-badge-btn--dark-reverse p-y-10 p-x-15" style="user-select: none;border-radius: 999px;min-width: 140px;">
+                <span class="d-flex align-items-center justify-content-center" style="gap:5px">
+                    <i class="fa-classic fa-regular fa-ban f-14"></i>
+                    <span class="f-14 f-roboto fw-normal lh-base">Huỷ</span>
+                </span>
+            </button>
+            <button (click)="btnSaveFormFolder()" [disabled]="formGroup.invalid || formGroup.untouched || formLoading()" mat-flat-button class="btn ictu-badge-btn--primary-reverse p-y-10 p-x-15" style="user-select: none;border-radius: 999px;min-width: 140px;">
+                <span class="d-flex align-items-center justify-content-center" style="gap:5px">
+                    <i class="fa-classic fa-light fa-save f-18"></i>
+                    <span class="f-14 f-roboto fw-normal lh-base">{{ formInfo().buttonLabel }}</span>
+                </span>
+            </button>
+        </div>
+        @if (formLoading()) {
+            <div class="position-absolute inset-0 zdx-5 d-flex justify-content-center align-items-center" style="background-color: rgba(255,255,255,.15);user-select: none;backdrop-filter: blur(3px)">
+                <p class="m-0 f-roboto fw-normal f-14 lh-base" style="padding: 10px 15px;background-color: rgb(215 215 215);border-radius: 99px;">Cập nhật dữ liệu...
+                    <i class="fa-classic fa-solid fa-refresh fa-spin"></i></p>
+            </div>
+        }
+    </div>
+</p-dialog>
+
+<p-dialog [(visible)]="enableFormUpdateParentFileDialog" (onHide)="onHideDialog()" [closable]="false" [draggable]="false" [modal]="true" appendTo="body" styleClass="ictu-dialog-layout ictu-dialog-layout--no-border ictu-dialog-layout--hide-header ictu-dialog-layout--no-footer">
+    <div class="d-inline-flex m-auto library-content-setup flex-column justify-content-center align-items-center position-relative" style="border: none; border-radius: 0;">
+        <h4 class="f-roboto f-18 fw-bold lh-base p-0 m-b-20" style="color:#1B3F8B;">
+            <i class="fa-classic fa-solid fa-folder-arrow-right m-r-10 f-18"></i>Chuyển đổi thư mục lưu trữ</h4>
+        <div class="d-flex m-b-20 p-0 w-100">
+            <div class="ictu-form__row w-100">
+                <label class="ictu-form__label">Thư mục chuyển tới</label>
+                <p-select [options]="selectFolders()" [(ngModel)]="newFileParentId" appendTo="body" class="ictu-form__input-field w-100" placeholder="--- Chọn thư mục ---" emptyMessage="Không có thư mục"/>
+            </div>
+        </div>
+        <div class="d-flex justify-content-evenly align-items-center w-100">
+            <button (click)="hideDialog()" [disabled]="formLoading()" mat-flat-button class="btn ictu-badge-btn--dark-reverse p-y-10 p-x-15" style="user-select: none;border-radius: 999px;min-width: 140px;">
+                <span class="d-flex align-items-center justify-content-center" style="gap:5px">
+                    <i class="fa-classic fa-regular fa-ban f-14"></i>
+                    <span class="f-14 f-roboto fw-normal lh-base">Huỷ</span>
+                </span>
+            </button>
+            <button (click)="btnUpdateFileParent()" [disabled]="!newFileParentId || formLoading()" mat-flat-button class="btn ictu-badge-btn--primary-reverse p-y-10 p-x-15" style="user-select: none;border-radius: 999px;min-width: 140px;">
+                <span class="d-flex align-items-center justify-content-center" style="gap:5px">
+                    <i class="fa-classic fa-light fa-save f-18"></i>
+                    <span class="f-14 f-roboto fw-normal lh-base">Lưu lại</span>
+                </span>
+            </button>
+        </div>
+        @if (formLoading()) {
+            <div class="position-absolute inset-0 zdx-5 d-flex justify-content-center align-items-center" style="background-color: rgba(255,255,255,.15);user-select: none;backdrop-filter: blur(3px)">
+                <p class="m-0 f-roboto fw-normal f-14 lh-base" style="padding: 10px 15px;background-color: rgb(215 215 215);border-radius: 99px;">Cập nhật dữ liệu...
+                    <i class="fa-classic fa-solid fa-refresh fa-spin"></i></p>
+            </div>
+        }
+    </div>
+</p-dialog>
+
+<mat-menu #contextMenu>
+    <ng-template matMenuContent let-item="item">
+        @if (item.type === 'folder') {
+            <button mat-menu-item [disabled]="!(item | ilIsFileOwner : userId())" (click)="renameItem(item)" style="--mat-menu-item-label-text-size:14px">
+                <i class="fa-classic fa-regular fa-file-edit f-16 m-r-10"></i>Đổi tên thư mục
+            </button>
+            <button mat-menu-item [disabled]="!(item | ilIsFileOwner : userId())" (click)="deleteItem(item)" style="--mat-menu-item-label-text-size:14px">
+                <i class="fa-classic fa-regular fa-trash-alt f-16 m-r-10"></i>Xoá thư mục
+            </button>
+        } @else {
+            <button mat-menu-item [disabled]="!(item | ilIsFileOwner : userId())" (click)="renameItem(item)" style="--mat-menu-item-label-text-size:14px">
+                <i class="fa-classic fa-regular fa-file-edit f-16 m-r-10"></i>Đổi tên tệp tin
+            </button>
+            <button mat-menu-item (click)="downloadFile(item)" style="--mat-menu-item-label-text-size:14px">
+                <i class="fa-classic fa-regular fa-download f-16 m-r-10"></i>Tải xuống tệp tin
+            </button>
+            <button mat-menu-item [disabled]="!(item | ilIsFileOwner : userId())" (click)="changeParentFolder(item)" style="--mat-menu-item-label-text-size:14px">
+                <i class="fa-classic fa-regular fa-folder f-16 m-r-10"></i>Chuyển đổi thư mục
+            </button>
+            <button mat-menu-item [disabled]="!(item | ilIsFileOwner : userId())" (click)="deleteItem(item)" style="--mat-menu-item-label-text-size:14px">
+                <i class="fa-classic fa-regular fa-trash-alt f-16 m-r-10"></i>Xoá tệp tin
+            </button>
+        }
+    </ng-template>
+</mat-menu>
