@@ -6,7 +6,7 @@ import { IctuNavigation } from "@theme/types/navigation";
 export const adminModuleGuard : CanActivateFn = ( _ : ActivatedRouteSnapshot , state : RouterStateSnapshot ) : boolean | UrlTree => {
 	const auth : AuthenticationService = inject( AuthenticationService );
 	const router : Router              = inject( Router );
-	return auth.userMenu.some( ( nav : IctuNavigation ) : boolean => state.url.startsWith( `/admin/${ nav.id }/` ) ) || router.createUrlTree( [ 'admin/404' ] , {
+	return auth.userCanAccessRoute( state.url ) || router.createUrlTree( [ 'admin/404' ] , {
 		queryParams : {
 			reason : 'access-denied' ,
 			time   : Date.now()

@@ -198,29 +198,92 @@ export class AuthenticationService {
 	}
 
 	get userMenu() : IctuNavigation[] {
-		if ( !this.permission?.data?.menus ) {
+		const menus : IctuNavigation[] | undefined = this.permission?.data?.menus;
+		if ( !menus?.length ) {
 			return [];
 		}
-		return this.permission.data.menus.map( ( nav : IctuNavigation ) : IctuNavigation => {
-			if ( !nav.child?.length ) {
-				return nav;
+
+		const flatChildren : Map<string , IctuNavigation[]> = new Map<string , IctuNavigation[]>();
+		const childIds : Set<string>                         = new Set<string>();
+
+		menus.forEach( ( menu : IctuNavigation ) : void => {
+			const parent : IctuNavigation | undefined = menus.reduce( ( current : IctuNavigation | undefined , candidate : IctuNavigation ) : IctuNavigation | undefined => {
+				if ( candidate.id === menu.id || !menu.id.startsWith( `${ candidate.id }_` ) ) {
+					return current;
+				}
+				return !current || candidate.id.length > current.id.length ? candidate : current;
+			} , undefined );
+			if ( parent ) {
+				flatChildren.set( parent.id , [ ...flatChildren.get( parent.id ) ?? [] , menu ] );
+				childIds.add( menu.id );
 			}
-			const prefix : string = `${ nav.id }/`;
-			return {
-				...nav ,
-				child : nav.child.map( ( item : IctuNavigationItem ) : IctuNavigationItem => {
-					const hasPrefixId : boolean = !!item.id && item.id.startsWith( prefix );
-					const id : string = hasPrefixId || !item.id ? item.id : `${ prefix }${ item.id }`;
-					const hasPrefixUrl : boolean = !!item.url && ( item.url.startsWith( prefix ) || item.url.startsWith( '/' ) );
-					const url : string = hasPrefixUrl || !item.url ? item.url : `${ prefix }${ item.url }`;
-					return {
-						...item ,
-						id ,
-						url
-					};
-				} )
-			};
 		} );
+
+		return menus.filter( ( menu : IctuNavigation ) : boolean => !childIds.has( menu.id ) ).map( ( menu : IctuNavigation ) : IctuNavigation => {
+			const routePrefix : string = this.getMenuRoutePrefix( menu );
+			return this.normalizeUserMenu( menu , routePrefix , flatChildren );
+		} );
+	}
+
+	userCanAccessRoute ( route : string ) : boolean {
+		const normalizedRoute : string = this.normalizeAdminRoute( route );
+		const menuMatchesRoute : ( menu : IctuNavigation ) => boolean = ( menu : IctuNavigation ) : boolean => {
+			const menuRoute : string = this.normalizeAdminRoute( menu.url );
+			return ( !!menuRoute && ( normalizedRoute === menuRoute || normalizedRoute.startsWith( `${ menuRoute }/` ) ) ) || !!menu.child?.some( menuMatchesRoute );
+		};
+		return this.userMenu.some( menuMatchesRoute );
+	}
+
+	private normalizeUserMenu ( menu : IctuNavigation , routePrefix : string , flatChildren : Map<string , IctuNavigation[]> ) : IctuNavigation {
+		const children : IctuNavigation[] = [ ...( menu.child ?? [] ) , ...( flatChildren.get( menu.id ) ?? [] ) ].filter( ( child : IctuNavigation , index : number , source : IctuNavigation[] ) : boolean => source.findIndex( ( item : IctuNavigation ) : boolean => item.id === child.id ) === index );
+		return {
+			...menu ,
+			url   : this.normalizeMenuUrl( menu.url , routePrefix , menu.external ) ,
+			child : children.map( ( child : IctuNavigation ) : IctuNavigation => this.normalizeUserMenu( child , routePrefix , flatChildren ) )
+		};
+	}
+
+	private getMenuRoutePrefix ( menu : IctuNavigation ) : string {
+		if ( menu.id === 'dao-tao' || menu.id.startsWith( 'dao-tao_' ) ) {
+			return 'daotao_ld';
+		}
+		const route : string = this.normalizeAdminRoute( menu.url );
+		return route.split( '/' )[ 0 ] || menu.id;
+	}
+
+	private normalizeMenuUrl ( url : string | undefined , routePrefix : string , external : boolean | undefined ) : string {
+		if ( !url || external || /^(?:https?:)?\/\//i.test( url ) ) {
+			return url ?? '';
+		}
+		const route : string = this.normalizeAdminRoute( url );
+		return route === routePrefix || route.startsWith( `${ routePrefix }/` ) ? route : `${ routePrefix }/${ route }`;
+	}
+
+	private normalizeAdminRoute ( route : string | undefined ) : string {
+		return ( route ?? '' ).split( '?' )[ 0 ].replace( /^\/?admin\/?/i , '' ).replace( /^\/+|\/+$/g , '' );
+	}
+
+	private getProjectMenuIcon ( menu : IctuNavigation , hasChildren : boolean ) : string {
+		if ( menu.customSvg ) {
+			return menu.customSvg.replace( /^#/ , '' );
+		}
+		const identity : string = `${ menu.id } ${ menu.title }`.toLowerCase();
+		if ( identity.includes( 'lop-hoc-phan' ) || identity.includes( 'lớp học phần' ) ) {
+			return 'custom-chalkboard-user';
+		}
+		if ( identity.includes( 'chuongtrinh-daotao' ) || identity.includes( 'chương trình đào tạo' ) ) {
+			return 'custom-graduation-cap';
+		}
+		if ( identity.includes( 'tai-lieu' ) || identity.includes( 'tệp tin' ) || identity.includes( 'đề cương' ) ) {
+			return 'custom-document-text';
+		}
+		if ( identity.includes( 'cauhoi' ) || identity.includes( 'câu hỏi' ) ) {
+			return 'custom-content-search-check';
+		}
+		if ( identity.includes( 'monhoc' ) || identity.includes( 'môn học' ) || identity.includes( 'noidung' ) || identity.includes( 'nội dung' ) ) {
+			return 'custom-book-open';
+		}
+		return hasChildren ? 'custom-folder-open-2' : 'custom-angle-right';
 	}
 
 	get roles() : readonly PickRole[] {

@@ -125,13 +125,21 @@ export class IctuVerticalMenuComponent implements OnInit , OnDestroy {
 	}
 
 	async activeMenu ( menu : IctuNavigation ) : Promise<void> {
+		if ( menu.url ) {
+			try {
+				await this.router.navigate( [ 'admin' , menu.url ] );
+			} catch ( e ) {
+				console.error( 'Navigation error:' , e );
+			}
+			this.menuActivated.set( menu );
+			return;
+		}
 		const _child : IctuNavigation | undefined = menu.child ? menu.child.find( ( node : IctuNavigation ) : boolean => !! node.url ) : undefined;
 		if ( _child ) {
 			try {
-				await this.router.navigate( [ [ 'admin' , _child.url ].join( '/' ) ] );
-			}
-			catch ( e ) {
-				alert( e );
+				await this.router.navigate( [ 'admin' , _child.url ] );
+			} catch ( e ) {
+				console.error( 'Navigation error:' , e );
 			}
 		}
 		this.menuActivated.set( menu );
