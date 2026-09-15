@@ -67,8 +67,7 @@ export class DonviComponent implements OnInit , OnDestroy {
             title       : [ '' , [ Validators.required , Validators.minLength( 2 ) , Validators.maxLength( 255 ) ] ] ,
             code        : [ '' , [ Validators.required , Validators.minLength( 2 ) , Validators.maxLength( 50 ) ] ] ,
             description : [ '' ] ,
-            parent_id   : [ 0 ] ,
-            status      : [ 1 ]
+            parent_id   : [ 0 ]
         } ) ,
         objectName     : 'khoa' ,
         drawer         : this.drawer
@@ -86,8 +85,7 @@ export class DonviComponent implements OnInit , OnDestroy {
                 title       : '' ,
                 code        : '' ,
                 description : '' ,
-                parent_id   : 0 ,
-                status      : 1
+                parent_id   : 0
             } );
             this.codeIsValid = true;
             this.formControl.openFormAdd();
@@ -97,8 +95,7 @@ export class DonviComponent implements OnInit , OnDestroy {
                 title       : data.title ,
                 code        : data.code ,
                 description : data.description || '' ,
-                parent_id   : data.parent_id || 0 ,
-                status      : data.status
+                parent_id   : data.parent_id || 0
             } );
             this.codeIsValid = true;
             this.formControl.openFormEdit( data );

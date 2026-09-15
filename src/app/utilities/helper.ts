@@ -807,3 +807,37 @@ export const getMonthRange : ( day : Date ) => [ Date , Date ] = ( day : Date ) 
 	const lastDay : Date  = dayjs( day ).endOf( 'month' ).toDate();
 	return [ firstDay , lastDay ];
 };
+
+export function formatMenuName( title : string , depth : number ) : string {
+	return depth > 0 ? `${ '— '.repeat( depth ) }${ title }` : title;
+}
+
+export function sortMenus<T extends { id : number; parent_id : number; title : string }>( items : T[] ) : T[] {
+	const children : Map<number , T[]> = new Map<number , T[]>();
+	for ( const item of items ) {
+		const group : T[] = children.get( item.parent_id ) || [];
+		group.push( item );
+		children.set( item.parent_id , group );
+	}
+	const result : T[] = [];
+	const visited : Set<number> = new Set<number>();
+	const visit = ( parentId : number ) : void => {
+		const group : T[] = children.get( parentId ) || [];
+		group.sort( ( a : T , b : T ) : number => a.title.localeCompare( b.title , 'vi' ) );
+		for ( const item of group ) {
+			if ( visited.has( item.id ) ) continue;
+			visited.add( item.id );
+			result.push( item );
+			visit( item.id );
+		}
+	};
+	visit( 0 );
+	for ( const item of items ) {
+		if ( !visited.has( item.id ) ) {
+			visited.add( item.id );
+			result.push( item );
+			visit( item.id );
+		}
+	}
+	return result;
+}

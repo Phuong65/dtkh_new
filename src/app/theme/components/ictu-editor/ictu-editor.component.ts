@@ -38,7 +38,7 @@ export class IctuEditorComponent implements ControlValueAccessor {
     // MODE 1: INPUT MODEL
     // -------------------------------------------------------------------------------------------------------------------
     @Input() set content ( value : string ) {
-        this.value = value;
+        this.value = value || '';
     }
 
     @Output() contentChange : EventEmitter<string> = new EventEmitter<string>();

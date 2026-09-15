@@ -1,0 +1,149 @@
+<section class="admin-section--table position-relative quanly-monhoc">
+    @if (state() === 'loading') {
+        <app-loading-progress heading="Loading..." backdropFilter="none"></app-loading-progress>
+    }
+
+    @if (!selectedCourseId) {
+        <div class="admin-wrap-table">
+            @if (!permissionControl.canView) {
+                <div class="admin-table__alert-danger text-center w-100">
+                    Bạn không có quyền xem danh sách môn học.
+                </div>
+            } @else if (state() === 'error') {
+                <div class="admin-table__alert-danger text-center w-100">
+                    Tải dữ liệu thất bại.
+                    <a (click)="reload($event)" href="javascript:" class="admin-table__alert-danger__btn-reload">Tải lại</a>
+                </div>
+            } @else {
+                <div class="admin-wrap-table__head d-flex flex-wrap align-items-center">
+                    <h4 class="admin-wrap-table__heading">
+                        <svg aria-hidden="true"><use href="fonts/custom-icon.svg#custom-folder-open-2"></use></svg>
+                        Danh sách môn học
+                    </h4>
+                    <div class="admin-wrap-table__head-actions d-flex flex-wrap align-items-center gap-2">
+                        <label class="visually-hidden" for="course-search">Tìm kiếm môn học</label>
+                        <input
+                            id="course-search"
+                            [(ngModel)]="_search"
+                            class="admin-wrap-table__head-actions__search"
+                            pInputText
+                            placeholder="Tìm tên hoặc mã môn học..."
+                            type="search"
+                            (keyup.enter)="onSearchData()">
+                        <p-select
+                            [options]="khoaList()"
+                            optionLabel="title"
+                            optionValue="id"
+                            placeholder="-- Chọn khoa --"
+                            appendTo="body"
+                            class="quanly-monhoc__filter-select">
+                        </p-select>
+                        @if (permissionControl.canCreate) {
+                            <button (click)="addNewItem()" mat-flat-button class="btn ictu-badge-btn--success-reverse" aria-label="Thêm môn học">
+                                <i class="ti ti-plus"></i>
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <div class="admin-wrap-table__body">
+                    <table class="tbl admin-table table-hover">
+                        <thead>
+                            <tr>
+                                <th class="col-index text-center">#</th>
+                                <th class="text-left">Tên môn học</th>
+                                <th class="wid-150 text-center">Mã môn</th>
+                                <th class="text-left">Khoa quản lý</th>
+                                <th class="wid-120 text-center">Yêu cầu CDR</th>
+                                <th class="wid-110 text-center">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (row of dataTable.data(); track row.id; let i = $index) {
+                                <tr>
+                                    <td class="col-index text-center">{{ dataTable.paginator.startIndex() + i }}</td>
+                                    <td class="text-left">
+                                        <div class="course-title-wrapper">
+                                            <button type="button" class="quanly-monhoc__course-link" (click)="selectCourse(row.id)">
+                                                <strong>{{ row.title }}</strong>
+                                            </button>
+                                            @if (row.editor_name) {
+                                                <span class="course-meta-info">{{ row.editor_name }}</span>
+                                            }
+                                            @if (row.sotinchi && row.hinhthucthi) {
+                                                <span class="course-meta-info">- TC: {{ row.sotinchi }} - {{ row.hinhthucthi }}</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="wid-150 text-center">{{ row.maso || '—' }}</td>
+                                    <td class="text-left">{{ row.category_name || '—' }}</td>
+                                    <td class="wid-120 text-center">
+                                        @if (row.chuandaura) {
+                                            <span class="ictu-badge ictu-badge--info">{{ row.chuandaura }}</span>
+                                        } @else {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+                                    <td class="wid-110 text-center p-0">
+                                        <div class="admin-table__btn-actions">
+                                            @if (permissionControl.canUpdate) {
+                                                <button (click)="editRow(row)" class="btn ictu-button-info-light" aria-label="Sửa môn học" matTooltip="Sửa">
+                                                    <i class="ti ti-edit"></i>
+                                                </button>
+                                            }
+                                            @if (permissionControl.canDelete) {
+                                                <button (click)="deleteRow(row)" class="btn ictu-button-danger-light" aria-label="Xóa môn học" matTooltip="Xóa">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            } @empty {
+                                <tr>
+                                    <td colspan="6" class="text-center p-4">Không có môn học nào.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="admin-wrap-table__foot">
+                    <ictu-paginator [control]="dataTable.paginator" (onChangePage)="onChangePage($event)"></ictu-paginator>
+                </div>
+            }
+        </div>
+    }
+</section>
+
+<p-drawer #pDrawer [(visible)]="formControl.visible" [dismissible]="false" [header]="formControl.heading()" [style]="{width: '520px', 'max-width': '100%'}" appendTo="body" position="right" styleClass="ictu-p-drawer">
+    <div class="ictu-p-drawer__content position-relative">
+        @if (formControl.enableLoading()) {
+            <app-loading-progress [heading]="formControl.loadingLabel()" backdropFilter="none"></app-loading-progress>
+        }
+        <div class="ictu-p-drawer__content__body position-relative">
+            @switch (formControl.state()) {
+                @case ('READY') {
+                    <form [formGroup]="formControl.formGroup" class="ictu-form ictu-form--label-on-top">
+                        <div class="ictu-form__row">
+                            <label class="ictu-form__label ictu-form__label--required" for="course_title">Tên môn học</label>
+                            <input id="course_title" pInputText class="ictu-form__input-field" formControlName="title" placeholder="Nhập tên môn học">
+                        </div>
+                        <div class="ictu-form__row">
+                            <label class="ictu-form__label ictu-form__label--required" for="course_maso">Mã môn học</label>
+                            <input id="course_maso" pInputText class="ictu-form__input-field" formControlName="maso" placeholder="Nhập mã môn học" style="text-transform: uppercase;">
+                        </div>
+                        <div class="ictu-form__row">
+                            <label class="ictu-form__label ictu-form__label--required" for="course_category">Khoa quản lý</label>
+                            <p-select id="course_category" [options]="khoaList()" optionLabel="title" optionValue="id" formControlName="category_ids" appendTo="body" class="ictu-form__input-field" placeholder="-- Chọn khoa --"></p-select>
+                        </div>
+                    </form>
+                }
+            }
+        </div>
+        <div class="ictu-p-drawer__content__footer">
+            <button (click)="submitForm()" [disabled]="formControl.formGroup.invalid || formControl.enableLoading()" class="btn ictu-badge-btn--success-reverse" mat-flat-button>Lưu lại</button>
+            <button (click)="formControl.closeForm()" class="btn ictu-badge-btn--secondary-reverse" mat-flat-button>Hủy</button>
+        </div>
+    </div>
+</p-drawer>

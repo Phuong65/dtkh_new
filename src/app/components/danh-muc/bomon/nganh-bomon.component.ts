@@ -70,7 +70,6 @@ export class DmBomonComponent implements OnInit , OnDestroy {
             slug               : [ '' , [ Validators.required ] ] ,
             donvi_chuyenmon_id : [ null , [ Validators.required ] ] ,
             desc               : [ '' ] ,
-            status             : [ 1 ] ,
             type               : [ 'bomon' ]
         } ) ,
         objectName     : 'bộ môn' ,
@@ -91,7 +90,6 @@ export class DmBomonComponent implements OnInit , OnDestroy {
                 slug               : '' ,
                 donvi_chuyenmon_id : this.selectedDonviId || ( this.dmDonviChuyenmon[ 0 ]?.id ?? null ) ,
                 desc               : '' ,
-                status             : 1 ,
                 type               : 'bomon'
             } );
             this.slugIsValid = true;
@@ -104,7 +102,6 @@ export class DmBomonComponent implements OnInit , OnDestroy {
                 slug               : data.slug || '' ,
                 donvi_chuyenmon_id : data.donvi_chuyenmon_id ,
                 desc               : data.desc || '' ,
-                status             : data.status ?? 1 ,
                 type               : 'bomon'
             } );
             this.slugIsValid = true;

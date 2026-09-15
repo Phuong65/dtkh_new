@@ -1,15 +1,28 @@
 .login-elegant-layout {
+    position: relative;
+    isolation: isolate;
     padding: 0;
     margin: 0;
     display: block;
     width: 100%;
     height: var(--device-height);
+    overflow: hidden;
+}
+
+.login-elegant-layout::before {
+    position: absolute;
+    z-index: -1;
+    inset: -20px;
+    content: '';
+    pointer-events: none;
     --bg-grid: url('/images/background_Login.jpg');
     background:
         radial-gradient(circle at 22% 22%, rgba(100, 220, 255, 0.16), transparent 25%),
         linear-gradient(135deg, rgba(27, 4, 82, 0.36), rgba(4, 18, 77, 0.16)),
-        transparent var(--bg-grid) no-repeat center;
-    background-size: cover;
+        linear-gradient(rgba(8, 14, 32, 0.22), rgba(8, 14, 32, 0.22)),
+        var(--bg-grid) center / cover no-repeat;
+    filter: blur(12px);
+    transform: scale(1.06);
 }
 
 .login-elegant__container {

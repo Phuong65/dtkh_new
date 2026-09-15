@@ -42,7 +42,6 @@
                             <th class="text-left">Tên bộ môn</th>
                             <th class="text-left">Khoa</th>
                             <th class="text-left">Mô tả</th>
-                            <th class="wid-120 text-center">Trạng thái</th>
                             <th class="wid-90 text-center px-0">Hành động</th>
                         </tr>
                     </thead>
@@ -57,15 +56,6 @@
                                 <td class="text-left font-weight-500">{{ row.title }}</td>
                                 <td class="text-left">{{ row.khoa || '—' }}</td>
                                 <td class="text-left">{{ row.desc || '—' }}</td>
-                                <td class="wid-120 text-center p-0">
-                                    <div class="d-flex w-100 h-100 justify-content-center align-items-center">
-                                        @if (row.status === 1) {
-                                            <span class="ictu-badge ictu-badge--success">Hoạt động</span>
-                                        } @else {
-                                            <span class="ictu-badge ictu-badge--secondary">Tạm khóa</span>
-                                        }
-                                    </div>
-                                </td>
                                 <td class="p-0 wid-90">
                                     <div class="admin-table__btn-actions">
                                         <button (click)="editRow(row)" class="btn ictu-button-info-light" aria-label="Sửa">
@@ -79,7 +69,7 @@
                             </tr>
                         } @empty {
                             <tr>
-                                <td colspan="8" class="text-center p-3">Không có bản ghi nào.</td>
+                                <td colspan="7" class="text-center p-3">Không có bản ghi nào.</td>
                             </tr>
                         }
                     </tbody>

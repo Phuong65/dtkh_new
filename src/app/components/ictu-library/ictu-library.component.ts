@@ -1,4 +1,4 @@
-import { Component , computed , inject , input , InputSignal , OnDestroy , OnInit , Signal , signal , WritableSignal } from '@angular/core';
+import { Component , computed , inject , input , InputSignal , OnDestroy , OnInit , output , OutputEmitterRef , Signal , signal , WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { catchError , debounceTime , filter , forkJoin , map , Observable , of , Subject , switchMap , takeUntil , tap } from 'rxjs';
@@ -117,7 +117,11 @@ export class IctuLibraryComponent implements OnInit , OnDestroy {
 	userId : InputSignal<number> = input.required();
 	
 	donviId : InputSignal<number> = input.required();
-	
+
+	selectionMode : InputSignal<boolean> = input<boolean>( false );
+
+	fileSelected : OutputEmitterRef<IctuFile> = output<IctuFile>();
+
 	private fileService : IctuFileService = inject( IctuFileService );
 	
 	private notification : NotificationService = inject( NotificationService );
@@ -294,10 +298,9 @@ export class IctuLibraryComponent implements OnInit , OnDestroy {
 			}
 		} );
 	}
-	
-	private _loadFolderTree() : Observable<IctuLibraryState> {
+	 
+	private _loadFolderTree() : Observable<IctuLibraryState> {  
 		const queryParams : IctuQueryParams = {
-			select  : 'id,parent_id,name,title,type,user_id,ext,share' ,
 			orderby : 'title' ,
 			order   : 'ASC'
 		};

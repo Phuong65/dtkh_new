@@ -83,7 +83,6 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
             donvi_chuyenmon_id : [ null , [ Validators.required ] ] ,
             training_mode_id   : [ null , [ Validators.required ] ] ,
             desc               : [ '' ] ,
-            status             : [ 1 ] ,
             type               : [ 'nganh' ]
         } ) ,
         objectName     : 'ngành' ,
@@ -105,7 +104,6 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
                 donvi_chuyenmon_id : this.selectedDonviId || ( this.dmDonviChuyenmon[ 0 ]?.id ?? null ) ,
                 training_mode_id   : null ,
                 desc               : '' ,
-                status             : 1 ,
                 type               : 'nganh'
             } );
             this.slugIsValid = true;
@@ -119,7 +117,6 @@ export class NganhBomonComponent implements OnInit , OnDestroy {
                 donvi_chuyenmon_id : data.donvi_chuyenmon_id ,
                 training_mode_id   : data.training_mode_id ?? null ,
                 desc               : data.desc || '' ,
-                status             : data.status ?? 1 ,
                 type               : 'nganh'
             } );
             this.slugIsValid = true;

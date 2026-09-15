@@ -8,7 +8,7 @@ export const DEPLOYMENTS_FOR_DEV : Record<DevelopmentServers , DeploymentEnviron
     'server_dev'    : new DeploymentEnvironment( {
         apiServiceConfig    : {
             title                                : 'Hệ thống quản lý Đào tạo kết hợp' ,
-            realm                                : 'dtkh' ,
+            realm                                : 'lcms' ,
             port                                 : 10091 ,
             googleClientId                       : '196027039836-kjhoo8f8p3i2eldcodouvs94p1gbi4jo.apps.googleusercontent.com' ,
             protocol                             : 'https' ,

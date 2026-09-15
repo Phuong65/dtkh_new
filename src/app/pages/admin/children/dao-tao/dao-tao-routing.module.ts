@@ -25,10 +25,6 @@ const routes: Routes = [
                 loadComponent: () => import('./children/quanly-monhoc/quanly-monhoc.component')
             },
             {
-                path: 'kehoach-hoctap',
-                loadComponent: () => import('./children/kehoach-hoctap/kehoach-hoctap.component')
-            },
-            {
                 path: 'kehoach-hoctap/chitiet-kehoach',
                 loadComponent: () => import('./children/kehoach-hoctap/chitiet-kehoach.component')
             },
