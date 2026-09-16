@@ -79,6 +79,14 @@
     text-decoration: underline;
 }
 
+/* Tên người tạo và TC - hình thức thi nằm cùng một hàng */
+.course-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+}
+
 .course-meta-info {
     color: #757575;
     font-size: 12px;

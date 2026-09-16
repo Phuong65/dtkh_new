@@ -24,7 +24,7 @@
                         role="tab"
                         [attr.aria-selected]="activeTab() === tab.key"
                         [class.is-active]="activeTab() === tab.key"
-                        (click)="selectTab(tab)">
+                        (click)="selectTab(tab.key)">
                         <span>{{ tab.label }}</span>
                     </button>
                 }
@@ -33,6 +33,28 @@
     </header>
 
     <main class="course-detail-content">
-        <router-outlet></router-outlet>
+        @switch (activeTab()) {
+            @case ('info') {
+                <app-course-info [course]="course()" [courseId]="courseId()"></app-course-info>
+            }
+            @case ('outcomes') {
+                <app-course-outcomes [course]="course()" [courseId]="courseId()"></app-course-outcomes>
+            }
+            @case ('content') {
+                <app-course-content [course]="course()" [courseId]="courseId()"></app-course-content>
+            }
+            @case ('questions') {
+                <app-course-questions [course]="course()" [courseId]="courseId()"></app-course-questions>
+            }
+            @case ('assessment') {
+                <app-course-assessment [course]="course()" [courseId]="courseId()"></app-course-assessment>
+            }
+            @case ('exam-form') {
+                <app-course-exam-form [course]="course()" [courseId]="courseId()"></app-course-exam-form>
+            }
+            @case ('settings') {
+                <app-course-settings [course]="course()" [courseId]="courseId()"></app-course-settings>
+            }
+        }
     </main>
 </section>

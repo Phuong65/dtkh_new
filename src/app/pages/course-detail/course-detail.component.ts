@@ -1,15 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { filter, Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { Course } from '@models/course';
 import { CourseService } from '@services/course.service';
 import { LoadingProgressComponent } from '@theme/components/loading-progress/loading-progress.component';
+import { CourseInfoComponent } from './children/info/course-info.component';
+import { CourseOutcomesComponent } from './children/outcomes/course-outcomes.component';
+import { CourseContentComponent } from './children/content/course-content.component';
+import { CourseQuestionsComponent } from './children/questions/course-questions.component';
+import { CourseAssessmentComponent } from './children/assessment/course-assessment.component';
+import { CourseExamFormComponent } from './children/exam-form/course-exam-form.component';
+import { CourseSettingsComponent } from './children/settings/course-settings.component';
+
+/** Id các tab của trang chi tiết môn học. */
+export type CourseDetailTabKey = 'info' | 'outcomes' | 'content' | 'questions' | 'assessment' | 'exam-form' | 'settings';
 
 export interface CourseDetailTab {
-    key: string;
-    path: string;
+    key: CourseDetailTabKey;
     label: string;
     icon: string;
 }
@@ -17,7 +26,18 @@ export interface CourseDetailTab {
 @Component({
     selector: 'app-course-detail',
     standalone: true,
-    imports: [CommonModule, RouterModule, RouterOutlet, MatButtonModule, LoadingProgressComponent],
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        LoadingProgressComponent,
+        CourseInfoComponent,
+        CourseOutcomesComponent,
+        CourseContentComponent,
+        CourseQuestionsComponent,
+        CourseAssessmentComponent,
+        CourseExamFormComponent,
+        CourseSettingsComponent
+    ],
     templateUrl: './course-detail.component.html',
     styleUrl: './course-detail.component.css'
 })
@@ -30,16 +50,17 @@ export class CourseDetailComponent implements OnInit, OnDestroy {
     readonly courseId = signal<number>(0);
     readonly course = signal<Course | null>(null);
     readonly loading = signal<boolean>(true);
-    readonly activeTab = signal<string>('info');
+    // Tab đang xem: chỉ là state của component, quyết định component nào hiển thị qua @switch trong template.
+    readonly activeTab = signal<CourseDetailTabKey>('info');
 
     readonly tabs: CourseDetailTab[] = [
-        { key: 'info', path: 'info', label: 'Thông tin', icon: 'fa-circle-info' },
-        { key: 'outcomes', path: 'outcomes', label: 'Mục tiêu - CĐR', icon: 'fa-bullseye' },
-        { key: 'content', path: 'content', label: 'Nội dung', icon: 'fa-book-open' },
-        { key: 'questions', path: 'questions', label: 'CĐR - Câu hỏi', icon: 'fa-list-check' },
-        { key: 'assessment', path: 'assessment', label: 'Kiểm tra - Đánh giá', icon: 'fa-clipboard-check' },
-        { key: 'exam-form', path: 'exam-form', label: 'Form đề', icon: 'fa-file-lines' },
-        { key: 'settings', path: 'settings', label: 'Cấu hình', icon: 'fa-gear' }
+        { key: 'info', label: 'Thông tin', icon: 'fa-circle-info' },
+        { key: 'outcomes', label: 'Mục tiêu - CĐR', icon: 'fa-bullseye' },
+        { key: 'content', label: 'Nội dung', icon: 'fa-book-open' },
+        { key: 'questions', label: 'CĐR - Câu hỏi', icon: 'fa-list-check' },
+        { key: 'assessment', label: 'Kiểm tra - Đánh giá', icon: 'fa-clipboard-check' },
+        { key: 'exam-form', label: 'Form đề', icon: 'fa-file-lines' },
+        { key: 'settings', label: 'Cấu hình', icon: 'fa-gear' }
     ];
 
     readonly courseTitle = computed(() => {
@@ -52,26 +73,11 @@ export class CourseDetailComponent implements OnInit, OnDestroy {
         this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
             const id = Number(params.get('id'));
             this.courseId.set(id);
+            this.activeTab.set('info');
             if (id) {
                 this.loadCourse(id);
-                // Đồng bộ queryParams { code: id } để các component tab con đọc được dữ liệu
-                const queryCode = Number(this.route.snapshot.queryParamMap.get('code'));
-                if (queryCode !== id) {
-                    this.router.navigate([], {
-                        relativeTo: this.route,
-                        queryParams: { code: id },
-                        queryParamsHandling: 'merge',
-                        replaceUrl: true
-                    });
-                }
             }
         });
-
-        this.syncActiveTab();
-        this.router.events.pipe(
-            filter(event => event instanceof NavigationEnd),
-            takeUntil(this.destroy$)
-        ).subscribe(() => this.syncActiveTab());
     }
 
     ngOnDestroy(): void {
@@ -90,18 +96,9 @@ export class CourseDetailComponent implements OnInit, OnDestroy {
         });
     }
 
-    private syncActiveTab(): void {
-        const segments = this.router.url.split('?')[0].split('/').filter(Boolean);
-        const activeSegment = segments[segments.length - 1];
-        const found = this.tabs.find(tab => tab.path === activeSegment);
-        this.activeTab.set(found ? found.key : 'info');
-    }
-
-    selectTab(tab: CourseDetailTab): void {
-        this.router.navigate([tab.path], {
-            relativeTo: this.route,
-            queryParamsHandling: 'merge'
-        });
+    /** Chỉ đổi state tab, không điều hướng router. */
+    selectTab(key: CourseDetailTabKey): void {
+        this.activeTab.set(key);
     }
 
     backToList(): void {

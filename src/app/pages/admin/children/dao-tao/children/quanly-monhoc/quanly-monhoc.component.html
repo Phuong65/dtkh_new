@@ -67,11 +67,15 @@
                                             <button type="button" class="quanly-monhoc__course-link" (click)="selectCourse(row.id)">
                                                 <strong>{{ row.title }}</strong>
                                             </button>
-                                            @if (row.editor_name) {
-                                                <span class="course-meta-info">{{ row.editor_name }}</span>
-                                            }
-                                            @if (row.sotinchi && row.hinhthucthi) {
-                                                <span class="course-meta-info">- TC: {{ row.sotinchi }} - {{ row.hinhthucthi }}</span>
+                                            @if (row.editor_name || (row.sotinchi && row.hinhthucthi)) {
+                                                <div class="course-meta-row">
+                                                    @if (row.editor_name) {
+                                                        <span class="course-meta-info">{{ row.editor_name }}</span>
+                                                    }
+                                                    @if (row.sotinchi && row.hinhthucthi) {
+                                                        <span class="course-meta-info">{{ row.editor_name ? '- TC: ' : 'TC: ' }}{{ row.sotinchi }} - {{ row.hinhthucthi }}</span>
+                                                    }
+                                                </div>
                                             }
                                         </div>
                                     </td>
