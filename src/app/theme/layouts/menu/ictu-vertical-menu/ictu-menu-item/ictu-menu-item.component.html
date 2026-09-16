@@ -2,7 +2,7 @@
 	@if (! item.external) {
 		<li [ngClass]="item.classes!" [routerLinkActive]="['active']" (isActiveChange)="onRouterLinkActive($event)">
 			<a class="nav-link" [routerLink]="[item.url]" (click)="toggleMenu($event)">
-				@if (item.icon) {
+				<!-- @if (item.icon) {
 					<span class="coded-micon" [ngClass]="item.icon"></span>
 				} @else if (item.customSvg) {
 					<svg class="coded-micon pc-icon">
@@ -12,7 +12,10 @@
 					<svg class="coded-micon pc-icon coded-micon--default">
 						<use href="fonts/custom-icon.svg#custom-angle-right"></use>
 					</svg>
-				}
+				} -->
+				<svg class="coded-micon pc-icon coded-micon--default">
+					<use href="fonts/custom-icon.svg#custom-angle-right"></use>
+				</svg>
 				<span class="coded-mtext">{{ item.title }}</span> </a>
 		</li>
 	} @else {

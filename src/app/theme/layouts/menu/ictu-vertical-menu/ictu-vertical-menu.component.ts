@@ -82,19 +82,27 @@ export class IctuVerticalMenuComponent implements OnInit , OnDestroy {
 			takeUntil( this.destroy$ ) ,
 			filter( ( event : Event ) : boolean => event instanceof NavigationEnd )
 		).subscribe( ( router : NavigationEnd ) : void => {
-			this.tryActiveMenuByRouting( router.url ? router.url.replace( /\/?admin\//gmi , '' ).split( '/' ).shift() : null );
+			this.tryActiveMenuByRouting( router.url );
 		} );
 
-		const _currentMenuId : string | undefined = this.activatedRoute.snapshot.children[ 0 ].routeConfig?.path;
-		this.tryActiveMenuByRouting( _currentMenuId );
+		this.tryActiveMenuByRouting( this.router.url || this.activatedRoute.snapshot.children[ 0 ].routeConfig?.path );
 	}
 
 
 	private tryActiveMenuByRouting ( router : string | undefined | null ) : void {
-		const menu : IctuNavigation | undefined = router ? this.menus().find( ( i : IctuNavigation ) : boolean => i.id === router ) : undefined;
+		const normalizedRoute : string = ( router ?? '' ).replace( /^\/?admin\//i , '' ).replace( /^\/+|\/+$/g , '' );
+		const menu : IctuNavigation | undefined = normalizedRoute ? this.menus().find( ( item : IctuNavigation ) : boolean => this.menuMatchesRoute( item , normalizedRoute ) ) : undefined;
 		if ( menu ) {
 			this.menuActivated.set( menu );
 		}
+	}
+
+	private menuMatchesRoute ( menu : IctuNavigation , route : string ) : boolean {
+		const menuUrl : string = ( menu.url ?? '' ).replace( /^\/?admin\//i , '' ).replace( /^\/+|\/+$/g , '' );
+		if ( menuUrl && ( route === menuUrl || route.startsWith( `${ menuUrl }/` ) ) ) {
+			return true;
+		}
+		return menu.child?.some( ( child : IctuNavigation ) : boolean => this.menuMatchesRoute( child , route ) ) ?? false;
 	}
 
 	fireOutClick () : void {
@@ -125,13 +133,21 @@ export class IctuVerticalMenuComponent implements OnInit , OnDestroy {
 	}
 
 	async activeMenu ( menu : IctuNavigation ) : Promise<void> {
+		if ( menu.url ) {
+			try {
+				await this.router.navigate( [ 'admin' , menu.url ] );
+			} catch ( e ) {
+				console.error( 'Navigation error:' , e );
+			}
+			this.menuActivated.set( menu );
+			return;
+		}
 		const _child : IctuNavigation | undefined = menu.child ? menu.child.find( ( node : IctuNavigation ) : boolean => !! node.url ) : undefined;
 		if ( _child ) {
 			try {
-				await this.router.navigate( [ [ 'admin' , _child.url ].join( '/' ) ] );
-			}
-			catch ( e ) {
-				alert( e );
+				await this.router.navigate( [ 'admin' , _child.url ] );
+			} catch ( e ) {
+				console.error( 'Navigation error:' , e );
 			}
 		}
 		this.menuActivated.set( menu );

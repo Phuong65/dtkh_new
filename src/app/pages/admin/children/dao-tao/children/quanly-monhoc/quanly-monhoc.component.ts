@@ -143,9 +143,7 @@ export default class QuanLyMonhocComponent implements OnInit, OnDestroy {
     }
 
     selectCourse(courseId: number): void {
-        this.router.navigate(['/course-detail', courseId, 'info'], {
-            queryParams: { code: courseId }
-        });
+        this.router.navigate(['/course-detail', courseId]);
     }
     // =========================================================
 

@@ -102,6 +102,16 @@
                 outline: none !important;
                 box-shadow: none !important;
 
+                .coded-micon {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 24px;
+                    height: 24px;
+                    font-size: 18px;
+                    line-height: 1;
+                }
+
                 svg {
                     color: inherit;
                     fill: currentColor;

@@ -29,42 +29,7 @@ export const routes : Routes = [
 	{
 		path: 'course-detail/:id',
 		canActivate: [authGuard],
-		loadComponent: () => import('@pages/course-detail/course-detail.component').then(c => c.CourseDetailComponent),
-		children: [
-			{
-				path: '',
-				redirectTo: 'info',
-				pathMatch: 'full'
-			},
-			{
-				path: 'info',
-				loadComponent: () => import('@components/coming-soon/coming-soon.component').then(c => c.ComingSoonComponent)
-			},
-			{
-				path: 'outcomes',
-				loadComponent: () => import('@components/coming-soon/coming-soon.component').then(c => c.ComingSoonComponent)
-			},
-			{
-				path: 'content',
-				loadComponent: () => import('@components/coming-soon/coming-soon.component').then(c => c.ComingSoonComponent)
-			},
-			{
-				path: 'questions',
-				loadComponent: () => import('@components/coming-soon/coming-soon.component').then(c => c.ComingSoonComponent)
-			},
-			{
-				path: 'assessment',
-				loadComponent: () => import('@components/coming-soon/coming-soon.component').then(c => c.ComingSoonComponent)
-			},
-			{
-				path: 'exam-form',
-				loadComponent: () => import('@components/coming-soon/coming-soon.component').then(c => c.ComingSoonComponent)
-			},
-			{
-				path: 'settings',
-				loadComponent: () => import('@components/coming-soon/coming-soon.component').then(c => c.ComingSoonComponent)
-			}
-		]
+		loadComponent: () => import('@pages/course-detail/course-detail.component').then(c => c.CourseDetailComponent)
 	},
 	{
 		path       : '**' ,
