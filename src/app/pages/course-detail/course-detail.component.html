@@ -5,27 +5,31 @@
 
     <header class="course-detail-header">
         <div class="course-detail-header__main">
-            <button type="button" mat-flat-button class="btn ictu-badge-btn--secondary-reverse course-detail-back-btn" (click)="backToList()">
+            <button
+                type="button"
+                mat-flat-button
+                class="btn ictu-badge-btn--secondary-reverse course-detail-back-btn"
+                aria-label="Trở lại danh sách môn học"
+                (click)="backToList()">
                 <i class="fa fa-arrow-left" aria-hidden="true"></i>
-                <span>Danh sách môn học</span>
             </button>
+            <span class="course-detail-header__divider" aria-hidden="true"></span>
             <h2 class="course-detail-heading mb-0">{{ courseTitle() }}</h2>
-        </div>
 
-        <nav class="course-detail-tabs" aria-label="Các chức năng môn học" role="tablist">
-            @for (tab of tabs; track tab.key) {
-                <button
-                    type="button"
-                    class="course-detail-tab"
-                    role="tab"
-                    [attr.aria-selected]="activeTab() === tab.key"
-                    [class.is-active]="activeTab() === tab.key"
-                    (click)="selectTab(tab)">
-                    <i class="fa" [ngClass]="tab.icon" aria-hidden="true"></i>
-                    <span>{{ tab.label }}</span>
-                </button>
-            }
-        </nav>
+            <nav class="course-detail-tabs" aria-label="Các chức năng môn học" role="tablist">
+                @for (tab of tabs; track tab.key) {
+                    <button
+                        type="button"
+                        class="course-detail-tab"
+                        role="tab"
+                        [attr.aria-selected]="activeTab() === tab.key"
+                        [class.is-active]="activeTab() === tab.key"
+                        (click)="selectTab(tab)">
+                        <span>{{ tab.label }}</span>
+                    </button>
+                }
+            </nav>
+        </div>
     </header>
 
     <main class="course-detail-content">

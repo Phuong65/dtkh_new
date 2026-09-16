@@ -198,7 +198,7 @@ export class AuthenticationService {
 	}
 
 	get userMenu() : IctuNavigation[] {
-		const menus : IctuNavigation[] | undefined = this.permission?.data?.menus;
+		const menus : IctuNavigation[] | undefined = this.permission?.data?.menus?.filter( ( menu : IctuNavigation ) : boolean => !this.isRoleDashboardMenu( menu ) );
 		if ( !menus?.length ) {
 			return [];
 		}
@@ -225,6 +225,10 @@ export class AuthenticationService {
 		} );
 	}
 
+	private isRoleDashboardMenu ( menu : IctuNavigation ) : boolean {
+		return menu.title === 'Dashboard' && ( menu.id === 'dashboard' || menu.id.endsWith( '-dashboard' ) || menu.url === 'dashboard' || menu.url === 'daotao_ld/dashboard' );
+	}
+
 	userCanAccessRoute ( route : string ) : boolean {
 		const normalizedRoute : string = this.normalizeAdminRoute( route );
 		const menuMatchesRoute : ( menu : IctuNavigation ) => boolean = ( menu : IctuNavigation ) : boolean => {
@@ -236,10 +240,22 @@ export class AuthenticationService {
 
 	private normalizeUserMenu ( menu : IctuNavigation , routePrefix : string , flatChildren : Map<string , IctuNavigation[]> ) : IctuNavigation {
 		const children : IctuNavigation[] = [ ...( menu.child ?? [] ) , ...( flatChildren.get( menu.id ) ?? [] ) ].filter( ( child : IctuNavigation , index : number , source : IctuNavigation[] ) : boolean => source.findIndex( ( item : IctuNavigation ) : boolean => item.id === child.id ) === index );
+		const dashboardUrl : string = routePrefix === 'daotao_ld' ? 'daotao_ld/dashboard' : 'dashboard';
+		const hasDashboard : boolean = children.some( ( child : IctuNavigation ) : boolean => child.url === dashboardUrl || child.title === 'Dashboard' );
+		const menuChildren : IctuNavigation[] = children.length && menu.id !== 'account' && menu.id !== 'thong-bao' && !hasDashboard ? [
+			{
+				id        : `${ menu.id }-dashboard` ,
+				title     : 'Dashboard' ,
+				url       : dashboardUrl ,
+				customSvg : 'custom-status-up' ,
+				pms       : [ 1 , 0 , 0 , 0 ]
+			} ,
+			... children
+		] : children;
 		return {
 			...menu ,
 			url   : this.normalizeMenuUrl( menu.url , routePrefix , menu.external ) ,
-			child : children.map( ( child : IctuNavigation ) : IctuNavigation => this.normalizeUserMenu( child , routePrefix , flatChildren ) )
+			child : menuChildren.map( ( child : IctuNavigation ) : IctuNavigation => this.normalizeUserMenu( child , routePrefix , flatChildren ) )
 		};
 	}
 
