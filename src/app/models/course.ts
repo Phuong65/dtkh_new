@@ -1,5 +1,5 @@
 import { IctuBaseModel } from '@models/ictu-base-model';
-import { ICTUStandardFile } from '@models/file';
+import { ICTUStandardFile, IctuFile } from '@models/file';
 
 export interface CourseParams {
     sotinchi?: number;
@@ -15,6 +15,17 @@ export interface CourseParams {
     tuhoc?: number;
 }
 
+/** Tài liệu môn học: giữ tương thích file trực tiếp và cấu trúc file/link. */
+export interface CourseDocumentItem {
+    ordering: number;
+    type: 'link' | 'file';
+    title: string;
+    link?: string;
+    file?: IctuFile;
+}
+
+export type CourseDocument = ICTUStandardFile | CourseDocumentItem;
+
 export interface Course extends Partial<IctuBaseModel> {
     id: number;
     title: string;
@@ -26,8 +37,8 @@ export interface Course extends Partial<IctuBaseModel> {
     category_ids?: number | null;
     nganh_bomon_id?: number | null;
     creator_plan_id?: number | null;
-    tailieu_chinh?: ICTUStandardFile[];
-    tailieu_thamkhao?: ICTUStandardFile[];
+    tailieu_chinh?: CourseDocument[];
+    tailieu_thamkhao?: CourseDocument[];
     params?: CourseParams;
     status?: number;
     editor_name?: string;
@@ -37,4 +48,5 @@ export interface Course extends Partial<IctuBaseModel> {
     chuandaura?: string;
     index_?: number;
     show_name?: string;
+    av?: number;
 }

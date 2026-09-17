@@ -1,4 +1,5 @@
-import { OvicDocumentTypes } from "@core/models/file";
+/** Kiểu tài liệu Ovic legacy, khai báo inline để tránh import `@core/models/file` không tồn tại. */
+export type OvicDocumentTypes = 'docx' | 'pptx' | 'ppt' | 'pdf' | 'xlsx' | 'audio' | 'video' | 'image' | 'text' | 'zip';
 
 export interface OvicDocument {
     type: OvicDocumentTypes;

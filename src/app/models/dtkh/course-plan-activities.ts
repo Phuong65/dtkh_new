@@ -1,4 +1,4 @@
-import { OvicDocument } from "@core/models/file";
+import { OvicDocument } from '@models/dtkh/ovic-document';
 import { CourseQuestions } from "./course-questions";
 import { ClassPlanActivities } from "./class-plan-activities";
 import { ClassPlans } from "./class-plans";

@@ -1,0 +1,233 @@
+.course-info-page {
+    position: relative;
+    width: 100%;
+    min-height: 100%;
+    background: #f4f7fb;
+    padding: 12px;
+}
+
+.course-info-page app-loading-progress {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 100 !important;
+    min-height: 320px;
+}
+
+.course-info-page__error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 240px;
+    color: #b42318;
+    font-size: 14px;
+}
+
+.course-info-page app-loading-progress {
+    display: block;
+    min-height: 320px;
+}
+
+.course-info-page__a4 {
+    width: 84%;
+    max-width: 84%;
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 15mm;
+    box-sizing: border-box;
+    background: #ffffff;
+    box-shadow: 0 1px 5px rgb(15 23 42 / 15%);
+}
+
+.course-info-page__footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #dbe0e5;
+}
+
+.course-info-page__save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .course-info-page { padding: 0; }
+    .course-info-page__a4 {
+        width: 100%;
+        min-height: auto;
+        padding: 16px;
+        box-shadow: none;
+    }
+}
+
+.course-info-form {
+    --ictu-form-padding: 15px;
+    --ictu-form-gap: 20px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgb(15 23 42 / 8%);
+}
+
+.course-info-form__grid {
+    display: grid;
+    gap: var(--ictu-form-gap, 20px);
+}
+
+.course-info-form__grid--single { grid-template-columns: minmax(0, 1fr); }
+.course-info-form__grid--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.course-info-form__option-row,
+.course-info-form__editor-row,
+.course-info-form__select-row,
+.course-info-form__document-row,
+.course-info-form__table-row { line-height: 1.5; }
+
+.course-info-form__options {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px 18px;
+    margin-top: 5px;
+}
+
+.course-info-form__option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    cursor: pointer;
+    user-select: none;
+}
+
+.course-info-form__editor-row ictu-editor {
+    display: block;
+    margin-top: 5px;
+    min-height: 190px;
+}
+
+.course-info-form__table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.course-info-form__table {
+    width: 100%;
+    min-width: 620px;
+    border-collapse: collapse;
+    color: #333;
+    font-size: 14px;
+}
+
+.course-info-form__table th,
+.course-info-form__table td {
+    padding: 10px;
+    border: 1px solid #dbe0e5;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.course-info-form__table th {
+    background: #f8fafc;
+    font-weight: 600;
+}
+
+.course-info-form__ctdt-select,
+.course-info-form__knowledge-select {
+    display: block;
+    width: 100%;
+}
+
+:host ::ng-deep .course-info-form .p-select,
+:host ::ng-deep .course-info-form .p-multiselect {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-height: 42px !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+}
+
+:host ::ng-deep .course-info-form__table .p-select {
+    min-width: 220px !important;
+    height: 42px !important;
+}
+
+:host ::ng-deep .course-info-form .p-select .p-select-label,
+:host ::ng-deep .course-info-form .p-multiselect .p-multiselect-label {
+    flex: 1 1 auto !important;
+    min-height: 38px !important;
+    padding: 6px 36px 6px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    line-height: 1.4 !important;
+}
+
+:host ::ng-deep .course-info-form .p-select:has(.p-select-clear-icon) .p-select-label {
+    padding-right: 56px !important;
+}
+
+:host ::ng-deep .course-info-form .p-select-dropdown,
+:host ::ng-deep .course-info-form .p-multiselect-dropdown {
+    position: absolute !important;
+    top: 50% !important;
+    right: 10px !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: translateY(-50%) !important;
+    width: 20px !important;
+    height: 20px !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: none !important;
+    z-index: 2 !important;
+}
+
+:host ::ng-deep .course-info-form .p-select-clear-icon {
+    position: absolute !important;
+    top: 50% !important;
+    right: 32px !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+    width: 16px !important;
+    height: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    z-index: 3 !important;
+}
+
+:host ::ng-deep .p-multiselect-panel,
+:host ::ng-deep .p-select-overlay {
+    max-height: 360px;
+}
+
+.course-info-form__index {
+    width: 54px;
+    text-align: center !important;
+}
+
+.course-info-form__document-row form-document-file-and-link {
+    display: block;
+    margin-top: 5px;
+}
+
+@media (max-width: 900px) {
+    .course-info-form__grid--three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+    .course-info-form__grid--three { grid-template-columns: minmax(0, 1fr); }
+    .course-info-form__options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 420px) {
+    .course-info-form__options { grid-template-columns: minmax(0, 1fr); }
+}

@@ -6,8 +6,8 @@ import { Subject, takeUntil } from 'rxjs';
 import { Course } from '@models/course';
 import { CourseService } from '@services/course.service';
 import { LoadingProgressComponent } from '@theme/components/loading-progress/loading-progress.component';
-import { CourseInfoComponent } from './children/info/course-info.component';
-import { CourseOutcomesComponent } from './children/outcomes/course-outcomes.component';
+import { MonhocThongtinComponent } from './children/monhoc-thongtin/monhoc-thongtin.component';
+import { MonhocMuctieuCdrComponent } from './children/monhoc-muctieu-cdr/monhoc-muctieu-cdr.component';
 import { CourseContentComponent } from './children/content/course-content.component';
 import { CourseQuestionsComponent } from './children/questions/course-questions.component';
 import { CourseAssessmentComponent } from './children/assessment/course-assessment.component';
@@ -30,8 +30,8 @@ export interface CourseDetailTab {
         CommonModule,
         MatButtonModule,
         LoadingProgressComponent,
-        CourseInfoComponent,
-        CourseOutcomesComponent,
+        MonhocThongtinComponent,
+        MonhocMuctieuCdrComponent,
         CourseContentComponent,
         CourseQuestionsComponent,
         CourseAssessmentComponent,

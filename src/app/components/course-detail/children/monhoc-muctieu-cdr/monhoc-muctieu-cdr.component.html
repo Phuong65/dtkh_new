@@ -1,0 +1,214 @@
+<section class="course-info-page position-relative">
+    @if (state() === 'loading') {
+        <app-loading-progress heading="Đang tải mục tiêu - CĐR..." backdropFilter="none"></app-loading-progress>
+    }
+    @if (saving()) {
+        <app-loading-progress heading="Đang lưu dữ liệu..." backdropFilter="blur(1px)"></app-loading-progress>
+    }
+    @if (state() === 'error') {
+        <div class="course-info-page__error">Tải dữ liệu thất bại. Vui lòng thử lại.</div>
+    }
+    @if (state() === 'success' && selectedCourse; as course) {
+        <div class="course-info-page__a4">
+            <div class="ictu-form course-info-form">
+                <div class="ictu-form__row course-info-form__editor-row">
+                    <label class="ictu-form__label" for="course-outcomes-objective">1. Mục tiêu chung</label>
+                    <ictu-editor id="course-outcomes-objective" [content]="course.muctieu || ''" (contentChange)="course.muctieu = $event" [config]="{ height: 180 }"></ictu-editor>
+                </div>
+
+                <div class="ictu-form__row course-info-form__table-row">
+                    <label class="ictu-form__label">2. Mục tiêu chi tiết</label>
+                    <div class="course-info-form__table-wrapper">
+                        <p-table [value]="list_course_muctieu" styleClass="table-reBorder table-course-muctieu course-info-form__table">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th class="course-info-form__drag-column"></th>
+                                    <th class="course-info-form__code-column">Thứ tự mục tiêu</th>
+                                    <th>Nội dung mục tiêu</th>
+                                    <th class="course-info-form__action-column">Thao tác</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-muctieu>
+                                <tr>
+                                    <td class="text-center"><span class="pi pi-bars" aria-hidden="true"></span></td>
+                                    <td class="text-center">{{ muctieu.kyhieu }}</td>
+                                    <td pEditableColumn>
+                                        <p-cellEditor>
+                                            <ng-template pTemplate="input">
+                                                <textarea pTextarea class="ictu-form__input-field" [(ngModel)]="muctieu.noidung" (keydown)="blockArrowKeys($event)" spellcheck="false" rows="2"></textarea>
+                                            </ng-template>
+                                            <ng-template pTemplate="output">
+                                                @if (muctieu.noidung) {
+                                                    <div class="text-innerhtml-raw" [innerHTML]="muctieu.noidung"></div>
+                                                } @else {
+                                                    <span class="empty-hint">Click vào đây để nhập nội dung...</span>
+                                                }
+                                            </ng-template>
+                                        </p-cellEditor>
+                                    </td>
+                                    <td class="text-center">
+                                        <button mat-flat-button type="button" class="course-info-form__delete-btn" aria-label="Xóa mục tiêu" (click)="deleteMuctieu(muctieu)">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="summary">
+                                <div class="course-info-form__actions">
+                                    <button mat-flat-button type="button" class="course-info-form__add-btn" (click)="addMuctieu()">
+                                        <i class="fa fa-plus" aria-hidden="true"></i> Thêm mục tiêu
+                                    </button>
+                                    <button mat-flat-button type="button" class="course-info-form__save-btn" (click)="saveMuctieuChitiet()">
+                                        <i class="fa fa-floppy-o" aria-hidden="true"></i> Lưu lại
+                                    </button>
+                                </div>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+
+                <div class="ictu-form__row course-info-form__table-row">
+                    <label class="ictu-form__label">3. Chuẩn đầu ra</label>
+                    <div class="course-info-form__table-wrapper">
+                        <p-table [value]="list_course_clo" styleClass="table-reBorder table-course-muctieu course-info-form__table">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th class="course-info-form__drag-column"></th>
+                                    <th class="course-info-form__code-column">Thứ tự CĐR</th>
+                                    <th>Nội dung CĐR</th>
+                                    @for (muctieu of list_course_muctieu; track muctieu.id) {
+                                        <th class="course-info-form__co-column">{{ muctieu.kyhieu }}</th>
+                                    }
+                                    <th class="course-info-form__action-column">Thao tác</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-clo>
+                                <tr>
+                                    <td class="text-center"><span class="pi pi-bars" aria-hidden="true"></span></td>
+                                    <td class="text-center">{{ clo.kyhieu }}</td>
+                                    <td pEditableColumn>
+                                        <p-cellEditor>
+                                            <ng-template pTemplate="input">
+                                                <textarea pTextarea class="ictu-form__input-field" [(ngModel)]="clo.noidung" (keydown)="blockArrowKeys($event)" spellcheck="false" rows="2"></textarea>
+                                            </ng-template>
+                                            <ng-template pTemplate="output">
+                                                @if (clo.noidung) {
+                                                    <div class="text-innerhtml-raw" [innerHTML]="clo.noidung"></div>
+                                                } @else {
+                                                    <span class="empty-hint">Click vào đây để nhập nội dung...</span>
+                                                }
+                                            </ng-template>
+                                        </p-cellEditor>
+                                    </td>
+                                    @for (muctieu of list_course_muctieu; track muctieu.id) {
+                                        <td class="text-center check-course-muctieu" (click)="chooseMuctieuForClo(clo, muctieu)">
+                                            @if (muctieu.id === clo.course_muctieu_chitiet_id) {
+                                                <i class="fa fa-check-square-o blue" aria-label="Đã chọn"></i>
+                                            } @else {
+                                                <i class="fa fa-square-o" aria-label="Chưa chọn"></i>
+                                            }
+                                        </td>
+                                    }
+                                    <td class="text-center">
+                                        <button mat-flat-button type="button" class="course-info-form__delete-btn" aria-label="Xóa chuẩn đầu ra" (click)="deleteClo(clo)">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="summary">
+                                <div class="course-info-form__actions">
+                                    <button mat-flat-button type="button" class="course-info-form__add-btn" (click)="addClo()">
+                                        <i class="fa fa-plus" aria-hidden="true"></i> Thêm CĐR
+                                    </button>
+                                    <button mat-flat-button type="button" class="course-info-form__save-btn" (click)="saveClo()">
+                                        <i class="fa fa-floppy-o" aria-hidden="true"></i> Lưu lại
+                                    </button>
+                                </div>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+
+                <div class="ictu-form__row course-info-form__table-row">
+                    <label class="ictu-form__label">4. Mối liên hệ giữa các chuẩn đầu ra học phần(CLO) và chuẩn đầu ra của CTDT(PLO) và các chỉ số PI</label>
+                    <div class="course-info-form__table-wrapper">
+                        <p-table [value]="list_ctdt" styleClass="table-reBorder table-course-muctieu course-info-form__table">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th rowspan="2" class="course-info-form__index-column">TT</th>
+                                    <th rowspan="2" class="course-info-form__program-column">Tên CTĐT</th>
+                                    <th [attr.colspan]="list_course_clo.length || 1" class="text-center">Chuẩn đầu ra học phần</th>
+                                </tr>
+                                <tr>
+                                    @for (clo of list_course_clo; track clo.id) {
+                                        <th class="text-center">{{ clo.kyhieu }}</th>
+                                    }
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-ctdt let-rowIndex="rowIndex">
+                                <tr>
+                                    <td class="text-center">{{ rowIndex + 1 }}</td>
+                                    <td>{{ ctdt.ten }}</td>
+                                    @for (clo of list_course_clo; track clo.id) {
+                                        <td class="pi-mapping-cell" (click)="openPiDialog(clo, ctdt)">
+                                            @for (pi of getSelectedPi(clo, ctdt); track pi.id) {
+                                                <span>{{ pi.kyhieu }}</span>
+                                                @if (!$last) { <span>, </span> }
+                                            }
+                                            @if (!getSelectedPi(clo, ctdt).length) {
+                                                <span class="empty-hint">Chọn PI</span>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="summary">
+                                <div class="course-info-form__actions">
+                                    <button mat-flat-button type="button" class="course-info-form__save-btn" (click)="savePiOnClo()">
+                                        <i class="fa fa-floppy-o" aria-hidden="true"></i> Lưu lại
+                                    </button>
+                                </div>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</section>
+
+<p-dialog header="Chọn PI" [(visible)]="showPiDialog" [modal]="true" [style]="{ width: 'min(700px, 95vw)' }" (onHide)="closePiDialog()">
+    @if (saving()) {
+        <app-loading-progress heading="Đang lưu mapping CLO - PI..." backdropFilter="blur(1px)"></app-loading-progress>
+    }
+    @if (selectedCtdt) {
+        <div class="ictu-form course-info-form__pi-form">
+            @for (plo of selectedCtdt.ctdt_cdr; track plo.id) {
+                <div class="course-info-form__pi-group">
+                    <div class="course-info-form__pi-group-header">
+                        <input type="checkbox" [id]="'plo-' + plo.id" [checked]="isAllSelected(plo)" [indeterminate]="isIndeterminate(plo)" (change)="toggleAllChildren(plo, $event)">
+                        <label class="course-info-form__pi-content" [for]="'plo-' + plo.id">
+                            <strong>{{ plo.kyhieu }}</strong> <span [innerHTML]="decodeHtml(plo.noidung)"></span>
+                        </label>
+                    </div>
+                    @for (pi of plo.items; track pi.id) {
+                        <div class="course-info-form__pi-item">
+                            <input type="checkbox" [id]="'pi-' + pi.id" [(ngModel)]="selectedStates[pi.id!]" (change)="syncSelectedPi()">
+                            <label class="course-info-form__pi-content" [for]="'pi-' + pi.id">
+                                <strong>{{ pi.kyhieu }}:</strong> <span [innerHTML]="decodeHtml(pi.noidung)"></span>
+                            </label>
+                        </div>
+                    }
+                    @if (!plo.items.length) {
+                        <div class="empty-hint">Không có chỉ số PI đi kèm.</div>
+                    }
+                </div>
+            }
+        </div>
+    }
+    <ng-template pTemplate="footer">
+        <button mat-stroked-button type="button" class="course-info-form__cancel-btn" (click)="closePiDialog()">Đóng</button>
+        <button mat-flat-button type="button" class="course-info-form__save-btn" (click)="savePiOnClo()">Lưu lại</button>
+    </ng-template>
+</p-dialog>

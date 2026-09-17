@@ -68,6 +68,35 @@
     z-index: 1;
 }
 
+.library-grid__card--file {
+    position: relative;
+}
+
+.library-grid__select-file {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    z-index: 6;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #0d59cf;
+    background: #0d59cf;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgb(15 23 42 / 22%);
+}
+
+.library-grid__select-file:hover {
+    background: #0847a8;
+    border-color: #0847a8;
+    color: #ffffff;
+}
+
+.library-grid__select-file:focus-visible {
+    outline: 2px solid #0d59cf;
+    outline-offset: 2px;
+}
+
 .library-grid__card {
     width: 100%;
     border: 1px solid #e5e7eb;

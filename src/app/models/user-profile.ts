@@ -22,4 +22,6 @@ export interface UserProfile extends IctuBaseModel {
     display_name? : string;
     donvi_id? : number;
     user_status? : number;
+    donvi_chuyenmon_id?: number;
+    bomon_id?: number;
 }

@@ -35,10 +35,10 @@
     <main class="course-detail-content">
         @switch (activeTab()) {
             @case ('info') {
-                <app-course-info [course]="course()" [courseId]="courseId()"></app-course-info>
+                <app-monhoc-thongtin [course]="course()" [courseId]="courseId()"></app-monhoc-thongtin>
             }
             @case ('outcomes') {
-                <app-course-outcomes [course]="course()" [courseId]="courseId()"></app-course-outcomes>
+                <app-monhoc-muctieu-cdr [course]="course()" [courseId]="courseId()"></app-monhoc-muctieu-cdr>
             }
             @case ('content') {
                 <app-course-content [course]="course()" [courseId]="courseId()"></app-course-content>

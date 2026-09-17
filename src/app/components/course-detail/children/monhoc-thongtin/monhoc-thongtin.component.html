@@ -1,0 +1,49 @@
+<div class="course-info-page position-relative">
+    @if (state() === 'loading') {
+        <app-loading-progress [heading]="isSaving ? 'Đang cập nhật môn học...' : 'Đang tải thông tin môn học...'" backdropFilter="none"></app-loading-progress>
+    }
+    @if (state() === 'error') {
+        <div class="course-info-page__error">Tải thông tin môn học thất bại. Vui lòng thử lại.</div>
+    }
+    @if (state() === 'success' && selectedCourse; as course) {
+        <div class="course-info-page__a4">
+        <form [formGroup]="formKhoaHoc" class="ictu-form course-info-form">
+        <div class="course-info-form__grid course-info-form__grid--single">
+            <div class="ictu-form__row"><label class="ictu-form__label ictu-form__label--required" for="course_info_title">Tên học phần</label><input id="course_info_title" pInputText class="ictu-form__input-field" type="text" formControlName="title" placeholder="Nhập tên học phần"></div>
+        </div>
+        <div class="course-info-form__grid course-info-form__grid--three">
+            <div class="ictu-form__row"><label class="ictu-form__label ictu-form__label--required" for="course_info_code">Mã học phần</label><input id="course_info_code" pInputText class="ictu-form__input-field" type="text" formControlName="maso" placeholder="Nhập mã học phần"></div>
+            <div class="ictu-form__row"><label class="ictu-form__label ictu-form__label--required" for="course_info_credits">Số tín chỉ</label><input id="course_info_credits" pInputText class="ictu-form__input-field" type="number" formControlName="sotinchi" placeholder="0"></div>
+            <div class="ictu-form__row"><label class="ictu-form__label ictu-form__label--required" for="course_info_practice_credits">Số tín chỉ thực hành</label><input id="course_info_practice_credits" pInputText class="ictu-form__input-field" type="number" formControlName="sotinchi_th" placeholder="0"></div>
+        </div>
+        <div class="course-info-form__grid course-info-form__grid--three">
+            <div class="ictu-form__row"><label class="ictu-form__label ictu-form__label--required" for="course_info_department">Khoa quản lý</label><p-select inputId="course_info_department" class="ictu-form__input-field" [options]="list_donvi_chuyenmon" optionLabel="title" optionValue="id" [filter]="true" formControlName="category_ids" placeholder="-- Chọn khoa --"></p-select></div>
+            <div class="ictu-form__row"><label class="ictu-form__label" for="course_info_subject_group">Bộ môn</label><p-select inputId="course_info_subject_group" class="ictu-form__input-field" [options]="filteredBomon()" optionLabel="title" optionValue="id" [filter]="true" formControlName="nganh_bomon_id" placeholder="-- Chọn bộ môn --"></p-select></div>
+            <div class="ictu-form__row"><label class="ictu-form__label" for="course_info_quiz_format">Định dạng bài kiểm tra</label><p-select inputId="course_info_quiz_format" class="ictu-form__input-field" [options]="DINHDANG_BAITRACNGHIEM" optionLabel="label" optionValue="key" formControlName="av" placeholder="-- Chọn định dạng --"></p-select></div>
+        </div>
+        <div class="ictu-form__row__heading-on-group"><span>Phân bổ thời gian (tiết)</span></div>
+        <div class="course-info-form__grid course-info-form__grid--three">
+            <div class="ictu-form__row"><label class="ictu-form__label" for="course_info_total_hours">Tổng số</label><input id="course_info_total_hours" pInputText class="ictu-form__input-field" type="number" formControlName="tongsogio" placeholder="0"></div>
+            <div class="ictu-form__row"><label class="ictu-form__label" for="course_info_theory_hours">Lý thuyết</label><input id="course_info_theory_hours" pInputText class="ictu-form__input-field" type="number" formControlName="lythuyet" placeholder="0"></div>
+            <div class="ictu-form__row"><label class="ictu-form__label" for="course_info_exercise_hours">Thảo luận/bài tập</label><input id="course_info_exercise_hours" pInputText class="ictu-form__input-field" type="number" formControlName="thaoluan_baitap" placeholder="0"></div>
+            <div class="ictu-form__row"><label class="ictu-form__label" for="course_info_practice_hours">Thực hành/thí nghiệm</label><input id="course_info_practice_hours" pInputText class="ictu-form__input-field" type="number" formControlName="th_thinghiem" placeholder="0"></div>
+            <div class="ictu-form__row"><label class="ictu-form__label" for="course_info_test_hours">Kiểm tra định kỳ</label><input id="course_info_test_hours" pInputText class="ictu-form__input-field" type="number" formControlName="kiemtra_dinhky" placeholder="0"></div>
+            <div class="ictu-form__row"><label class="ictu-form__label" for="course_info_self_study">Tự học</label><input id="course_info_self_study" pInputText class="ictu-form__input-field" type="number" formControlName="tuhoc" placeholder="0"></div>
+        </div>
+        <div class="ictu-form__row course-info-form__option-row"><label class="ictu-form__label ictu-form__label--required">Hình thức thi KTHP</label><div class="course-info-form__options">@for (item of EXAMFORMAT; track item.id) {<label class="course-info-form__option"><input type="radio" formControlName="exam_type" [value]="item.id" (change)="onChangeExam(item.id)"><span>{{ item.label }}</span></label>}</div></div>
+        <div class="ictu-form__row course-info-form__option-row"><label class="ictu-form__label ictu-form__label--required">Mức độ yêu cầu CĐR</label><div class="course-info-form__options">@for (item of chuandaura; track item.id) {<label class="course-info-form__option"><input type="radio" formControlName="cdr" [value]="item.id"><span>{{ item.label }}</span></label>}</div></div>
+        <div class="ictu-form__row course-info-form__editor-row"><label class="ictu-form__label">Mô tả môn học</label><ictu-editor formControlName="desc"></ictu-editor></div>
+        <div class="ictu-form__row course-info-form__editor-row"><label class="ictu-form__label">Yêu cầu đối với sinh viên</label><ictu-editor formControlName="yeucau_sinhvien"></ictu-editor></div>
+        <div class="ictu-form__row course-info-form__select-row"><label class="ictu-form__label">Chương trình đào tạo</label><p-multiSelect class="ictu-form__input-field course-info-form__ctdt-select" [options]="group_ctdt" optionLabel="label" optionValue="value" [(ngModel)]="selectedCtdtsId" [ngModelOptions]="{ standalone: true }" (onChange)="onChangeSelectCtdt()" display="chip" appendTo="body" [panelStyle]="{ 'max-height': '360px' }" placeholder="-- Chọn chương trình đào tạo --"></p-multiSelect></div>
+        @if (selectCtdts.length) {<div class="ictu-form__row course-info-form__table-row"><div class="course-info-form__table-wrapper"><table class="course-info-form__table"><thead><tr><th class="course-info-form__index">TT</th><th>Chương trình đào tạo</th><th>Khối kiến thức</th></tr></thead><tbody>@for (ctdt of selectCtdts; track ctdt.value; let i = $index) {<tr><td class="course-info-form__index">{{ i + 1 }}</td><td>{{ ctdt.label }}</td><td><p-select class="ictu-form__input-field course-info-form__knowledge-select" [options]="ctdt.items" optionLabel="label" optionValue="value" [(ngModel)]="ctdt.select_item" [ngModelOptions]="{ standalone: true }" [showClear]="true" appendTo="body" [panelStyle]="{ 'max-height': '360px' }" placeholder="-- Chọn khối kiến thức --"></p-select></td></tr>}</tbody></table></div></div>}
+        <div class="ictu-form__row course-info-form__document-row"><label class="ictu-form__label">Tài liệu chính</label><form-document-file-and-link [formField]="f['tailieu_chinh']" [docDefault]="f['tailieu_chinh'].value" (documentsChange)="onDocumentsChange('tailieu_chinh', $event)"></form-document-file-and-link></div>
+        <div class="ictu-form__row course-info-form__document-row"><label class="ictu-form__label">Tài liệu tham khảo</label><form-document-file-and-link [formField]="f['tailieu_thamkhao']" [docDefault]="f['tailieu_thamkhao'].value" (documentsChange)="onDocumentsChange('tailieu_thamkhao', $event)"></form-document-file-and-link></div>
+    </form>
+    <div class="course-info-page__footer">
+        <button type="button" mat-flat-button class="btn ictu-badge-btn--success-reverse course-info-page__save-btn" matTooltip="Lưu lại" matTooltipPosition="above" (click)="saveCourse()">
+            <i class="fa fa-floppy-o" aria-hidden="true"></i><span>Lưu lại</span>
+        </button>
+    </div>
+    </div>
+    }
+</div>

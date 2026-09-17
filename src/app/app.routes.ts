@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { PreviewComponent , previewRoutes } from "@pages/preview";
+import { CourseDetailComponent } from '@components/course-detail/course-detail.component';
 import { adminGuard } from "@guards/admin.guard";
 import { authGuard } from "@guards/auth.guard";
 
@@ -29,7 +30,7 @@ export const routes : Routes = [
 	{
 		path: 'course-detail/:id',
 		canActivate: [authGuard],
-		loadComponent: () => import('@pages/course-detail/course-detail.component').then(c => c.CourseDetailComponent)
+		component: CourseDetailComponent
 	},
 	{
 		path       : '**' ,

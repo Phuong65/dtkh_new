@@ -1,4 +1,4 @@
-import { OvicDocument } from '@core/models/file';
+import { OvicDocument } from '@models/dtkh/ovic-document';
 import { VideoBaiHoc } from './elng-bai-hoc';
 
 export interface ClassPlanActivities {

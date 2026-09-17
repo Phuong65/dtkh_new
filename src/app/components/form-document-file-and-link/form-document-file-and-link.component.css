@@ -1,0 +1,8 @@
+.form-document-file-and-link { display: grid; gap: .5rem; }
+.list-file-or-text { display: grid; gap: .5rem; }
+.item-file-or-text { display: flex; align-items: center; gap: .5rem; padding: .5rem; border: 1px dashed #cbd5e1; border-radius: .35rem; }
+.item-file-or-text span, .item-file-or-text a { flex: 1; overflow-wrap: anywhere; }
+.actions-row { display: flex; flex-wrap: wrap; gap: .5rem; }
+.link-form { display: grid; gap: .75rem; min-width: 20rem; padding: .5rem; }
+.link-form label { display: grid; gap: .25rem; }
+.link-form input { width: 100%; padding: .4rem; border: 1px solid #cbd5e1; border-radius: .25rem; }

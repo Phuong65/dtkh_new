@@ -1,0 +1,36 @@
+<div class="form-document-file-and-link">
+    <div class="list-file-or-text">
+        @for (item of list_document; track item.ordering; let i = $index) {
+            <div class="item-file-or-text">
+                @if (item.type === 'file') {
+                    <i class="fa fa-file" aria-hidden="true"></i><span>{{ item.title }}</span>
+                } @else {
+                    <i class="fa fa-globe" aria-hidden="true"></i>
+                    @if (item.link) { <a [href]="item.link" target="_blank">{{ item.title }}</a> } @else { <span>{{ item.title }}</span> }
+                }
+                @if (!disabled) {
+                    <button type="button" mat-flat-button class="btn ictu-badge-btn--danger-reverse document-delete-btn" (click)="deleteItem(i)" aria-label="Xóa tài liệu">
+                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </button>
+                }
+            </div>
+        }
+    </div>
+    @if (!disabled) {
+        <div class="actions-row">
+            <button type="button" mat-flat-button class="btn ictu-badge-btn--primary-reverse document-action-btn" (click)="openFileManager()">
+                <i class="fa fa-folder-open" aria-hidden="true"></i><span>Chọn tệp tin</span>
+            </button>
+            <button type="button" mat-flat-button class="btn ictu-badge-btn--secondary-reverse document-action-btn" (click)="openAddLink(opAddLink, $event)">
+                <i class="fa fa-link" aria-hidden="true"></i><span>Thêm link</span>
+            </button>
+        </div>
+    }
+</div>
+<p-popover #opAddLink>
+    <div class="link-form">
+        <label>Tên tài liệu *<input [(ngModel)]="documentTypeLink.title" type="text"></label>
+        <label>Link<input [(ngModel)]="documentTypeLink.link" type="url"></label>
+        <button type="button" mat-flat-button class="btn ictu-badge-btn--success-reverse" (click)="addLinkToList(opAddLink)">Thêm</button>
+    </div>
+</p-popover>

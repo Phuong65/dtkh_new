@@ -124,12 +124,12 @@
                                                         }
                                                     </div>
                                                     <span class="library-grid__id">#{{ item.id }}</span>
+                                                    @if (selectionMode()) {
+                                                        <button type="button" class="btn btn-sm ictu-button-primary-light p-0 wid-35 hei-35 library-grid__select-file" (click)="$event.stopPropagation(); fileSelected.emit(item)" matTooltip="Chọn tệp này" matTooltipPosition="above">
+                                                            <i class="fa-classic fa-solid fa-check f-16"></i>
+                                                        </button>
+                                                    }
                                                 </div>
-                                                @if (selectionMode()) {
-                                                    <button class="btn btn-sm ictu-button-primary-light p-0 wid-35 hei-35" (click)="$event.stopPropagation(); fileSelected.emit(item)" matTooltip="Chọn tệp này" matTooltipPosition="above">
-                                                        <i class="fa-classic fa-solid fa-check f-16"></i>
-                                                    </button>
-                                                }
                                                 <!-- <div class="library-grid__actions d-flex justify-content-center align-items-center">
                                                     <button class="btn p-0 wid-35 hei-35 btn-sm ictu-button-warning-light" [disabled]="!(item | ilIsFileOwner : userId())" (click)="$event.stopPropagation(); renameItem(item)" matTooltip="Đổi tên" matTooltipPosition="above">
                                                         <i class="fa-classic fa-regular fa-file-edit f-16"></i>
