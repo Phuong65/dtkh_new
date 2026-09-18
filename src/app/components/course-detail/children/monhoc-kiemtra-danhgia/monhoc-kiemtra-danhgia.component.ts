@@ -22,6 +22,7 @@ import { AuthenticationService } from '@services/authentication.service';
 import { NotificationService } from '@services/notification.service';
 import { LoadingProgressComponent } from '@theme/components/loading-progress/loading-progress.component';
 import { TableModule } from 'primeng/table';
+import { TabsModule } from 'primeng/tabs';
 import { TooltipModule } from 'primeng/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { Helper } from '@utilities/helper';
@@ -52,6 +53,7 @@ export interface PlanWithMeta extends CoursePlanActivities {
         FormsModule,
         ReactiveFormsModule,
         TableModule,
+        TabsModule,
         TooltipModule,
         MatButtonModule,
         LoadingProgressComponent,
@@ -457,11 +459,12 @@ export class MonhocKiemtraDanhgiaComponent implements OnInit {
         }
     }
 
-    onTabChange(index: number): void {
-        this.tabIndex = index;
-        if (index === 0) {
+    onTabChange(index: string | number): void {
+        const numIndex = Number(index);
+        this.tabIndex = numIndex;
+        if (numIndex === 0) {
             this.loadTest();
-        } else if (index === 1) {
+        } else if (numIndex === 1) {
             this.loadThuongxuyen();
         }
     }

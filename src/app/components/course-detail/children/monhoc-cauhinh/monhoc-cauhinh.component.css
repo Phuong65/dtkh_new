@@ -24,135 +24,117 @@
 
 .course-info-page__a4 {
     width: 84%;
-    max-width: 960px;
+    max-width: 84%;
+    min-height: 297mm;
     margin: 0 auto;
-    padding: 20px;
+    padding: 24px;
     box-sizing: border-box;
     background: #ffffff;
     box-shadow: 0 1px 5px rgb(15 23 42 / 15%);
-    border-radius: 8px;
-}
-
-.box-span {
-    padding: 4px 10px;
     border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    display: inline-block;
 }
 
-.cho-duyet-box {
-    background-color: #f1f5f9;
-    color: #64748b;
+/* ==========================================================================
+   Section Header
+   ========================================================================== */
+.cauhinh-section {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
-.dat-box {
-    background-color: #dcfce7;
-    color: #15803d;
-}
-
-.box-panel-setting {
-    margin-bottom: 16px;
-}
-
-.box-panel-setting:last-child {
+.cauhinh-section:last-child {
     margin-bottom: 0;
 }
 
-.flex {
-    display: flex;
-}
-
-.span-box-input {
-    height: 100%;
-    border: 1px solid #ced4da;
+.cauhinh-section__header {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    padding: 0 8px;
-    background: #e9ecef;
-    font-size: 13px;
-    border-radius: 4px 0 0 4px;
+    gap: 12px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #f1f5f9;
 }
 
-.input-group-span {
-    flex: 1;
-    border-radius: 0 4px 4px 0 !important;
-}
-
-.no-border-right {
-    border-right: 0;
-}
-
-.width-60px {
-    width: 60px;
-}
-
-.text-align-center {
-    text-align: center;
-}
-
-.layout-setting-course .container {
-    padding: 0;
-    margin: auto;
-}
-
-.layout-setting-course .card {
-    background: #fff;
+.cauhinh-section__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: #eff6ff;
+    color: #2563eb;
     border-radius: 8px;
-    padding: 0 16px;
-    border: 0;
+    font-size: 16px;
+    flex-shrink: 0;
 }
 
-.layout-setting-course .row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 0;
-    border-bottom: 1px solid #eee;
-}
-
-.layout-setting-course .row:last-child {
-    border-bottom: none;
-}
-
-.layout-setting-course label {
-    font-weight: 600;
-    display: block;
-    margin-bottom: 8px;
-    color: #1e293b;
-    font-size: 14px;
-}
-
-.layout-setting-course .item-child {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    margin-top: 12px;
-}
-
-.layout-setting-course .item-child:first-child {
-    margin-top: 0;
-}
-
-.layout-setting-course .item-child-title {
+.cauhinh-section__title-group {
     flex: 1;
-    font-size: 13px;
-    color: #334155;
 }
 
-.layout-setting-course .item-child input {
-    text-align: center;
-    width: 100px;
-    font-size: 13px;
+.cauhinh-section__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0;
+    line-height: 1.4;
 }
 
-.box-time-for-weeks {
-    padding: 15px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+.cauhinh-section__subtitle {
+    font-size: 12px;
+    color: #64748b;
+    margin: 2px 0 0 0;
+}
+
+/* ==========================================================================
+   Table & Badges
+   ========================================================================== */
+.cauhinh-table-wrapper {
+    overflow: hidden;
     border-radius: 6px;
-    margin-top: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.cauhinh-table ::ng-deep .p-datatable-thead > tr > th {
+    background: #f8fafc;
+    color: #334155;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 12px;
+    border-color: #e2e8f0;
+}
+
+.cauhinh-table ::ng-deep .p-datatable-tbody > tr > td {
+    font-size: 13px;
+    padding: 8px 12px;
+    border-color: #e2e8f0;
+}
+
+.cauhinh-test-title {
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.status-badge--success {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-badge--pending {
+    background: #f1f5f9;
+    color: #64748b;
 }
 
 .btn-delete-action {
@@ -163,12 +145,173 @@
     justify-content: center;
 }
 
+.cauhinh-table__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 10px 0 4px 0;
+}
+
+/* ==========================================================================
+   Card Blocks (Cài đặt khác)
+   ========================================================================== */
+.cauhinh-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cauhinh-block {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 14px 18px;
+}
+
+.cauhinh-block__title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+}
+
+.cauhinh-block__title i {
+    color: #3b82f6;
+}
+
+.cauhinh-grid-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px 20px;
+}
+
+.cauhinh-grid-list--column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 520px;
+}
+
+.cauhinh-grid-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 8px 12px;
+}
+
+.cauhinh-grid-item__label {
+    font-size: 13px;
+    color: #334155;
+    margin: 0;
+    flex: 1;
+    font-weight: 500;
+}
+
+.cauhinh-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cauhinh-input {
+    width: 70px;
+    height: 32px;
+    text-align: center;
+    font-size: 13px;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.cauhinh-input-unit {
+    font-size: 12px;
+    color: #64748b;
+    min-width: 28px;
+}
+
+/* ==========================================================================
+   Weeks Grid (Thời hạn từng bài)
+   ========================================================================== */
+.cauhinh-weeks-box {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.cauhinh-weeks-box__header {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 10px;
+}
+
+.cauhinh-weeks-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.cauhinh-week-chip {
+    display: flex;
+    align-items: center;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    overflow: hidden;
+    height: 32px;
+    background: #f1f5f9;
+}
+
+.cauhinh-week-chip__label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #475569;
+    padding: 0 8px;
+    white-space: nowrap;
+    border-right: 1px solid #cbd5e1;
+}
+
+.cauhinh-week-chip__input {
+    border: none !important;
+    border-radius: 0 !important;
+    height: 100%;
+    width: 100%;
+    padding: 0 6px;
+    font-size: 12px;
+    background: #ffffff;
+}
+
+/* ==========================================================================
+   Footer Actions
+   ========================================================================== */
+.cauhinh-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.cauhinh-save-btn {
+    min-width: 130px;
+}
+
 @media (max-width: 768px) {
     .course-info-page {
         padding: 0;
     }
     .course-info-page__a4 {
         width: 100%;
-        padding: 12px;
+        max-width: 100%;
+        min-height: auto;
+        padding: 16px;
+        box-shadow: none;
+    }
+    .cauhinh-grid-list {
+        grid-template-columns: 1fr;
     }
 }

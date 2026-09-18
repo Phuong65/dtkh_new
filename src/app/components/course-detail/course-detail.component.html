@@ -41,7 +41,7 @@
                 <app-monhoc-muctieu-cdr [course]="course()" [courseId]="courseId()"></app-monhoc-muctieu-cdr>
             }
             @case ('content') {
-                <app-monhoc-noidung></app-monhoc-noidung>
+                <app-monhoc-noidung [course]="course()" [courseId]="courseId()"></app-monhoc-noidung>
             }
             @case ('questions') {
                 <app-monhoc-question-cdr [course]="course()" [courseId]="courseId()"></app-monhoc-question-cdr>

@@ -10,26 +10,37 @@
     }
     @if (state() === 'success' && selectedCourse) {
         <div class="course-info-page__a4">
-            <div class="box-panel-setting">
-                <p-panel [header]="isDttx ? 'Kiểm tra giữa kỳ' : 'Kiểm tra thường xuyên'">
-                    @if (plan_kiemtra && plan_kiemtra.children) {
+            <!-- Phần 1: Cấu hình bài kiểm tra thường xuyên / giữa kỳ -->
+            <div class="cauhinh-section">
+                <div class="cauhinh-section__header">
+                    <span class="cauhinh-section__icon fa fa-clipboard-check" aria-hidden="true"></span>
+                    <div class="cauhinh-section__title-group">
+                        <h3 class="cauhinh-section__title">{{ isDttx ? 'Kiểm tra giữa kỳ' : 'Kiểm tra thường xuyên' }}</h3>
+                        <p class="cauhinh-section__subtitle">Thiết lập danh sách và định dạng các bài kiểm tra đánh giá định kỳ</p>
+                    </div>
+                </div>
+
+                @if (plan_kiemtra && plan_kiemtra.children) {
+                    <div class="cauhinh-table-wrapper">
                         <p-table
                             [value]="plan_kiemtra.children"
-                            styleClass="p-datatable-gridlines list-test-table-border">
+                            styleClass="p-datatable-sm p-datatable-gridlines cauhinh-table">
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th style="width: 50px; text-align: center;">#</th>
-                                    <th>Tiêu đề</th>
-                                    <th style="width: 260px;">Loại kiểm tra</th>
-                                    <th style="width: 140px; text-align: center;">Trạng thái</th>
-                                    <th style="width: 100px; text-align: center;">Thao tác</th>
+                                    <th class="text-center" style="width: 50px;">#</th>
+                                    <th>Tiêu đề bài kiểm tra</th>
+                                    <th style="width: 260px;">Định dạng kiểm tra</th>
+                                    <th class="text-center" style="width: 130px;">Trạng thái</th>
+                                    <th class="text-center" style="width: 90px;">Thao tác</th>
                                 </tr>
                             </ng-template>
                             <ng-template pTemplate="body" let-test let-rowIndex="rowIndex">
                                 <tr>
-                                    <td style="width: 50px; text-align: center;">{{ rowIndex + 1 }}</td>
-                                    <td>{{ test.title }}</td>
-                                    <td class="dropdown-td-create-test-tx">
+                                    <td class="text-center font-medium">{{ rowIndex + 1 }}</td>
+                                    <td>
+                                        <span class="cauhinh-test-title">{{ test.title }}</span>
+                                    </td>
+                                    <td>
                                         <p-select
                                             [options]="THUONGXUYEN_TEST_TYPE"
                                             optionLabel="label"
@@ -38,27 +49,27 @@
                                             (onChange)="onChangeTypeTest($event.value, test)"
                                             [filter]="true"
                                             filterBy="label"
-                                            placeholder="-- Chọn loại --"
+                                            placeholder="-- Chọn loại đề --"
                                             [disabled]="!canEditTest(test)"
                                             appendTo="body"
                                             styleClass="w-full">
                                         </p-select>
                                     </td>
-                                    <td style="width: 140px; text-align: center;">
+                                    <td class="text-center">
                                         @if (!test.id) {
-                                            <span class="box-span cho-duyet-box">Chưa lưu</span>
+                                            <span class="status-badge status-badge--pending">Chưa lưu</span>
                                         } @else {
-                                            <span class="box-span dat-box">Đã lưu</span>
+                                            <span class="status-badge status-badge--success">Đã lưu</span>
                                         }
                                     </td>
-                                    <td style="width: 100px; text-align: center;">
+                                    <td class="text-center">
                                         @if (checkDeletePlan(test.ordering) || test.ordering === 0 || test.ordering === 100) {
                                             <button
                                                 type="button"
                                                 mat-icon-button
                                                 (click)="deleteItemKynang(test, rowIndex)"
                                                 [disabled]="!canEditTest(test)"
-                                                matTooltip="Xóa"
+                                                matTooltip="Xóa bài kiểm tra"
                                                 class="btn-delete-action">
                                                 <i class="fa fa-trash text-danger" aria-hidden="true"></i>
                                             </button>
@@ -67,7 +78,7 @@
                                 </tr>
                             </ng-template>
                             <ng-template pTemplate="summary">
-                                <div class="d-flex justify-content-end gap-2">
+                                <div class="cauhinh-table__actions">
                                     <button
                                         type="button"
                                         (click)="addTestTx()"
@@ -80,130 +91,165 @@
                                         (click)="saveTestKynang()"
                                         mat-flat-button
                                         class="btn ictu-badge-btn--primary-reverse">
-                                        <i class="fa fa-floppy-o me-1" aria-hidden="true"></i>Lưu lại
+                                        <i class="fa fa-floppy-o me-1" aria-hidden="true"></i>Lưu bài kiểm tra
                                     </button>
                                 </div>
                             </ng-template>
                         </p-table>
-                    }
-                </p-panel>
+                    </div>
+                }
             </div>
 
-            <div class="box-panel-setting mt-3">
-                <p-panel header="Cài đặt khác">
-                    <div class="layout-setting-course">
-                        <div class="container">
-                            <div class="card">
-                                <div class="row">
-                                    <div style="width: 100%;">
-                                        <label class="fw-semibold">Tỉ lệ điểm thành phần khi tính điểm trung bình (%)</label>
-                                        @for (item of course_config_object['PERCENT_SCORE_SUMMARY'] || []; track item.key) {
-                                            <div class="item-child">
-                                                <span class="item-child-title">{{ item.title }}</span>
-                                                <input
-                                                    pInputText
-                                                    (keydown)="pointQuestionKeyDown($event)"
-                                                    [(ngModel)]="item.value"
-                                                    type="text"
-                                                    class="ovic-input-field text-align-center" />
-                                            </div>
-                                        }
+            <!-- Phần 2: Cài đặt khác -->
+            <div class="cauhinh-section mt-4">
+                <div class="cauhinh-section__header">
+                    <span class="cauhinh-section__icon fa fa-sliders" aria-hidden="true"></span>
+                    <div class="cauhinh-section__title-group">
+                        <h3 class="cauhinh-section__title">Cài đặt khác</h3>
+                        <p class="cauhinh-section__subtitle">Phân bổ tỉ lệ điểm, cấu hình đề kiểm tra và thời hạn làm bài</p>
+                    </div>
+                </div>
+
+                <div class="cauhinh-card">
+                    <!-- Tỉ lệ điểm -->
+                    <div class="cauhinh-block">
+                        <h4 class="cauhinh-block__title">
+                            <i class="fa fa-percent me-2" aria-hidden="true"></i>
+                            Tỉ lệ điểm thành phần khi tính điểm trung bình (%)
+                        </h4>
+                        <div class="cauhinh-grid-list cauhinh-grid-list--column">
+                            @for (item of course_config_object['PERCENT_SCORE_SUMMARY'] || []; track item.key) {
+                                <div class="cauhinh-grid-item">
+                                    <label class="cauhinh-grid-item__label">{{ item.title }}</label>
+                                    <div class="cauhinh-input-wrap">
+                                        <input
+                                            pInputText
+                                            (keydown)="pointQuestionKeyDown($event)"
+                                            [(ngModel)]="item.value"
+                                            type="text"
+                                            class="cauhinh-input text-center" />
+                                        <span class="cauhinh-input-unit">%</span>
                                     </div>
                                 </div>
+                            }
+                        </div>
+                    </div>
 
-                                <div class="row">
-                                    <div style="width: 100%;">
-                                        <label class="fw-semibold">Số lượng đề kiểm tra trắc nghiệm mỗi lần tạo đề</label>
-                                        @for (item of course_config_object['NUMOF_TEST_CCTX'] || []; track item.key) {
-                                            <div class="item-child">
-                                                <span class="item-child-title">{{ item.title }}</span>
-                                                <input
-                                                    pInputText
-                                                    (keydown)="pointQuestionKeyDown($event)"
-                                                    [(ngModel)]="item.value"
-                                                    type="text"
-                                                    class="ovic-input-field text-align-center" />
-                                            </div>
-                                        }
+                    <!-- Số lượng đề kiểm tra -->
+                    <div class="cauhinh-block">
+                        <h4 class="cauhinh-block__title">
+                            <i class="fa fa-files-o me-2" aria-hidden="true"></i>
+                            Số lượng đề kiểm tra trắc nghiệm mỗi lần tạo đề
+                        </h4>
+                        <div class="cauhinh-grid-list cauhinh-grid-list--column">
+                            @for (item of course_config_object['NUMOF_TEST_CCTX'] || []; track item.key) {
+                                <div class="cauhinh-grid-item">
+                                    <label class="cauhinh-grid-item__label">{{ item.title }}</label>
+                                    <div class="cauhinh-input-wrap">
+                                        <input
+                                            pInputText
+                                            (keydown)="pointQuestionKeyDown($event)"
+                                            [(ngModel)]="item.value"
+                                            type="text"
+                                            class="cauhinh-input text-center" />
+                                        <span class="cauhinh-input-unit">đề</span>
                                     </div>
                                 </div>
+                            }
+                        </div>
+                    </div>
 
-                                <div class="row">
-                                    <div style="width: 100%;">
-                                        <label class="fw-semibold">Luyện tập tại nhà</label>
-                                        @for (item of course_config_object['PRACTICE_TIME_FOR_A_TEST'] || []; track item.key) {
-                                            <div style="margin-top: 15px;">
-                                                @if (item.key !== 'EXCEPT') {
-                                                    <div class="item-child">
-                                                        <span class="item-child-title">{{ item.title }}</span>
-                                                        <input
-                                                            pInputText
-                                                            (keyup)="onChangeValueInput(item)"
-                                                            (keydown)="pointQuestionKeyDown($event)"
-                                                            [(ngModel)]="item.value"
-                                                            type="text"
-                                                            class="ovic-input-field text-align-center" />
-                                                    </div>
-                                                } @else {
-                                                    <div class="box-time-for-weeks">
-                                                        <div class="item-child" style="justify-content: flex-start;">
-                                                            <span style="font-weight: 600;">{{ item.title }}:</span>
-                                                        </div>
-                                                        <div class="row" style="margin: 0; width: 100%; padding: 0; border: 0; justify-content: unset;">
-                                                            @for (plan of list_plan; track plan.week) {
-                                                                <div style="margin-top: 10px; height: -webkit-fill-available;" class="col-4 flex">
-                                                                    <span class="span-box-input no-border-right width-60px">
-                                                                        Bài {{ plan.week }}
-                                                                    </span>
-                                                                    @if (item.params) {
-                                                                        <input
-                                                                            pInputText
-                                                                            (keydown)="pointQuestionKeyDown($event)"
-                                                                            [(ngModel)]="item.params[plan.week]"
-                                                                            type="text"
-                                                                            class="ovic-input-field input-group-span text-align-center" />
-                                                                    }
-                                                                </div>
-                                                            }
-                                                        </div>
-                                                    </div>
+                    <!-- Luyện tập tại nhà -->
+                    <div class="cauhinh-block">
+                        <h4 class="cauhinh-block__title">
+                            <i class="fa fa-clock-o me-2" aria-hidden="true"></i>
+                            Luyện tập tại nhà
+                        </h4>
+                        <div class="cauhinh-grid-list">
+                            @for (item of course_config_object['PRACTICE_TIME_FOR_A_TEST'] || []; track item.key) {
+                                @if (item.key !== 'EXCEPT') {
+                                    <div class="cauhinh-grid-item">
+                                        <label class="cauhinh-grid-item__label">{{ item.title }}</label>
+                                        <div class="cauhinh-input-wrap">
+                                            <input
+                                                pInputText
+                                                (keyup)="onChangeValueInput(item)"
+                                                (keydown)="pointQuestionKeyDown($event)"
+                                                [(ngModel)]="item.value"
+                                                type="text"
+                                                class="cauhinh-input text-center" />
+                                            <span class="cauhinh-input-unit">
+                                                {{ item.key === 'TIME_OF_TEST' ? 'phút' : 'ngày' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                        <!-- Cài đặt thời hạn theo từng bài -->
+                        @for (item of course_config_object['PRACTICE_TIME_FOR_A_TEST'] || []; track item.key) {
+                            @if (item.key === 'EXCEPT') {
+                                <div class="cauhinh-weeks-box mt-3">
+                                    <div class="cauhinh-weeks-box__header">
+                                        <span class="fw-semibold text-slate-700">{{ item.title }}</span>
+                                    </div>
+                                    <div class="cauhinh-weeks-grid">
+                                        @for (plan of list_plan; track plan.week) {
+                                            <div class="cauhinh-week-chip">
+                                                <span class="cauhinh-week-chip__label">Bài {{ plan.week }}</span>
+                                                @if (item.params) {
+                                                    <input
+                                                        pInputText
+                                                        (keydown)="pointQuestionKeyDown($event)"
+                                                        [(ngModel)]="item.params[plan.week]"
+                                                        type="text"
+                                                        class="cauhinh-week-chip__input text-center" />
                                                 }
                                             </div>
                                         }
                                     </div>
                                 </div>
+                            }
+                        }
+                    </div>
 
-                                <div class="row">
-                                    <div style="width: 100%;">
-                                        <label class="fw-semibold">Điểm danh</label>
-                                        @for (item of course_config_object['PERCENT_OF_LEAVE_ALLOWED'] || []; track item.key) {
-                                            <div class="item-child">
-                                                <span class="item-child-title">{{ item.title }}</span>
-                                                <input
-                                                    pInputText
-                                                    (keydown)="pointQuestionKeyDown($event)"
-                                                    [(ngModel)]="item.value"
-                                                    type="text"
-                                                    class="ovic-input-field text-align-center" />
-                                            </div>
-                                        }
+                    <!-- Điểm danh -->
+                    <div class="cauhinh-block">
+                        <h4 class="cauhinh-block__title">
+                            <i class="fa fa-user-check me-2" aria-hidden="true"></i>
+                            Điểm danh & Chuyên cần
+                        </h4>
+                        <div class="cauhinh-grid-list">
+                            @for (item of course_config_object['PERCENT_OF_LEAVE_ALLOWED'] || []; track item.key) {
+                                <div class="cauhinh-grid-item">
+                                    <label class="cauhinh-grid-item__label">{{ item.title }}</label>
+                                    <div class="cauhinh-input-wrap">
+                                        <input
+                                            pInputText
+                                            (keydown)="pointQuestionKeyDown($event)"
+                                            [(ngModel)]="item.value"
+                                            type="text"
+                                            class="cauhinh-input text-center" />
+                                        <span class="cauhinh-input-unit">%</span>
                                     </div>
                                 </div>
-
-                                <div class="actions mt-4 d-flex justify-content-end">
-                                    <button
-                                        type="button"
-                                        (click)="saveCourseConfig()"
-                                        mat-flat-button
-                                        class="btn ictu-badge-btn--primary-reverse">
-                                        <i class="fa fa-floppy-o me-1" aria-hidden="true"></i>
-                                        Lưu cài đặt
-                                    </button>
-                                </div>
-                            </div>
+                            }
                         </div>
                     </div>
-                </p-panel>
+                </div>
+
+                <!-- Nút lưu cài đặt khác -->
+                <div class="cauhinh-footer mt-4">
+                    <button
+                        type="button"
+                        (click)="saveCourseConfig()"
+                        mat-flat-button
+                        class="btn ictu-badge-btn--primary-reverse cauhinh-save-btn">
+                        <i class="fa fa-floppy-o me-1" aria-hidden="true"></i>
+                        Lưu cài đặt
+                    </button>
+                </div>
             </div>
         </div>
     }

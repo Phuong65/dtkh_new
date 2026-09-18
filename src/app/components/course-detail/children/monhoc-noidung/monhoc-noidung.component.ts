@@ -2,7 +2,7 @@ import { ClassesService } from '@services/classes.service';
 import { CourseCloService } from '@services/course-clo.service';
 import { CoursePlanCommentService } from '@services/course-plan-comment.service';
 import { CoursePlanActivitiesService } from '@services/course-plan-activities.service';
-import { AfterViewChecked, AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, OnInit, ViewChild, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthenticationService } from '@services/authentication.service';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -122,6 +122,9 @@ export class MonhocNoidungComponent implements OnInit, AfterViewChecked, AfterVi
     @ViewChild('appNhanxetMuctieu') appNhanxetMuctieu: NhanxetNoidungComponent;
 
     @ViewChild('appNhanxetTailieu') appNhanxetTailieu: NhanxetNoidungComponent;
+
+    readonly course = input<Course | null>(null);
+    readonly courseId = input<number>(0);
 
     isManager: boolean = false;
 
@@ -295,131 +298,139 @@ export class MonhocNoidungComponent implements OnInit, AfterViewChecked, AfterVi
     }
 
     ngOnInit(): void {
-        this.activatedRoute.queryParams.subscribe(async (params) => {
-            if (params && params['code']) {
-                this.notificationService.isProcessing(true);
+        const getCourseId = (): number => {
+            if (this.courseId()) return this.courseId();
+            const routeId = this.activatedRoute.snapshot.paramMap.get('id');
+            if (routeId) return Number(routeId);
+            const queryCode = this.activatedRoute.snapshot.queryParamMap.get('code');
+            if (queryCode) return Number(queryCode);
+            return 0;
+        };
 
-                const course_id = params['code'];
+        const course_id = getCourseId();
+        if (!course_id) {
+            this.notificationService.toastError("Thiếu mã môn học");
+            return;
+        }
 
-                const contition_course: ConditionOption = {
-                    condition: [
-                        { conditionName: 'id', condition: IctuQueryCondition.equal, value: course_id.toString(), orWhere: 'and' },
-                    ],
-                    set: [
-                        { label: 'limit', value: '1' }
-                    ],
-                    page: null
-                }
+        this.notificationService.isProcessing(true);
 
-                if (this.routerGiangvien) {
-                    contition_course.condition.push({ conditionName: 'creator_plan_id', condition: IctuQueryCondition.equal, value: this.userId.toString(), orWhere: 'and' })
-                }
+        const contition_course: ConditionOption = {
+            condition: [
+                { conditionName: 'id', condition: IctuQueryCondition.equal, value: course_id.toString(), orWhere: 'and' },
+            ],
+            set: [
+                { label: 'limit', value: '1' }
+            ],
+            page: null
+        }
 
-                const condition_plan: ConditionOption = {
-                    condition: [
-                        { conditionName: 'course_id', condition: IctuQueryCondition.equal, value: course_id.toString(), orWhere: 'and' },
-                        { conditionName: 'week', condition: IctuQueryCondition.lessThan, value: '100', orWhere: 'and' },
-                        { conditionName: 'status', condition: IctuQueryCondition.notEqual, value: '-3', orWhere: 'and' },
-                        { conditionName: 'type', condition: IctuQueryCondition.notEqual, value: 'ACTIVITY_TEST', orWhere: 'and' }
-                    ],
-                    set: [
-                        { label: 'limit', value: '-1' },
-                        { label: 'order', value: 'ASC' },
-                        { label: 'orderby', value: 'ordering' }
-                    ],
-                    page: null
-                }
+        if (this.routerGiangvien) {
+            contition_course.condition.push({ conditionName: 'creator_plan_id', condition: IctuQueryCondition.equal, value: this.userId.toString(), orWhere: 'and' })
+        }
 
-                const condition_comment: ConditionOption = {
-                    condition: [
-                        { conditionName: 'course_id', condition: IctuQueryCondition.equal, value: course_id.toString() },
-                        { conditionName: 'parent_id', condition: IctuQueryCondition.equal, value: '0', orWhere: 'and' },
-                    ],
+        const condition_plan: ConditionOption = {
+            condition: [
+                { conditionName: 'course_id', condition: IctuQueryCondition.equal, value: course_id.toString(), orWhere: 'and' },
+                { conditionName: 'week', condition: IctuQueryCondition.lessThan, value: '100', orWhere: 'and' },
+                { conditionName: 'status', condition: IctuQueryCondition.notEqual, value: '-3', orWhere: 'and' },
+                { conditionName: 'type', condition: IctuQueryCondition.notEqual, value: 'ACTIVITY_TEST', orWhere: 'and' }
+            ],
+            set: [
+                { label: 'limit', value: '-1' },
+                { label: 'order', value: 'ASC' },
+                { label: 'orderby', value: 'ordering' }
+            ],
+            page: null
+        }
 
-                    set: [{ label: 'limit', value: '-1' }],
-                    page: null,
-                };
+        const condition_comment: ConditionOption = {
+            condition: [
+                { conditionName: 'course_id', condition: IctuQueryCondition.equal, value: course_id.toString() },
+                { conditionName: 'parent_id', condition: IctuQueryCondition.equal, value: '0', orWhere: 'and' },
+            ],
 
-                const condition_reply_comment: ConditionOption = {
-                    condition: [
-                        { conditionName: 'course_id', condition: IctuQueryCondition.equal, value: course_id.toString() },
-                        { conditionName: 'parent_id', condition: IctuQueryCondition.notEqual, value: '0', orWhere: 'and' },
-                    ],
-                    set: [
-                        { label: 'limit', value: '-1' },
-                        { label: 'select', value: 'id, parent_id' },
-                    ],
-                    page: null,
-                };
+            set: [{ label: 'limit', value: '-1' }],
+            page: null,
+        };
 
-                const condition_clo: ConditionOption = {
-                    condition: [
-                        { conditionName: 'course_id', condition: IctuQueryCondition.equal, value: course_id.toString() },
-                    ],
-                    set: [
-                        { label: 'limit', value: '-1' },
-                        { label: 'order', value: 'ASC' },
-                        { label: 'orderby', value: 'ordering' }
-                    ],
-                    page: null
-                }
+        const condition_reply_comment: ConditionOption = {
+            condition: [
+                { conditionName: 'course_id', condition: IctuQueryCondition.equal, value: course_id.toString() },
+                { conditionName: 'parent_id', condition: IctuQueryCondition.notEqual, value: '0', orWhere: 'and' },
+            ],
+            set: [
+                { label: 'limit', value: '-1' },
+                { label: 'select', value: 'id, parent_id' },
+            ],
+            page: null,
+        };
 
-                const condition_class: ConditionOption = {
-                    condition: [
-                        { conditionName: 'course_id', condition: IctuQueryCondition.equal, value: course_id.toString() },
-                    ],
-                    set: [
-                        { label: 'limit', value: '1' },
-                    ],
-                    page: null
-                }
+        const condition_clo: ConditionOption = {
+            condition: [
+                { conditionName: 'course_id', condition: IctuQueryCondition.equal, value: course_id.toString() },
+            ],
+            set: [
+                { label: 'limit', value: '-1' },
+                { label: 'order', value: 'ASC' },
+                { label: 'orderby', value: 'ordering' }
+            ],
+            page: null
+        }
 
-                const class_ = await firstValueFrom(this.classesService.getClassesByPageNew(condition_class))
+        const condition_class: ConditionOption = {
+            condition: [
+                { conditionName: 'course_id', condition: IctuQueryCondition.equal, value: course_id.toString() },
+            ],
+            set: [
+                { label: 'limit', value: '1' },
+            ],
+            page: null
+        }
 
-                if (class_ && class_.recordsFiltered === 0 && APP_CONFIGS.dragDropLesson) {
-                    this.dragDropLesson = true;
-                }
-
-                forkJoin([
-                    this.courseService.getCourseById(course_id),
-                    this.coursePlanActivitiesService.getCoursePlanActivitiesByPageNew(condition_plan),
-                    this.coursePlanCommentService.getCoursePlanCommentByPageNew(condition_comment.condition, { limit: -1 }),
-                    this.coursePlanCommentService.getCoursePlanCommentByPageNew(condition_reply_comment.condition, { limit: -1, select: 'id, parent_id' }),
-                    this.courseCloService.getCourseCloByPageNew(condition_clo.condition, { limit: -1, order: 'ASC', orderby: 'ordering' })
-                ]).subscribe({
-                    next: async ([_course, _plan, _comment, _comment_child, _course_clo]) => {
-                        if (_course) {
-                            this.selectedCourse = _course;
-                            this.indexByKeyServerInSotinchi = this.selectedCourse.params?.sotinchi || 0;
-
-                            this.canAdded = true;
-
-                            const plans = (_plan && Array.isArray(_plan.data) ? _plan.data : []).filter(m => m.week !== 0);
-                            const comments = (_comment && Array.isArray(_comment.data) ? _comment.data : []) as CoursePlanComment[];
-                            const commentChildren = (_comment_child && Array.isArray(_comment_child.data) ? _comment_child.data : []) as CoursePlanComment[];
-
-                            this.list_plan = this.setNewData(plans, comments, commentChildren) || [];
-
-                            if (this.list_plan && this.list_plan.length) {
-                                this.onChangePlan(this.list_plan[0], 'muctieu');
-                            }
-
-                            this.list_clo = _course_clo && Array.isArray(_course_clo.data) ? _course_clo.data : [];
-                            this.loading = false;
-                            this.list_thaoluan = await this.getThaoLuanPromise();
-                            this.notificationService.isProcessing(false);
-                        } else {
-                            this.notificationService.toastError("Không tìm thấy môn học");
-                            this.router.navigate(['/admin/content-none']);
-                        }
-                    },
-                    error: () => {
-                        this.notificationService.toastError("Lỗi kết nối, vui lòng thử lại");
-                    }
-                })
-            } else {
-                this.router.navigate(['/admin/content-none']);
+        firstValueFrom(this.classesService.getClassesByPageNew(condition_class)).then(class_ => {
+            if (class_ && class_.recordsFiltered === 0 && APP_CONFIGS.dragDropLesson) {
+                this.dragDropLesson = true;
             }
+
+            forkJoin([
+                this.courseService.getCourseById(course_id),
+                this.coursePlanActivitiesService.getCoursePlanActivitiesByPageNew(condition_plan),
+                this.coursePlanCommentService.getCoursePlanCommentByPageNew(condition_comment.condition, { limit: -1 }),
+                this.coursePlanCommentService.getCoursePlanCommentByPageNew(condition_reply_comment.condition, { limit: -1, select: 'id, parent_id' }),
+                this.courseCloService.getCourseCloByPageNew(condition_clo.condition, { limit: -1, order: 'ASC', orderby: 'ordering' })
+            ]).subscribe({
+                next: async ([_course, _plan, _comment, _comment_child, _course_clo]) => {
+                    if (_course) {
+                        this.selectedCourse = _course;
+                        this.indexByKeyServerInSotinchi = this.selectedCourse.params?.sotinchi || 0;
+
+                        this.canAdded = true;
+
+                        const plans = (_plan && Array.isArray(_plan.data) ? _plan.data : []).filter(m => m.week !== 0);
+                        const comments = (_comment && Array.isArray(_comment.data) ? _comment.data : []) as CoursePlanComment[];
+                        const commentChildren = (_comment_child && Array.isArray(_comment_child.data) ? _comment_child.data : []) as CoursePlanComment[];
+
+                        this.list_plan = this.setNewData(plans, comments, commentChildren) || [];
+
+                        if (this.list_plan && this.list_plan.length) {
+                            this.onChangePlan(this.list_plan[0], 'muctieu');
+                        }
+
+                        this.list_clo = _course_clo && Array.isArray(_course_clo.data) ? _course_clo.data : [];
+                        this.loading = false;
+                        this.list_thaoluan = await this.getThaoLuanPromise();
+                        this.notificationService.isProcessing(false);
+                    } else {
+                        this.notificationService.toastError("Không tìm thấy môn học");
+                        this.notificationService.isProcessing(false);
+                    }
+                },
+                error: () => {
+                    this.notificationService.toastError("Lỗi kết nối, vui lòng thử lại");
+                    this.notificationService.isProcessing(false);
+                }
+            })
         })
     }
 
