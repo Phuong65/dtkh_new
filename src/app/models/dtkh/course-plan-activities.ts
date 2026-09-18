@@ -25,6 +25,8 @@ export interface CoursePlanActivities {
     slides: OvicDocument[];
     kyhieu?: string;
     approved_at?: string;
+    created_at?: string;
+    updated_at?: string;
     course_plan_activity_id?: number;
     cdr_cauhoi?: {
         status?: number;

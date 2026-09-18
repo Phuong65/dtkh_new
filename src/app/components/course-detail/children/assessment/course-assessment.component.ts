@@ -1,10 +1,11 @@
 import { Component, input } from '@angular/core';
 import { Course } from '@models/course';
+import { MonhocKiemtraDanhgiaComponent } from '../monhoc-kiemtra-danhgia/monhoc-kiemtra-danhgia.component';
 
 @Component({
     selector: 'app-course-assessment',
     standalone: true,
-    imports: [],
+    imports: [MonhocKiemtraDanhgiaComponent],
     templateUrl: './course-assessment.component.html'
 })
 export class CourseAssessmentComponent {

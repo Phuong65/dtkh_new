@@ -1,6 +1,9 @@
 export interface CoursePlanBank {
     id?: number;
-    week: number;
     course_id: number;
-    bank_type: string;
+    week?: number;
+    bank_type?: 'CC' | 'DG' | 'TX' | string;
+    ordering?: number;
+    created_at?: string;
+    updated_at?: string;
 }

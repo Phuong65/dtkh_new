@@ -1,0 +1,152 @@
+<section class="course-info-page position-relative">
+    @if (state() === 'loading') {
+        <app-loading-progress heading="Đang tải dữ liệu kiểm tra..." backdropFilter="none"></app-loading-progress>
+    }
+    @if (saving()) {
+        <app-loading-progress heading="Đang xử lý..." backdropFilter="blur(1px)"></app-loading-progress>
+    }
+    @if (state() === 'error') {
+        <div class="course-info-page__error">Tải dữ liệu thất bại. Vui lòng thử lại.</div>
+    }
+    @if (state() === 'success') {
+        <div class="layout_component_container">
+            <div style="height: 100%;" class="form-de-layout-right form-tracnghiem">
+                <!-- Tab navigation using simple buttons -->
+                <div class="custom-tab-nav">
+                    <button
+                        class="custom-tab-btn"
+                        [class.active]="tabIndex === 0"
+                        (click)="tabIndex = 0">
+                        Luyện tập tại nhà{{!isDttx && (key_server !== 'hvu')?'/15p':''}}
+                    </button>
+                    <button
+                        class="custom-tab-btn"
+                        [class.active]="tabIndex === 1"
+                        (click)="tabIndex = 1; loadThuongxuyen()">
+                        {{isDttx && (key_server !== 'hvu')?'Kiểm tra giữa kỳ':'Kiểm tra thường xuyên'}}
+                    </button>
+                    @if (key_server === 'ictu') {
+                        <button
+                            class="custom-tab-btn"
+                            [class.active]="tabIndex === 2"
+                            (click)="tabIndex = 2">
+                            Nhập câu hỏi KT tự luận 15P
+                        </button>
+                    }
+                </div>
+
+                <!-- Tab 0: Luyện tập tại nhà / 15p -->
+                @if (tabIndex === 0) {
+                    <div class="document-type-a4-vertical" style="position: relative;">
+                        <div class="layout-test-dg-cc" style="margin-bottom: 20px;">
+                            <p-table [value]="list_week" styleClass="tbl-danhSachUser table-reBorder">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th rowspan="2" style="width: 80px;"></th>
+                                        <th rowspan="2" style="width: 150px; text-align: center;">Câu hỏi đã duyệt</th>
+                                        <th colspan="2" style="text-align: center;">Luyện tập tại nhà</th>
+                                        <th *ngIf="!isDttx && (key_server !== 'hvu')" colspan="2" style="text-align: center;">15p</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="text-align: center;">Có đề</th>
+                                        <th style="text-align: center;">Thao tác</th>
+                                        <th *ngIf="!isDttx && (key_server !== 'hvu')" style="text-align: center;">Có đề</th>
+                                        <th *ngIf="!isDttx && (key_server !== 'hvu')" style="text-align: center;">Thao tác</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row>
+                                    <tr>
+                                        <td><span style="font-weight: 600;">{{label_week + ' ' + row.week}}</span></td>
+                                        <td style="text-align: center;">{{row.datuyet_question}}</td>
+                                        <td style="text-align: center;">
+                                            <span *ngIf="row.has_test_cc"><i class="fa fa-check blue"></i></span>
+                                            <span *ngIf="!row.has_test_cc">-</span>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <div *ngIf="row.has_form_cc === false || row.datuyet_question === 0; else sinhdeCc">
+                                                <span class="red">Chưa tạo form đề, không thể sinh đề kiểm tra</span>
+                                            </div>
+                                            <ng-template #sinhdeCc>
+                                                <button (click)="sinhDeByWeek(row)" class="btn btn-success">Sinh đề tại đây</button>
+                                                <button *ngIf="row.has_test_cc" pTooltip="Xóa tất cả đề" tooltipPosition="left" (click)="deleteDeWeek(row)" class="btn btn-danger btn-icon ms-2">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </ng-template>
+                                        </td>
+                                        <td *ngIf="!isDttx && (key_server !== 'hvu')" style="text-align: center;">
+                                            <span *ngIf="row.has_test_dg"><i class="fa fa-check blue"></i></span>
+                                            <span *ngIf="!row.has_test_dg">-</span>
+                                        </td>
+                                        <td *ngIf="!isDttx && (key_server !== 'hvu')" style="text-align: center;">
+                                            <div *ngIf="row.has_form_dg === false || row.datuyet_question === 0; else sinhdeDg">
+                                                <span class="red">Chưa tạo form đề, không thể sinh đề kiểm tra</span>
+                                            </div>
+                                            <ng-template #sinhdeDg>
+                                                <button (click)="sinhDe15pByWeek(row)" class="btn btn-success">Sinh đề tại đây</button>
+                                                <button *ngIf="row.has_test_dg" pTooltip="Xóa tất cả đề" tooltipPosition="left" (click)="delete15pDeByWeek(row)" class="btn btn-danger btn-icon ms-2">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </ng-template>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </div>
+                }
+
+                <!-- Tab 1: Kiểm tra thường xuyên / Giữa kỳ -->
+                @if (tabIndex === 1) {
+                    <div *ngIf="list_plan && list_plan.length && showTests" class="lesson-baihocv2" [ngClass]="closeLeft?'close-left-body':''">
+                        <div class="menu-lesson-baihocv2">
+                            <button (click)="closeLeftBody()" class="btn btn-success button-close-left-body" aria-label="Thu gọn mục lục">
+                                <i [ngClass]="closeLeft?'pi pi-angle-double-right':'pi pi-angle-double-left'"></i>
+                            </button>
+                            <div class="menu-list-lessonv2">
+                                <div class="parent-lesson-layout" *ngFor="let parent of list_plan">
+                                    <div class="parent-name" [ngClass]="selectPlan && parent.id === selectPlan.id ? 'activity' : ''">
+                                        <span *ngIf="parent.week === 0 || parent.week >= 1000" class="parent-title">{{parent.title}}</span>
+                                    </div>
+                                    <div *ngIf="parent.desc" class="parent-desc" style="padding: 5px;">
+                                        <div class="parent-desc-content" style="padding: 10px; font-size: 14px;" [innerHtml]="parent.desc | safeHtml"></div>
+                                    </div>
+                                    <div *ngFor="let children of parent.children">
+                                        <div *ngIf="children.type !== 'ACTIVITY_TEST'" [ngClass]="selectPlan && children.id === selectPlan.id?'activity':''" class="child-lesson-layout">
+                                            <button type="button" (click)="onChangePlan(children)" class="child-lesson-layout-title">
+                                                <i class="{{children.icon}}"></i><span class="child-title">{{children.title}}</span>
+                                            </button>
+                                            <span class="child-created-at">{{children.created_at ? (children.created_at | date2text: 'DD/MM/YYYY') : ''}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lesson-content-right">
+                                <div *ngIf="selectPlan" class="test-content-placeholder">
+                                    <div *ngIf="selectPlan.type === 'THUONGXUYEN_TRACNGHIEM'" class="test-summary-card">
+                                        <h3>{{selectPlan.title}}</h3>
+                                        <div>
+                                            <span class="box-span info-cauhoi">Câu hỏi đã duyệt: {{selectPlan.has_question}}</span>
+                                            <span class="box-span" [ngClass]="selectPlan.has_form_test?'dat-box':'yeu-cau-sua-box'">{{selectPlan.has_form_test?'Đã tạo form đề':'Chưa tạo form đề'}}</span>
+                                            <span class="box-span" [ngClass]="selectPlan.has_test?'dat-box':'yeu-cau-sua-box'">{{selectPlan.has_test?'Có đề':'Chưa có đề'}}</span>
+                                        </div>
+                                        <div *ngIf="selectPlan.has_form_test && selectPlan._question_dat > 0" class="mt-3">
+                                            <button *ngIf="!selectPlan.has_test" (click)="sinhDeByKynang(selectPlan)" class="btn btn-success">Sinh đề tại đây</button>
+                                            <button *ngIf="selectPlan.has_test" (click)="deleteDeKynang(selectPlan)" class="btn btn-danger">Xóa tất cả đề</button>
+                                        </div>
+                                    </div>
+                                    <p *ngIf="selectPlan.type !== 'THUONGXUYEN_TRACNGHIEM'">Nội dung chi tiết đang được cập nhật.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="!showTests" class="assessment-empty">Bài kiểm tra thường xuyên chưa được <strong>tạo</strong>.<br>Vào chức năng <strong>cấu hình</strong> để thiết lập.</div>
+                }
+
+                <!-- Tab 2: Nhập câu hỏi KT tự luận 15P -->
+                @if (tabIndex === 2) {
+                    <div class="assessment-empty">Chức năng câu hỏi tự luận 15p đang phát triển...</div>
+                }
+            </div>
+        </div>
+    }
+</section>
