@@ -1,7 +1,7 @@
-import { OvicConditionParam } from "@core/models/dto";
+import { IctuConditionParam } from "@models/dto";
 
 export interface ConditionOption {
-    condition: OvicConditionParam[];
+    condition: IctuConditionParam[];
     set: Set[];
     page: string | null;
 }

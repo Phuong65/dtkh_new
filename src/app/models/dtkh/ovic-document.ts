@@ -1,7 +1,5 @@
-import { OvicDocumentTypes } from "@core/models/file";
-
 export interface OvicDocument {
-    type: OvicDocumentTypes;
+    type: OvicDocumentType;
     source: OvicDocumentSource;
     path: string;
     fileName?: string;

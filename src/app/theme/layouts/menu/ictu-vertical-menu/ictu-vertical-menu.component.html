@@ -1,7 +1,7 @@
 <ng-scrollbar orientation="vertical" style="height: calc(var(--device-height, 100vh) - var(--mat-toolbar-standard-height, 54px))" visibility="hover">
 	<div class="navbar-content">
 		<div class="navbar-content__tab">
-			@for (item of menus(); track item.id) {
+			@for (item of menus(); track $index) {
 				<button class="navbar-content__tab__btn mat-button-full-width" (click)="activeMenu(item)" [class.--active]="menuActivated()?.id === item.id">
 					<span class="navbar-content__tab__btn__inside">
 						@if (item.icon) {

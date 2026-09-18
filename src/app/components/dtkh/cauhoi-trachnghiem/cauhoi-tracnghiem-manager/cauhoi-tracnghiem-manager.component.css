@@ -1,0 +1,566 @@
+.layout_component_container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    flex-wrap: nowrap;
+    align-items: center;
+    height: 1%;
+    flex: 1 1 auto;
+}
+
+.layout_component_container-course {
+    width: 400px;
+    height: 100%;
+    /* overflow: hidden; */
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s;
+}
+
+
+
+.layout_component_container-course {
+    border-right: 1px solid #c8c8c8;
+}
+
+.layout_component_container-noidung {
+    width: calc(100% - 400px);
+    height: 100%;
+}
+
+.list-course-layout {
+    flex: 1;
+    overflow: auto;
+}
+
+/* Course navigator */
+.course-search {
+    padding: 16px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5eaf0;
+}
+
+.course-search__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 44px;
+    background: #fff;
+    border: 1px solid #d8e0ea;
+    border-radius: 10px;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.course-search__input-wrapper:focus-within {
+    border-color: #2188d1;
+    box-shadow: 0 0 0 3px rgba(33, 136, 209, .12);
+}
+
+.course-search__icon {
+    margin: 0 12px;
+    color: #7a899b;
+    font-size: 16px;
+}
+
+.course-search__input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0 10px 0 0;
+    color: #263648;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    font-size: 15px;
+}
+
+.course-search__input::placeholder {
+    color: #98a5b5;
+}
+
+.course-search__clear {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    margin-right: 6px;
+    padding: 0;
+    color: #7a899b;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.course-search__clear:hover,
+.course-search__clear:focus-visible {
+    color: #1e6fae;
+    background: #eaf4fc;
+    outline: none;
+}
+
+.course-search__hint {
+    display: block;
+    margin: 8px 4px 0;
+    color: #8a98a8;
+    font-size: 12px;
+}
+
+.course-list {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    background: #fff;
+}
+
+.course-selection-list {
+    display: block;
+    padding: 8px;
+}
+
+.course-option {
+    display: flex;
+    align-items: flex-start;
+    height: auto;
+    min-height: 78px;
+    margin: 4px 0;
+    padding: 0;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    transition: background 140ms ease, box-shadow 140ms ease;
+}
+
+.course-option:hover {
+    background: #f3f8fc;
+}
+
+.course-option--selected {
+    background: #eaf4fc;
+    box-shadow: inset 3px 0 0 #2188d1;
+}
+
+.course-option--selected .course-option__title {
+    color: #1269a2;
+}
+
+.course-option__content {
+    flex: 1;
+    min-width: 0;
+    padding: 12px;
+}
+
+.course-option__main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    line-height: 22px;
+}
+
+.course-option__title {
+    min-width: 0;
+    overflow: hidden;
+    color: #263648;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 22px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.course-option__code {
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    color: #39749c;
+    background: #edf6fc;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 16px;
+}
+
+.course-option__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    margin-top: 6px;
+    color: #8190a0;
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.course-option__creator,
+.course-option__info {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.course-option__creator {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.course-option__creator i {
+    color: #9cabb9;
+    font-size: 11px;
+}
+
+.course-option__info {
+    color: #a1acb8;
+}
+
+.course-option__info::before {
+    margin-right: 8px;
+    color: #c5cdd5;
+    content: '•';
+}
+
+.course-list__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 20px;
+    color: #8795a4;
+    text-align: center;
+}
+
+.course-list__empty i {
+    margin-bottom: 12px;
+    color: #b7c4d0;
+    font-size: 28px;
+}
+
+.course-list__empty p {
+    margin: 0;
+    color: #647487;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.course-list__empty-hint {
+    margin-top: 4px;
+    font-size: 11px;
+}
+
+.search-layout {
+    padding: 5px;
+    border-bottom: 1px solid #c8c8c8;
+    display: flex;
+    flex-direction: column;
+}
+
+.button-close-left-body {
+    margin-left: 5px;
+    min-width: 0px;
+    position: absolute;
+    right: -14px;
+    top: calc(50% - 40px);
+    padding: 0;
+    width: 14px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.button-close-left-body.btn.btn-success:before {
+    position: absolute;
+    content: '';
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 50%;
+    border-left: 15px solid #28a745;
+    border-top: 15px solid transparent;
+    z-index: -1;
+}
+
+.button-close-left-body.btn.btn-success:after {
+    position: absolute;
+    content: '';
+    top: 50%;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-left: 15px solid #28a745 !important;
+    border-bottom: 15px solid transparent !important;
+    z-index: -1;
+}
+
+.close-left-body .layout_component_container-course {
+    margin-left: -400px;
+}
+
+.close-left-body .layout_component_container-noidung {
+    width: calc(100% - 400px);
+}
+
+.header-table-secondary {
+    width: 100%;
+    display: flex;
+}
+
+.header-table-secondary-pub {
+    width: 40px;
+    display: block;
+    padding: 5px;
+}
+
+.header-table-secondary-pri {
+    width: 40px;
+    display: inline-block;
+    padding: 5px;
+}
+
+.header-table-secondary-tong {
+    display: inline-block;
+    padding: 5px;
+    flex: 1;
+}
+
+/* test css*/
+/* --- Cấu trúc Sticky & Scroll --- */
+.table-container {
+    height: 100%;
+    /* Chiều cao cố định để kích hoạt cuộn dọc */
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+}
+
+/* Giữ Caption (Tiêu đề trên cùng) luôn đứng yên */
+.table-header-title {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    /* Xám đen đậm */
+    padding: 5px;
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+}
+
+/* Khu vực cho phép cuộn nội dung */
+.table-responsive {
+    flex: 1;
+    overflow: auto;
+    /* border: 1px solid #dee2e6 !important; */
+}
+
+.table {
+    border-collapse: collapse !important;
+    /* border-spacing: 0; */
+    width: 100%;
+    font-size: 13px;
+}
+
+/* Giữ Header của bảng (thead) luôn ở đỉnh khi cuộn */
+.table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    /* border-bottom: 2px solid #dee2e6 !important; */
+    /* box-shadow: inset 0 -1px 0 #dee2e6; */
+}
+
+/* --- HỆ MÀU PASTEL NHẠT (Dịu mắt) --- */
+.bg-soft-blue {
+    color: #1565c0;
+}
+
+/* Blue 50 */
+.bg-soft-orange {
+    color: #e65100;
+}
+
+/* Orange 50 */
+.bg-soft-green {
+    color: #2e7d32;
+}
+
+/* Green 50 */
+.bg-soft-red {
+    color: #c62828;
+}
+
+/* Red 50 */
+.bg-soft-gray {
+    color: #343a40;
+}
+
+/* Gray 50 */
+
+
+/* Dòng nhóm/CDR (Xám trắng nhẹ) */
+.group-row {
+    color: #495057;
+    background-color: #caf1d8ad;
+}
+
+/* Cột Private (Màu cam nhạt đặc trưng) */
+.col-private-main {
+    /* border-bottom: 2px solid #ffcc80 !important; */
+}
+
+.col-private-lesson {
+    color: #d46213 !important;
+}
+
+.col-private-level {
+    color: #d46213 !important;
+    /* border-left: 1px solid #ffcc80 !important;
+    border-right: 1px solid #ffcc80 !important; */
+}
+
+/* --- CHI TIẾT KHÁC --- */
+.table td,
+.table th {
+    border-top: 1px solid #E0E6ED !important;
+    border-bottom: 1px solid #E0E6ED !important;
+    border-right: none !important;
+    border-left: none !important;
+    padding: 10px !important;
+    vertical-align: middle;
+}
+
+.btn-toggle {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    outline: none;
+    color: #1565C0;
+    font-size: 13px;
+}
+
+.main-col {
+    min-width: 350px;
+}
+
+.font-italic {
+    font-style: italic;
+}
+
+.gray-200 {
+    background-color: #EEEEEE;
+}
+
+
+.level-row {
+    background-color: #FFF;
+}
+
+.level-row:nth-child(odd) {
+    background-color: #F5F5F5;
+}
+
+.no-question-span {
+    color: #F5F5F5;
+}
+
+/* Dòng bài học (Xanh dương cực nhạt) */
+.lesson-row {
+    background-color: #E3F2FD !important;
+    color: #1565C0;
+    border-bottom: 2px solid #BBDEFB !important;
+}
+
+.table tr:hover {
+    background-color: #d0e1fd !important;
+    cursor: pointer;
+}
+
+
+.p-inputgroup input {
+    height: 36px !important;
+    border-top-right-radius: 6px !important;
+    border-bottom-right-radius: 6px !important;
+    font-size: 13px;
+}
+
+.p-inputgroup span {
+    padding: 0px;
+    font-size: 13px;
+}
+
+.color-secondary {
+    color: rgba(0, 0, 0, .1);
+}
+
+.color-danger {
+    color: red;
+}
+
+.activity-label-table {
+    width: 200px;
+}
+
+.disabled-label-table {
+    width: 100px;
+    color: #818ea1;
+}
+
+.table-add-cdr-last-exam span,
+.table-add-cdr-last-exam input {
+    border-radius: 0px !important;
+}
+
+.no-border-left-right {
+    border-right: none !important;
+}
+
+.require-cdr-backgroud-color th,
+.require-cdr-backgroud-color input,
+.require-cdr-backgroud-color span,
+.require-cdr-backgroud-color td {
+    color: red !important;
+}
+
+.text-empty {
+    width: calc(100% - 10px);
+    margin: 5px;
+    padding: 10px;
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    text-align: center;
+}
+
+.question-scope-row {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+}
+
+.question-scope-delete {
+    flex: 0 0 auto;
+    font-size: 13px;
+    line-height: 0;
+}
+
+::ng-deep .modal-xoa-cau-hoi-theo-bai-cdr {
+    z-index: 1099 !important;
+}
+
+
+/* ------------------new ver -------------------- */
+.admin-section--table {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.page-layout-set {
+    height: 56px;
+}

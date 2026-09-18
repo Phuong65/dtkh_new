@@ -1,4 +1,4 @@
-import { IctuMedia } from '@modules/kiem-thu-ngan-hang-cau-hoi/models/file';
+import { IctuMedia } from '@models/file';
 import { OvicFileStore } from './file-store';
 import { MEDIA } from './question';
 export interface CourseQuestions {

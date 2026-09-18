@@ -1,5 +1,4 @@
-import { OvicDocument } from '@core/models/file';
-import { OvicMedia } from '@core/models/file';
+import { OvicDocument, OvicMedia } from '@models/dtkh/ovic-document';
 
 export interface LessonVideoLogEvent {
     video_duration: number;

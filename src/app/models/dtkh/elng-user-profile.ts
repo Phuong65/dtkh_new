@@ -1,4 +1,5 @@
-import { User } from "@core/models/user";
+import { User } from "@models/user";
+
 
 export interface ElngUserProfile {
     id?: number;
