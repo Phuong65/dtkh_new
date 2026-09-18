@@ -64,10 +64,12 @@
                                                         <span class="red">Chưa tạo form đề, không thể sinh đề kiểm tra</span>
                                                     } @else {
                                                         <div style="text-align: center;">
-                                                            <button (click)="sinhDeByWeek(row)" class="btn btn-success" style="line-height: 1;">Sinh đề tại đây</button>
+                                                            <button (click)="sinhDeByWeek(row)" mat-flat-button class="btn-success-custom">
+                                                                Sinh đề tại đây
+                                                            </button>
                                                             @if (row.has_test_cc) {
-                                                                <button pTooltip="Xóa tất cả đề" tooltipPosition="left" (click)="deleteDeWeek(row)" class="btn btn-danger btn-icon ms-2" style="line-height: 1;">
-                                                                    <i class="fa fa-trash"></i>
+                                                                <button pTooltip="Xóa tất cả đề" tooltipPosition="left" (click)="deleteDeWeek(row)" mat-flat-button class="btn-danger-custom ms-2">
+                                                                    Xóa tất cả đề
                                                                 </button>
                                                             }
                                                         </div>
@@ -86,10 +88,12 @@
                                                             <span class="red">Chưa tạo form đề, không thể sinh đề kiểm tra</span>
                                                         } @else {
                                                             <div style="text-align: center;">
-                                                                <button (click)="sinhDe15pByWeek(row)" class="btn btn-success" style="line-height: 1;">Sinh đề tại đây</button>
+                                                                <button (click)="sinhDe15pByWeek(row)" mat-flat-button class="btn-success-custom">
+                                                                    Sinh đề tại đây
+                                                                </button>
                                                                 @if (row.has_test_dg) {
-                                                                    <button pTooltip="Xóa tất cả đề" tooltipPosition="left" (click)="delete15pDeByWeek(row)" class="btn btn-danger btn-icon ms-2" style="line-height: 1;">
-                                                                        <i class="fa fa-trash"></i>
+                                                                    <button pTooltip="Xóa tất cả đề" tooltipPosition="left" (click)="delete15pDeByWeek(row)" mat-flat-button class="btn-danger-custom ms-2">
+                                                                        Xóa tất cả đề
                                                                     </button>
                                                                 }
                                                             </div>
@@ -152,10 +156,14 @@
                                                         @if (selectPlan.has_form_test && selectPlan._question_dat > 0) {
                                                             <div class="mt-3">
                                                                 @if (!selectPlan.has_test) {
-                                                                    <button (click)="sinhDeByKynang(selectPlan)" class="btn btn-success">Sinh đề tại đây</button>
+                                                                    <button (click)="sinhDeByKynang(selectPlan)" mat-flat-button class="btn-success-custom">
+                                                                        Sinh đề tại đây
+                                                                    </button>
                                                                 }
                                                                 @if (selectPlan.has_test) {
-                                                                    <button (click)="deleteDeKynang(selectPlan)" class="btn btn-danger">Xóa tất cả đề</button>
+                                                                    <button (click)="deleteDeKynang(selectPlan)" mat-flat-button class="btn-danger-custom ms-2">
+                                                                        Xóa tất cả đề
+                                                                    </button>
                                                                 }
                                                             </div>
                                                         }
