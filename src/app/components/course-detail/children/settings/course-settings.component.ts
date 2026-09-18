@@ -1,10 +1,11 @@
 import { Component, input } from '@angular/core';
 import { Course } from '@models/course';
+import { MonhocCauhinhComponent } from '../monhoc-cauhinh/monhoc-cauhinh.component';
 
 @Component({
     selector: 'app-course-settings',
     standalone: true,
-    imports: [],
+    imports: [MonhocCauhinhComponent],
     templateUrl: './course-settings.component.html'
 })
 export class CourseSettingsComponent {

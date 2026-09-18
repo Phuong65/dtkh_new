@@ -1,0 +1,177 @@
+<section class="course-info-page position-relative">
+    @if (state() === 'loading') {
+        <app-loading-progress heading="Đang tải phân bổ CĐR - câu hỏi..." backdropFilter="none"></app-loading-progress>
+    }
+    @if (saving()) {
+        <app-loading-progress heading="Đang lưu dữ liệu..." backdropFilter="blur(1px)"></app-loading-progress>
+    }
+    @if (state() === 'error') {
+        <div class="course-info-page__error">Tải dữ liệu thất bại. Vui lòng thử lại.</div>
+    }
+    @if (state() === 'success' && selectedCourse; as course) {
+        <div class="course-info-page__a4">
+            <div class="ictu-form course-question-cdr-form">
+                <div class="ictu-form__row course-question-cdr-form__header">
+                    <label class="ictu-form__label">CĐR - Câu hỏi</label>
+                </div>
+
+                <div class="ictu-form__row course-question-cdr-form__layout">
+                    <aside class="course-question-cdr-form__sidebar">
+                        <button (click)="closeLeftBody()" class="course-question-cdr-form__toggle" mat-icon-button matTooltip="Thu gọn/mở rộng">
+                            <i class="pi" [ngClass]="closeLeft ? 'pi-angle-double-right' : 'pi-angle-double-left'"></i>
+                        </button>
+                        <div class="course-question-cdr-form__info">
+                            <div class="course-question-cdr-form__info-header">
+                                <div class="course-question-cdr-form__total">
+                                    <label>Tổng số câu hỏi:</label>
+                                    <span>{{ selectedCourse?.total_question || 0 }}</span>
+                                </div>
+                                @for (item of chuandaura; track item.id) {
+                                    <div class="course-question-cdr-form__cdr-item"
+                                        [ngClass]="{ 'require-cdr': selectedCourse?.class_require?.[item.id], 'disabled-cdr': item.disabled }">
+                                        <label>- {{ item.label }}</label>
+                                        <span *ngIf="selectedCourse?.cdr_percent && selectedCourse?.cdr_question">
+                                            {{ selectedCourse.cdr_question[item.id] || 0 }} = {{ selectedCourse.cdr_percent[item.id] || 0 }}%
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                            @if (!course.params?.cdr) {
+                                <div class="course-question-cdr-form__no-cdr">
+                                    Môn học này chưa xác định CDR, vui lòng cập nhật lại CDR hoặc liên hệ <strong>PHÒNG ĐÀO TẠO</strong>.
+                                </div>
+                            }
+                            @if (selectedCdr) {
+                                <div class="course-question-cdr-form__recommend">
+                                    <div class="course-question-cdr-form__recommend-header">
+                                        Tỉ lệ phân bổ cho: {{ selectedCdr.kyhieu }} - {{ selectedCdr.cdr_name }}
+                                    </div>
+                                    @for (item of khuyennghi; track item.label) {
+                                        <div class="course-question-cdr-form__recommend-item">
+                                            <label>- {{ item.label }}</label>
+                                            <span [innerHTML]="item.html"></span>
+                                            <span>{{ item.value }}%</span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </aside>
+
+                    <div class="course-question-cdr-form__main">
+                        <p-table [value]="list_cdr_cauhoi" styleClass="course-question-cdr-form__table"
+                            [scrollable]="true" scrollHeight="calc(100vh - 200px)">
+                            <ng-template pTemplate="caption">
+                                <div class="course-question-cdr-form__actions">
+                                    <button mat-flat-button color="primary" (click)="openAutoCdr()" [disabled]="!list_cdr_cauhoi?.length"
+                                        matTooltip="Tự động phân bổ câu hỏi">
+                                        <mat-icon>auto_awesome</mat-icon>
+                                        <span>Tự động phân bổ</span>
+                                    </button>
+                                    <button mat-flat-button color="accent" (click)="saveCdrQuestion()" [disabled]="saving()">
+                                        <mat-icon>save</mat-icon>
+                                        <span>Lưu lại</span>
+                                    </button>
+                                </div>
+                            </ng-template>
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th style="width: 180px;">Tiêu chí</th>
+                                    @for (item of chuandaura; track item.id) {
+                                        <th class="text-center" [ngClass]="{ 'disabled-cdr': item.disabled }" style="width: 120px;">
+                                            {{ item.label }}
+                                        </th>
+                                    }
+                                    <th class="text-center" style="width: 80px;">Tổng</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-parent>
+                                <tr class="course-question-cdr-form__parent-row"
+                                    [ngClass]="{ 'require-cdr': !parent.children?.length }">
+                                    <td style="text-align: left; background: #f8f9fa;">
+                                        <span>Bài {{ parent.week }}</span>
+                                        <span *ngIf="!parent.children?.length" class="text-muted"> - Chưa cập nhật CDR</span>
+                                    </td>
+                                    @for (item of chuandaura; track item.id) {
+                                        <td class="text-center disabled-cdr" [ngClass]="{ 'disabled-cdr': item.disabled }">-</td>
+                                    }
+                                    <td class="text-center">-</td>
+                                </tr>
+                                @for (child of parent.children; track child.id) {
+                                    <tr [ngClass]="{ 'require-cdr-row': child.require_cdr }"
+                                        (click)="cdrGet(child)">
+                                        <td class="course-question-cdr-form__child-name">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span>{{ child.kyhieu }} - {{ child.cdr_name }}</span>
+                                            </div>
+                                        </td>
+                                        @for (item of chuandaura; track item.id) {
+                                            <td class="text-center" [ngClass]="{ 'disabled-cdr': item.disabled }">
+                                                @if (item.disabled) {
+                                                    <span>-</span>
+                                                } @else {
+                                                    <div class="p-inputgroup" data-cdr-question-input>
+                                                        <span class="p-inputgroup-addon tag-cdr-cauhoi-min">
+                                                            {{ child.min_cdr_question?.[item.id] || 0 }} ≤
+                                                        </span>
+                                                        <input type="number"
+                                                            [attr.data-cdr-question-input]="true"
+                                                            (keydown)="pointQuestionKeyDown($event, $any($event.target))"
+                                                            [(ngModel)]="child.cdr_cauhoi[item.id]"
+                                                            (ngModelChange)="setNumberCdrCauhoi(child)"
+                                                            class="p-inputgroup-field"
+                                                            style="text-align: center; width: 70px; min-width: 70px;">
+                                                        <span class="p-inputgroup-addon tag-cdr-cauhoi-percent">
+                                                            = {{ child.cdr_percent?.[item.id] || 0 }}%
+                                                        </span>
+                                                    </div>
+                                                }
+                                            </td>
+                                        }
+                                        <td class="text-center">{{ child.total_question }}</td>
+                                    </tr>
+                                }
+                            </ng-template>
+                            <ng-template pTemplate="summary">
+                                <div class="course-question-cdr-form__summary">
+                                    <span>Tổng câu hỏi: {{ selectedCourse?.total_question || 0 }}</span>
+                                    @if (selectedCourse?.require_cdr) {
+                                        <span class="text-danger">⚠ Có dòng vi phạm quy định CDR</span>
+                                    }
+                                </div>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</section>
+
+<p-dialog header="Tự động phân bổ câu hỏi" [(visible)]="displayModal" [modal]="true"
+    [style]="{ width: 'min(500px, 95vw)' }" [draggable]="false" [resizable]="false">
+    @if (saving()) {
+        <app-loading-progress heading="Đang tự động phân bổ..." backdropFilter="blur(1px)"></app-loading-progress>
+    }
+    <div class="p-4">
+        <div class="mb-3 p-3 bg-light rounded">
+            <p class="mb-2">- Thầy/Cô nhập tổng số câu hỏi muốn thêm hoặc bổ sung.</p>
+            <p class="mb-2">- Hệ thống sẽ tự động phân bổ giúp các thầy cô, các thầy cô có thể sửa theo ý mình.</p>
+            <p class="mb-2">- Thầy/Cô lưu lại kết quả để hoàn thành việc phân bổ câu hỏi.</p>
+        </div>
+        <div class="course-question-cdr-form__auto-form">
+            <label class="form-label fw-bold">Nhập tổng số câu hỏi dự kiến bổ sung/thêm mới: <span class="text-danger">*</span></label>
+            <div class="p-inputgroup">
+                <input type="number" [(ngModel)]="totalCdrCauhoi" (keydown)="pointQuestionKeyDown($event, $any($event.target))"
+                    class="p-inputgroup-field" style="width: auto;">
+                <span class="p-inputgroup-addon">{{ returnPercent() }} %</span>
+            </div>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <div class="flex justify-content-end gap-2 w-100">
+            <button mat-stroked-button (click)="displayModal = false">Hủy</button>
+            <button mat-flat-button color="primary" (click)="saveAutoSetQuestionCdr()">Bổ sung</button>
+        </div>
+    </ng-template>
+</p-dialog>

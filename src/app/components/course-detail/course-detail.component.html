@@ -41,10 +41,10 @@
                 <app-monhoc-muctieu-cdr [course]="course()" [courseId]="courseId()"></app-monhoc-muctieu-cdr>
             }
             @case ('content') {
-                <app-course-content [course]="course()" [courseId]="courseId()"></app-course-content>
+                <app-monhoc-noidung></app-monhoc-noidung>
             }
             @case ('questions') {
-                <app-course-questions [course]="course()" [courseId]="courseId()"></app-course-questions>
+                <app-monhoc-question-cdr [course]="course()" [courseId]="courseId()"></app-monhoc-question-cdr>
             }
             @case ('assessment') {
                 <app-course-assessment [course]="course()" [courseId]="courseId()"></app-course-assessment>

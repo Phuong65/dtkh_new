@@ -1,0 +1,555 @@
+<div class="layout_component_container course-content-shell">
+    <div *ngIf="list_plan && list_plan.length" class="lesson-baihocv2" [ngClass]="closeLeft?'close-left-body':''">
+        <aside class="menu-lesson-baihocv2" aria-label="Mục lục nội dung môn học">
+            <button type="button" (click)="closeLeftBody()" class="button-close-left-body"
+                [attr.aria-label]="closeLeft ? 'Mở mục lục' : 'Thu gọn mục lục'"
+                [attr.title]="closeLeft ? 'Mở mục lục' : 'Thu gọn mục lục'">
+                <i [ngClass]="closeLeft?'pi pi-angle-double-right':'pi pi-angle-double-left'" aria-hidden="true"></i>
+            </button>
+
+            <header class="course-outline-header">
+                <div class="course-outline-heading">
+                    <span class="course-outline-heading__icon fa fa-list-ul" aria-hidden="true"></span>
+                    <div class="course-outline-heading__text">
+                        <span class="course-outline-heading__eyebrow">Nội dung môn học</span>
+                        <h2 class="course-outline-heading__title">Mục lục</h2>
+                    </div>
+                    <span class="course-outline-heading__count">{{list_plan.length}} {{label_parent_kehoach | lowercase}}</span>
+                </div>
+
+                <div class="course-outline-actions" *ngIf="canAdded">
+                    <button type="button" (click)="saveOrderingLesson()" class="course-outline-action"
+                        *ngIf="dragDropLesson">
+                        <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                        <span>Lưu thứ tự</span>
+                    </button>
+
+                    <button type="button" class="course-outline-action course-outline-action--primary"
+                        *ngIf="!isDttx" (click)="openFormAddLesson()">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                        <span>{{!unlimitLesson?"Bổ sung "+label_parent_kehoach+" còn thiếu":"Thêm "+label_parent_kehoach}}</span>
+                    </button>
+
+                    <button type="button" class="course-outline-more" *ngIf="isDttx" mat-icon-button
+                        [matMenuTriggerFor]="menuButtonTop" aria-label="Mở các thao tác thêm nội dung">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+                    <mat-menu #menuButtonTop="matMenu">
+                        <button (click)="openFormAddLesson()" mat-menu-item>
+                            <mat-icon>add</mat-icon>
+                            <span>{{"Thêm "+label_parent_kehoach}}</span>
+                        </button>
+                        <button (click)="onOpenAddThaoLuan()" mat-menu-item>
+                            <mat-icon>note_add</mat-icon>
+                            <span>Thêm bài thảo luận</span>
+                        </button>
+                    </mat-menu>
+                </div>
+            </header>
+
+            <nav class="menu-list-lessonv2" aria-label="Danh sách nội dung">
+                <div class="outline-section-label">
+                    <span>Bài học</span>
+                    <span>{{list_plan.length}}</span>
+                </div>
+                <div class="meunu-list-lessons" cdkDropList (cdkDropListDropped)="drop($event)">
+                    <div cdkDrag class="parent-lesson-layout" *ngFor="let parent of list_plan, index as keyParent">
+                        <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+                        <ng-container *ngTemplateOutlet="menuLesson; context: { $implicit: parent, keyP: keyParent }">
+                        </ng-container>
+                    </div>
+                </div>
+
+                <div class="menu-list-thaoluan" *ngIf="list_thaoluan && list_thaoluan.length">
+                    <div class="outline-section-label outline-section-label--discussion">
+                        <span>Thảo luận</span>
+                    </div>
+                    <div class="parent-lesson-layout" *ngFor="let parent of list_thaoluan, index as keyParent">
+                        <ng-container *ngTemplateOutlet="menuLesson; context: { $implicit: parent, keyP: keyParent }">
+                        </ng-container>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="lesson-content-right-monhoc-v2 content-form-lesson-right-top">
+            <div class="content-context-bar" *ngIf="selectPlan">
+                <div class="content-context-bar__identity">
+                    <span class="content-context-bar__label">Đang biên soạn</span>
+                    <strong *ngIf="selectPlan.week < 1000">{{label_parent_kehoach}} {{selectPlan.week}}</strong>
+                    <strong *ngIf="selectPlan.week >= 1000">{{selectedPlanActivity?.title || selectPlan.title}}</strong>
+                </div>
+                <span class="content-context-bar__hint">Chọn đầu mục bên trái để chuyển nhanh nội dung</span>
+            </div>
+
+            <div *ngIf="selectPlan && selectedCourse && selectPlan.week < 1000; else above1000">
+                <div *ngFor="let plan of selectPlan.children">
+                    <div [ngSwitch]="plan.type">
+                        <ng-container *ngSwitchCase="'MUCTIEU'" [ngTemplateOutlet]="templateMuctieu"
+                            [ngTemplateOutletContext]="{ muctieuPlan: plan}">
+                        </ng-container>
+                        <div *ngSwitchCase="'CDR'" class="layout-panel cdr-layout" #cpisElm>
+                            <app-chuandaura [canAdded]="canAdded" [coursePlanActivities]="selectPlan"
+                                [courses]="selectedCourse" style="height: 100%;">
+                            </app-chuandaura>
+                        </div>
+                        <ng-container *ngSwitchCase="'ACTIVITY'" [ngTemplateOutlet]="templateTailieu"
+                            [ngTemplateOutletContext]="{ tailieuPlan: plan}">
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+            <ng-template #above1000>
+                <div *ngIf="selectedPlanActivity" [ngSwitch]="selectedPlanActivity.type">
+                    <ng-container *ngSwitchCase="'THAOLUAN'" [ngTemplateOutlet]="templateThaoLuan">
+                    </ng-container>
+                </div>
+            </ng-template>
+        </main>
+    </div>
+
+    <section *ngIf="!list_plan || !list_plan.length" class="course-content-empty">
+        <div class="course-content-empty__visual" aria-hidden="true">
+            <span class="fa fa-book"></span>
+        </div>
+        <span class="course-content-empty__eyebrow">Nội dung môn học</span>
+        <h2>Chưa có nội dung giảng dạy</h2>
+        <p>Khởi tạo các bài học để bắt đầu cập nhật mục tiêu, chuẩn đầu ra và học liệu.</p>
+        <button type="button" *ngIf="canAdded && !loading" (click)="openFormAddLesson()"
+            class="btn btn-primary course-content-empty__action">
+            <span class="fa fa-plus" aria-hidden="true"></span>
+            Cập nhật nội dung giảng dạy
+        </button>
+    </section>
+</div>
+
+<p-dialog header="{{formTitle}}" [(visible)]="displayAddLessonModal" [modal]="true" [style]="{width: '50vw'}" [baseZIndex]="1099" [draggable]="false" [resizable]="false" styleClass="ovic-over-right-section">
+    <div class="ovic-over-right-section__body users-layout-form" style="height: auto;">
+        <div class="ovic-vertical__inputs">
+            <div class="form-row">
+                <label for="name">Nhập vào số lượng {{isAddThaoLuan?'thảo luận':'bài giảng'}}:
+                    <span class="ovic-mark">*</span></label>
+                <input #inputLesson (keydown)="numberCheck($event,inputLesson)" [(ngModel)]="numberAddLesson"
+                    type="number" id="name" class="form-control">
+            </div>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button (click)="saveAddLesson(true)" type="button" class="btn btn-primary">
+            <i class="fa fa-floppy-o"></i>Lưu lại
+        </button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog styleClass="dialog-waiting" appendTo="body" [showHeader]="false" [closable]="false" [(visible)]="displayModal"
+    [modal]="true" [style]="{width: '50vw'}" [baseZIndex]="1099" [draggable]="false" [resizable]="false">
+    <div class="popup-waiting-loading">
+        <label style="width: 100%;">{{titleWaiting}}</label>
+        <div class="tn-import-student-progressbar">
+            <mat-progress-bar mode="determinate" [value]="progressValue"></mat-progress-bar>
+        </div>
+    </div>
+</p-dialog>
+
+<ng-template #templateMuctieu let-muctieuPlan="muctieuPlan">
+    <div class="layout-panel muctieu-layout" #muctieuElm>
+        <p-panel header="{{selectPlan?label_parent_kehoach +' '+selectPlan.week:''}}">
+            <ng-template pTemplate="icons">
+                <div style="display: flex; align-items: center;">
+                    <div [ngSwitch]="muctieuPlan.status">
+                        <span class="box-span cho-duyet-box" *ngSwitchCase="0">Chờ duyệt</span>
+                        <span class="box-span dat-box" *ngSwitchCase="1">Đạt</span>
+                        <span class="box-span yeu-cau-sua-box" *ngSwitchCase="-1">Yêu cầu sửa</span>
+                        <span class="box-span da-sua-box" *ngSwitchCase="-2">Đã sửa</span>
+                    </div>
+                    <div *ngIf="muctieuPlan.status === 1" style="margin-right: 5px;">
+                        <span style="margin-left: 5px;" class="box-span dat-box">
+                            Duyệt lúc: {{muctieuPlan['approved_at'] | date2text: 'DD/MM/YYYY HH:mm'}}
+                        </span>
+                    </div>
+                </div>
+            </ng-template>
+            <div class="ovic-vertical__inputs muctieu-workspace">
+                <form [formGroup]="formMuctieu" class="muctieu-form">
+                    <section class="muctieu-section muctieu-section--lesson">
+                        <div class="muctieu-section__header">
+                            <span class="muctieu-section__icon fa fa-book" aria-hidden="true"></span>
+                            <div>
+                                <h3 class="muctieu-section__title">Thông tin bài học</h3>
+                                <p class="muctieu-section__hint">Xác định nội dung và chuẩn đầu ra của bài học.</p>
+                            </div>
+                        </div>
+
+                        <div class="muctieu-section__body">
+                            <div class="row form-row form-row-flex-row muctieu-primary-fields">
+                                <div class="col-9 flex-div muctieu-field">
+                                    <label for="muctieu-title">Tiêu đề bài<span class="ovic-mark">*</span></label>
+                                    <input id="muctieu-title" type="text" formControlName="title"
+                                        class="ovic-input-field" placeholder="Nhập tiêu đề bài học">
+                                </div>
+                                <div class="col-3 flex-div muctieu-field">
+                                    <label>Chuẩn đầu ra<span class="ovic-mark">*</span></label>
+                                    <p-select [options]="list_clo" optionLabel="kyhieu" optionValue="id"
+                                        formControlName="course_clo_id" [filter]="true" [showClear]="true"
+                                        appendTo="body" placeholder="Chọn chuẩn đầu ra"
+                                        class="ovic-input-field" [styleClass]="'muctieu-clo-select'"></p-select>
+                                </div>
+                            </div>
+
+                            <div *ngIf="fM['course_clo_id'] && fM['course_clo_id']['value']"
+                                class="muctieu-clo-summary">
+                                <span class="muctieu-clo-summary__label">
+                                    {{getCloLabel(fM['course_clo_id']['value'])}}
+                                </span>
+                                <span class="muctieu-clo-summary__content">
+                                    {{getCloContent(fM['course_clo_id']['value'])}}
+                                </span>
+                            </div>
+
+                            <div class="muctieu-editor-card muctieu-editor-card--content edit-hight-200">
+                                <div class="muctieu-editor-card__heading">
+                                    <span class="muctieu-editor-card__mark" aria-hidden="true"></span>
+                                    <label>Nội dung tóm tắt:</label>
+                                </div>
+                                <ictu-editor formControlName="desc"></ictu-editor>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="muctieu-section muctieu-section--outcomes">
+                        <div class="muctieu-section__header">
+                            <span class="muctieu-section__icon fa fa-bullseye" aria-hidden="true"></span>
+                            <div>
+                                <h3 class="muctieu-section__title">Mục tiêu năng lực</h3>
+                                <p class="muctieu-section__hint">Mô tả điều người học đạt được sau bài học.</p>
+                            </div>
+                        </div>
+
+                        <div class="muctieu-section__body muctieu-outcome-list">
+                            <div class="muctieu-editor-card muctieu-editor-card--knowledge edit-hight-200">
+                                <div class="muctieu-editor-card__heading">
+                                    <span class="muctieu-editor-card__index">KT</span>
+                                    <label>Về kiến thức</label>
+                                </div>
+                                <ictu-editor formControlName="kienthuc"></ictu-editor>
+                            </div>
+
+                            <div class="muctieu-editor-card muctieu-editor-card--skill edit-hight-200">
+                                <div class="muctieu-editor-card__heading">
+                                    <span class="muctieu-editor-card__index">KN</span>
+                                    <label>Về kỹ năng</label>
+                                </div>
+                                <ictu-editor formControlName="kynang"></ictu-editor>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="muctieu-actions">
+                        <div class="view-comment-action muctieu-comment-action">
+                            <button type="button" class="muctieu-comment-toggle" (click)="showComment('muctieu')"
+                                *ngIf="muctieuPlan && muctieuPlan['comments'] && muctieuPlan['comments'].length">
+                                <span class="fa fa-comments-o" aria-hidden="true"></span>
+                                {{appNhanxetMuctieu.displayComment?'Ẩn nhận xét':'Hiển thị nhận xét'}}
+                                <span class="muctieu-comment-count">{{muctieuPlan['comments'].length}}</span>
+                            </button>
+                        </div>
+                        <button type="button" (click)="saveMuctieu()" class="btn btn-primary muctieu-save-button">
+                            <span class="fa fa-floppy-o" aria-hidden="true"></span>
+                            Lưu nội dung
+                        </button>
+                    </div>
+                </form>
+                <div class="row form-row">
+                    <div class="col-12">
+                        <app-nhanxet-noidung #appNhanxetMuctieu [hideViewAction]="true" [activity_input]="muctieuPlan"
+                            [course_input]="selectedCourse">
+                        </app-nhanxet-noidung>
+                    </div>
+                </div>
+            </div>
+        </p-panel>
+    </div>
+</ng-template>
+
+<ng-template #templateThaoLuan let-thaoluanPlan="thaoluanPlan">
+    <div *ngIf="selectedPlanActivity" class="layout-panel discussion-layout">
+        <header class="discussion-header">
+            <span class="discussion-header__icon fa fa-comments-o" aria-hidden="true"></span>
+            <div>
+                <span class="discussion-header__eyebrow">Hoạt động trao đổi</span>
+                <h3>{{selectedPlanActivity.title}}</h3>
+                <p>Cập nhật nội dung hướng dẫn và tài liệu phục vụ thảo luận.</p>
+            </div>
+        </header>
+
+        <p-panel styleClass="discussion-panel" [showHeader]="false">
+            <div class="ovic-vertical__inputs discussion-workspace">
+                <form [formGroup]="formThaoLuan" class="discussion-form">
+                    <section class="discussion-section">
+                        <div class="discussion-section__header">
+                            <span class="fa fa-align-left" aria-hidden="true"></span>
+                            <div>
+                                <h4>Nội dung thảo luận</h4>
+                                <p>Nêu chủ đề, yêu cầu và cách thức tham gia.</p>
+                            </div>
+                        </div>
+                        <div class="discussion-section__body">
+                            <ictu-editor formControlName="desc"></ictu-editor>
+                        </div>
+                    </section>
+
+                    <section class="discussion-section">
+                        <div class="discussion-section__header">
+                            <span class="fa fa-paperclip" aria-hidden="true"></span>
+                            <div>
+                                <h4>Tài liệu đính kèm</h4>
+                                <p>Định dạng hỗ trợ: PDF, PPT, PPTX.</p>
+                            </div>
+                        </div>
+                        <div class="discussion-section__body">
+                            <input type="file" class="form-control" accept=".pdf,.ppt,.pptx" multiple
+                                (change)="onFilesSelected($event, fTl['files'])">
+                        </div>
+                    </section>
+
+                    <div class="discussion-actions">
+                        <button type="button" (click)="saveThaoLuan()" class="btn btn-primary discussion-save-button">
+                            <span class="fa fa-floppy-o" aria-hidden="true"></span>
+                            Lưu nội dung
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </p-panel>
+    </div>
+</ng-template>
+
+<ng-template #templateTailieu let-tailieuPlan="tailieuPlan">
+    <div class="layout-panel tailieu-layout" #tailieuElm>
+        <header class="layout-tailieu-giangday tailieu-header">
+            <div class="tailieu-header__main">
+                <span class="tailieu-header__icon fa fa-folder-open" aria-hidden="true"></span>
+                <div class="tailieu-header__identity">
+                    <span class="tailieu-header__eyebrow">Học liệu bài học</span>
+                    <h3 class="tailieu-header__title">Tài liệu giảng dạy</h3>
+                    <p class="tailieu-header__hint">Quản lý học liệu chính, video bổ trợ và tài liệu tham khảo.</p>
+                </div>
+            </div>
+            <div class="tailieu-header__status">
+                <div [ngSwitch]="tailieuPlan.status">
+                    <span class="box-span cho-duyet-box" *ngSwitchCase="0">Chờ duyệt</span>
+                    <span class="box-span dat-box" *ngSwitchCase="1">Đạt</span>
+                    <span class="box-span yeu-cau-sua-box" *ngSwitchCase="-1">Yêu cầu sửa</span>
+                    <span class="box-span da-sua-box" *ngSwitchCase="-2">Đã sửa</span>
+                </div>
+                <div *ngIf="tailieuPlan.status === 1">
+                    <span class="box-span dat-box">
+                        Duyệt lúc: {{tailieuPlan['approved_at'] | date2text: 'DD/MM/YYYY HH:mm'}}
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <aside class="tailieu-guidance">
+            <span class="tailieu-guidance__icon fa fa-info-circle" aria-hidden="true"></span>
+            <div>
+                <h4 class="tailieu-guidance__title">Yêu cầu tệp tải lên</h4>
+                <ul class="tailieu-guidance__list">
+                    <li>Cắt bài giảng và slide theo đúng nội dung của bài học.</li>
+                    <li>Video hỗ trợ định dạng MP4, AVI, MOV; dung lượng tối đa 200 MB.</li>
+                    <li>Độ phân giải video từ 720p đến 1080p.</li>
+                </ul>
+            </div>
+        </aside>
+
+        <p-panel styleClass="panel-tailieu-noheader tailieu-panel" [showHeader]="false">
+            <div class="ovic-vertical__inputs tailieu-workspace">
+                <form [formGroup]="formTailieu" class="tailieu-form">
+                    <section class="tailieu-section tailieu-section--primary">
+                        <div class="tailieu-section__header">
+                            <span class="tailieu-section__index">01</span>
+                            <div>
+                                <h3 class="tailieu-section__title">
+                                    Tài liệu chính <span class="tailieu-required">Bắt buộc</span>
+                                </h3>
+                                <p class="tailieu-section__hint">Cung cấp bài giảng và slide sử dụng trong bài học.</p>
+                            </div>
+                        </div>
+                        <div class="tailieu-section__body tailieu-upload-list">
+                            <div class="tailieu-upload-field">
+                                <div class="tailieu-upload-field__heading">
+                                    <span class="fa fa-file-pdf-o" aria-hidden="true"></span>
+                                    <label>PDF bài giảng<span class="ovic-mark">*</span></label>
+                                </div>
+                                <p class="tailieu-upload-field__hint">Định dạng: PDF, PPT, PPTX</p>
+                                <input type="file" class="form-control" accept=".pdf,.ppt,.pptx" multiple
+                                    (change)="onFilesSelected($event, fT['files'])">
+                            </div>
+
+                            <div class="tailieu-upload-field">
+                                <div class="tailieu-upload-field__heading">
+                                    <span class="fa fa-file-powerpoint-o" aria-hidden="true"></span>
+                                    <label>Slide bài giảng<span class="ovic-mark">*</span></label>
+                                </div>
+                                <p class="tailieu-upload-field__hint">Định dạng: PPT, PPTX, PDF</p>
+                                <input type="file" class="form-control" accept=".ppt,.pptx,.pdf" multiple
+                                (change)="onFilesSelected($event, fT['slides'])">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="tailieu-section tailieu-section--video">
+                        <div class="tailieu-section__header">
+                            <span class="tailieu-section__index">02</span>
+                            <div>
+                                <h3 class="tailieu-section__title">Video</h3>
+                                <p class="tailieu-section__hint">Một video minh họa hoặc mở rộng nội dung bài học.</p>
+                            </div>
+                        </div>
+                        <div class="tailieu-section__body " [ngClass]="app_configs.isDttx || keyServer === 'hvu'?'tailieu-upload-list': ''">
+                            <div class="tailieu-upload-field">
+                                <div class="tailieu-upload-field__heading">
+                                    <span class="fa fa-file-video-o" aria-hidden="true"></span>
+                                    <label>Video</label>
+                                </div>
+                                <p class="tailieu-upload-field__hint">Định dạng: MP4, AVI, MOV</p>
+                                <input type="file" class="form-control" accept=".mp4,.avi,.mov"
+                                (change)="onFilesSelected($event, fT['video'])">
+                            </div>
+                            <div *ngIf="app_configs.isDttx || keyServer === 'hvu'" class="tailieu-upload-field">
+                                <div class="tailieu-upload-field__heading">
+                                    <span class="fa fa-file-video-o" aria-hidden="true"></span>
+                                    <label>Video bổ trợ</label>
+                                </div>
+                                <p class="tailieu-upload-field__hint">Định dạng: MP4, AVI, MOV</p>
+                                <input type="file" class="form-control" accept=".mp4,.avi,.mov" multiple
+                                    (change)="onFilesSelected($event, fT['videos'])">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="tailieu-section tailieu-section--reference">
+                        <div class="tailieu-section__header">
+                            <span class="tailieu-section__index">03</span>
+                            <div>
+                                <h3 class="tailieu-section__title">Tài liệu tham khảo</h3>
+                                <p class="tailieu-section__hint">Bổ sung nội dung đọc thêm hoặc nguồn tham khảo liên quan.</p>
+                            </div>
+                        </div>
+                        <div class="tailieu-section__body">
+                            <div class="tailieu-reference-editor edit-hight-200">
+                                <label>Nội dung</label>
+                                <ictu-editor formControlName="desc"></ictu-editor>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="tailieu-actions">
+                        <div class="tailieu-comment-action">
+                            <button type="button" class="tailieu-comment-toggle" (click)="showComment('tailieu')"
+                                *ngIf="tailieuPlan && tailieuPlan['comments'] && tailieuPlan['comments'].length">
+                                <span class="fa fa-comments-o" aria-hidden="true"></span>
+                                {{appNhanxetTailieu.displayComment?'Ẩn nhận xét':'Hiển thị nhận xét'}}
+                                <span class="tailieu-comment-count">{{tailieuPlan['comments'].length}}</span>
+                            </button>
+                        </div>
+                        <button type="button" (click)="saveTailieu()" class="btn btn-primary tailieu-save-button">
+                            <span class="fa fa-floppy-o" aria-hidden="true"></span>
+                            Lưu tài liệu
+                        </button>
+                    </div>
+                </form>
+
+                <div class="row form-row">
+                    <div class="col-12">
+                        <app-nhanxet-noidung #appNhanxetTailieu [hideViewAction]="true" [activity_input]="tailieuPlan"
+                            [course_input]="selectedCourse">
+                        </app-nhanxet-noidung>
+                    </div>
+                </div>
+            </div>
+        </p-panel>
+    </div>
+</ng-template>
+
+<ng-template #menuLesson let-parent let-keyP="keyP">
+    <article class="outline-item" [class.outline-item--discussion]="parent.week >= 1000">
+        <div class="parent-name" [ngClass]="selectPlan && parent.id === selectPlan.id ?'activity':''">
+            <button type="button"
+                (click)="parent.week < 1000 ? onChangePlan(parent,'muctieu') : $event.stopPropagation()"
+                class="parent-name-layout">
+                <i *ngIf="dragDropLesson && parent.week < 1000" (click)="$event.stopPropagation()" cdkDragHandle
+                    class="pi pi-arrows-alt" aria-label="Kéo để thay đổi thứ tự"></i>
+                <span *ngIf="parent.week !== 0 && parent.week < 1000" class="parent-order">{{parent.week}}</span>
+                <span class="parent-title-wrap">
+                    <span *ngIf="parent.week !== 0 && parent.week < 1000" class="parent-title">{{label_parent_kehoach}} {{parent.week}}</span>
+                    <span *ngIf="parent.week === 0 || parent.week >= 1000" class="parent-title">{{parent.title}}</span>
+                    <span class="parent-subtitle" *ngIf="parent['children'] && parent['children'].length">
+                        {{parent['children'].length}} đầu mục
+                    </span>
+                </span>
+            </button>
+
+            <div *ngIf="parent.week < 1000" class="action-menu parent-action-menu">
+                <div [ngSwitch]="parent['status']" class="parent-status">
+                    <span container="body" placement="top" ngbTooltip="Chờ duyệt" *ngSwitchCase="0"
+                        class="status-dot status-dot--pending" aria-label="Chờ duyệt"></span>
+                    <span container="body" placement="top" ngbTooltip="Đạt" *ngSwitchCase="1"
+                        class="status-dot status-dot--approved" aria-label="Đạt"></span>
+                    <span container="body" placement="top" ngbTooltip="Chưa đạt" *ngSwitchCase="-1"
+                        class="status-dot status-dot--revision" aria-label="Chưa đạt"></span>
+                    <span container="body" placement="top" ngbTooltip="Đã sửa, đề nghị duyệt" *ngSwitchCase="-2"
+                        class="status-dot status-dot--resubmitted" aria-label="Đã sửa, đề nghị duyệt"></span>
+                </div>
+                <button type="button" (click)="$event.stopPropagation(); deletePlan(parent)"
+                    *ngIf="checkDeleteBaigiang(keyP)" container="body" placement="top" ngbTooltip="Xóa bài"
+                    class="outline-icon-button outline-icon-button--danger" aria-label="Xóa bài">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+
+        <div *ngIf="parent['desc']" class="parent-desc">
+            <div class="parent-desc-content" [innerHtml]="parent['desc'] | safeHtml"></div>
+        </div>
+
+        <div class="outline-children">
+            <div *ngFor="let children of parent['children'],index as index">
+                <div *ngIf="children.type !== 'ACTIVITY_TEST'"
+                    [ngClass]="selectedPlanActivity && children.id === selectedPlanActivity.id?'activity':''"
+                    class="child-lesson-layout">
+                    <button type="button" (click)="onChangePlan(parent,children['keyScroll'],children)"
+                        class="child-lesson-layout-title">
+                        <span class="child-icon"><i class="{{children['icon']}}" aria-hidden="true"></i></span>
+                        <span class="child-title">{{children.title}}</span>
+                    </button>
+                    <div class="action-menu child-action-menu">
+                        <span *ngIf="children.files && children.files.length" class="child-indicator"
+                            container="body" placement="top" ngbTooltip="Có tài liệu đính kèm">
+                            <i class="fa fa-paperclip" aria-hidden="true"></i>
+                        </span>
+                        <span *ngIf="children.course_lesson_id" class="child-indicator"
+                            container="body" placement="top" ngbTooltip="Đã liên kết bài học">
+                            <i class="fa fa-book" aria-hidden="true"></i>
+                        </span>
+                        <div *ngIf="parent.week !== 0 && parent.week < 1000" [ngSwitch]="children['status']">
+                            <span *ngSwitchCase="0" class="child-status child-status--pending">Chờ duyệt</span>
+                            <span *ngSwitchCase="1" class="child-status child-status--approved">Đạt</span>
+                            <span *ngSwitchCase="-1" class="child-status child-status--revision">Chưa đạt</span>
+                            <span *ngSwitchCase="-2" class="child-status child-status--resubmitted">Yêu cầu duyệt</span>
+                        </div>
+                        <button type="button" (click)="$event.stopPropagation(); deleteThaoLuan(children)"
+                            *ngIf="checkDeleteThaoluan(index) && parent.week === 2000"
+                            class="outline-icon-button outline-icon-button--danger" aria-label="Xóa bài thảo luận">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="outline-empty-child" *ngIf="!parent['children'] || !parent['children'].length">
+                Chưa có đầu mục
+            </div>
+        </div>
+    </article>
+</ng-template>

@@ -8,8 +8,8 @@ import { CourseService } from '@services/course.service';
 import { LoadingProgressComponent } from '@theme/components/loading-progress/loading-progress.component';
 import { MonhocThongtinComponent } from './children/monhoc-thongtin/monhoc-thongtin.component';
 import { MonhocMuctieuCdrComponent } from './children/monhoc-muctieu-cdr/monhoc-muctieu-cdr.component';
-import { CourseContentComponent } from './children/content/course-content.component';
-import { CourseQuestionsComponent } from './children/questions/course-questions.component';
+import { MonhocNoidungComponent } from './children/monhoc-noidung/monhoc-noidung.component';
+import { MonhocQuestionCdrComponent } from './children/monhoc-question-cdr/monhoc-question-cdr.component';
 import { CourseAssessmentComponent } from './children/assessment/course-assessment.component';
 import { CourseExamFormComponent } from './children/exam-form/course-exam-form.component';
 import { CourseSettingsComponent } from './children/settings/course-settings.component';
@@ -32,8 +32,8 @@ export interface CourseDetailTab {
         LoadingProgressComponent,
         MonhocThongtinComponent,
         MonhocMuctieuCdrComponent,
-        CourseContentComponent,
-        CourseQuestionsComponent,
+        MonhocNoidungComponent,
+        MonhocQuestionCdrComponent,
         CourseAssessmentComponent,
         CourseExamFormComponent,
         CourseSettingsComponent

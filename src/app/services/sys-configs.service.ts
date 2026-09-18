@@ -5,6 +5,7 @@ import { Dto , DtoObject , IctuConditionParam , IctuQueryCondition , IctuQueryPa
 import { getApiRouteLink } from "@env";
 import { SystemConfig } from "@models/system-config";
 import { paramsConditionBuilder } from "@utilities/helper";
+import { ConditionOption } from '@models/condition-option';
 
 @Injectable( {
 	providedIn : 'any'
@@ -47,5 +48,17 @@ export class SysConfigsService {
 		const params : HttpParams = paramsConditionBuilder( conditions , new HttpParams( { fromObject : queryParams } ) );
 		return this.http.get<Dto>( this.api , { params } ).pipe( map( ( res : Dto ) => res.data ) );
 	}
-	
+
+	getConfigsByPageNew(option: ConditionOption): Observable<{ data: SystemConfig[]; recordsFiltered: number }> {
+		let params = paramsConditionBuilder(option.condition);
+		if (option.page) {
+			params = params.set('paged', option.page);
+		}
+		for (const item of option.set || []) {
+			params = params.set(item.label, item.value);
+		}
+		return this.http.get<Dto>(this.api, { params }).pipe(
+			map(res => ({ data: (res.data || []) as SystemConfig[], recordsFiltered: res.recordsFiltered || 0 }))
+		);
+	}
 }
