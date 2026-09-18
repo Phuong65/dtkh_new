@@ -2,7 +2,7 @@
 export type OvicDocumentTypes = 'docx' | 'pptx' | 'ppt' | 'pdf' | 'xlsx' | 'audio' | 'video' | 'image' | 'text' | 'zip';
 
 export interface OvicDocument {
-    type: OvicDocumentTypes;
+    type: OvicDocumentType;
     source: OvicDocumentSource;
     path: string;
     fileName?: string;

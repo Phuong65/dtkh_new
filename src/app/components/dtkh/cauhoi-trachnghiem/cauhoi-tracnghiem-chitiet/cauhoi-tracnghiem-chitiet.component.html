@@ -1,0 +1,396 @@
+<div class="container-fluid p-0 layout_component_container question-detail-layout d-flex overflow-hidden bg-white">
+    <div class="tree-sidebar border-right bg-light h-100 custom-scroll">
+        <div class="sidebar-header border-bottom bg-white font-weight-bold small">
+            DANH SÁCH BÀI HỌC
+        </div>
+
+        <div class="sidebar-body p-2">
+            <div *ngIf="!list_plan || list_plan.length === 0" class="empty-state">
+                <i class="pi pi-inbox"></i>
+                <p>Chưa có kế hoạch bài học/CDR</p>
+            </div>
+            <div *ngFor="let plan of list_plan" class="mb-1">
+                <div class="nav-node p-2 d-flex align-items-center" (click)="plan.isExpanded = !plan.isExpanded">
+                    <i [class]="plan.isExpanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                        class="mr-2 small-icon"></i>
+                    <i class="pi pi-book mr-2 text-primary"></i>
+                    <span class="text-truncate font-weight-bold small">
+                        <span *ngIf="plan.week === 100">
+                            KTHP
+                        </span>
+                        <span *ngIf="plan.week !== 100">
+                            {{ label_week+" "+plan.week }}
+                        </span>
+                    </span>
+                </div>
+
+                <div *ngIf="plan.isExpanded" class="ml-3 border-left">
+                    <div id="{{'cdr_'+child.id}}" *ngFor="let child of plan.children" (click)="onSelectCdr(child)"
+                        [class.active-group]="selectCdr?.id === child.id"
+                        class="nav-node-sub p-2 ml-2 mb-1 rounded small d-flex align-items-center">
+                        <i class="pi pi-folder-open mr-2 text-warning"></i>
+                        <span class="text-truncate cdr-list-row">
+                            <span class="cdr-list-title">
+                                {{ child.kyhieu}}{{child.week !== 100?' - ' + child['cdr_name']:''}}
+                            </span>
+                            <span *ngIf="getTotalCdrQuestionLimit(child) !== 0">
+                                {{child['question_inserted_total']?child['question_inserted_total']:'0'}}
+                                {{!unLimitQuestion?'/'+getTotalCdrQuestionLimit(child):''}}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content flex-grow-1 h-100 d-flex flex-column">
+        <div class="sticky-tabs border-bottom bg-white shadow-sm" *ngIf="selectCdr">
+            <div
+                class="header-main-content px-3 py-2 border-bottom bg-light d-flex justify-content-between align-items-center">
+                <span class="small font-weight-bold text-dark"><i class="pi pi-folder mr-2"></i>
+                    {{ selectCdr.kyhieu}}{{selectCdr.week !== 100?' - ' + selectCdr['cdr_name']:''}}
+                </span>
+                <div class="stats-container">
+                    <span class="stat-tag tag-public">
+                        <i class="pi pi-globe"></i> Public:
+                        <b>{{getTotalQuestionByKey(selectCdr,'public') || '-'}}</b>
+                    </span>
+
+                    <span class="stat-tag tag-private">
+                        <i class="pi pi-lock"></i> Private:
+                        <b>{{getTotalQuestionByKey(selectCdr,'private') || '-'}}</b>
+                    </span>
+
+                    <span class="stat-tag tag-pending">
+                        <i class="pi pi-clock"></i> Chờ duyệt:
+                        <b>{{getTotalQuestionByKey(selectCdr,'pending') || '-'}}</b>
+                    </span>
+
+                    <span class="stat-tag tag-approved">
+                        <i class="pi pi-check-circle"></i> Đã duyệt:
+                        <b>{{getTotalQuestionByKey(selectCdr,'approved') || '-'}}</b>
+                    </span>
+
+                    <span *ngIf="!unLimitQuestion" class="stat-tag tag-total">
+                        <i class="pi pi-database"></i> Tổng:
+                        <b>
+                            <ng-container *ngIf="getTotalCdrQuestionLimit(selectCdr) !== 0">
+                                {{ selectCdr['question_inserted_total'] || '0' }}/{{ getTotalCdrQuestionLimit(selectCdr)
+                                }}
+                            </ng-container>
+                            <ng-container *ngIf="getTotalCdrQuestionLimit(selectCdr) === 0">
+                                -
+                            </ng-container>
+                        </b>
+                    </span>
+                </div>
+            </div>
+
+            <ul *ngIf="getValidLevels() && getValidLevels().length" class="nav nav-tabs px-3 border-0">
+                <li class="nav-item" *ngFor="let lvl of getValidLevels()">
+                    <a class="nav-link py-2 border-0" [class.active]="activeLevelId === lvl.id"
+                        (click)="onSelectLvl(lvl.id)" href="javascript:void(0)">
+                        {{ lvl.label }}
+                        <span class="level-count">
+                            {{getTotalQuestionInsetedCdr(selectCdr,lvl.id)?getTotalQuestionInsetedCdr(selectCdr,lvl.id):'0'}}
+                            {{!unLimitQuestion?'/'+selectCdr['cdr_cauhoi'][lvl.id.toString()]:''}}
+                        </span>
+                    </a>
+                </li>
+            </ul>
+
+            <div *ngIf="selectCdr && (!getValidLevels() || getValidLevels().length === 0)"
+                class="px-3 py-2 small text-muted">
+                <i class="pi pi-info-circle mr-1"></i> Chưa có mức Bloom nào được cấu hình cho CDR này
+            </div>
+        </div>
+
+        <div *ngIf="selectCdr; else noContent" class="question-main-scroll flex-grow-1 overflow-auto custom-scroll">
+            <div *ngIf="activeLevelId" class="question-content-header">
+                <div class="stats-container question-toolbar-stats">
+                    <span class="stat-tag tag-public">
+                        <i class="pi pi-globe"></i> Public:
+                        <b>{{selectCdr?.question_inserted?.public?.[activeLevelId] || '-'}}</b>
+                    </span>
+
+                    <span class="stat-tag tag-private">
+                        <i class="pi pi-lock"></i> Private:
+                        <b>{{selectCdr?.question_inserted?.private?.[activeLevelId] || '-'}}</b>
+                    </span>
+
+                    <span class="stat-tag tag-pending">
+                        <i class="pi pi-clock"></i> Chờ duyệt:
+                        <b>{{selectCdr?.question_inserted?.pending?.[activeLevelId] || '-'}}</b>
+                    </span>
+
+                    <span class="stat-tag tag-approved">
+                        <i class="pi pi-check-circle"></i> Đã duyệt:
+                        <b>{{selectCdr?.question_inserted?.approved?.[activeLevelId] || '-'}}</b>
+                    </span>
+                </div>
+                <button (click)="openCreateForm()" class="btn btn-success add-question-btn"
+                    [disabled]="!canAdded || !activeLevelId || isQuotaFull()">
+                    <i class="fa fa-plus"></i>
+                    Thêm câu hỏi
+                </button>
+                <button style="line-height: 1;" *ngIf="openAddQuestionAI" (click)="openTextImport()"
+                    class="btn btn-info add-question-btn ml-2">
+                    <i class="fa fa-wand-sparkles"></i>
+                    Soạn câu hỏi thông minh
+                </button>
+            </div>
+
+            <div *ngIf="!activeLevelId && selectCdr" class="empty-state empty-state-compact">
+                <i class="pi pi-search"></i>
+                <p>Chọn mức độ Bloom để xem câu hỏi</p>
+            </div>
+
+            <div *ngIf="activeLevelId && list_question && list_question.length === 0"
+                class="empty-state empty-state-compact">
+                <i class="pi pi-question-circle"></i>
+                <p *ngIf="canAdded">Chưa có câu hỏi ở mức này. Bấm Thêm câu hỏi để tạo mới.</p>
+                <p *ngIf="!canAdded">Chưa có câu hỏi ở mức này.</p>
+            </div>
+
+            <div class="question-content-mid">
+                <div class="fade-in" *ngFor="let parent_q of list_question">
+                    <div class="card">
+                        <div class="question-header d-flex justify-content-between align-items-center">
+                            <div class="header-left d-flex align-items-center">
+                                <span class="question-code mr-3">#{{parent_q.id}}</span>
+                                <div [ngSwitch]="parent_q.status" class="mr-3">
+                                    <span *ngSwitchCase="1" class="stat-tag tag-approved">
+                                        <i class="pi pi-check-circle mr-1"></i> Đạt
+                                    </span>
+
+                                    <span *ngSwitchDefault class="stat-tag tag-pending">
+                                        <i class="pi pi-clock mr-1"></i> Chờ duyệt
+                                    </span>
+
+                                    <span *ngSwitchCase="-2" class="stat-tag st-reject">
+                                        <i class="pi pi-exclamation-triangle mr-1"></i> Yêu cầu sửa
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="header-right d-flex align-items-center">
+                                <div class="stats-container p-0">
+                                    <span class="status-badge"
+                                        [ngClass]="parent_q.config && parent_q.config.invertedAnswer ? 'sh-on' : 'sh-off'">
+                                        <i
+                                            [class]="parent_q.config && parent_q.config.invertedAnswer ? 'pi pi-sync pi-spin-hover' : 'pi pi-minus-circle'"></i>
+                                        <span>
+                                            {{ parent_q.config && parent_q.config.invertedAnswer ? 'Đảo phương án: Bật'
+                                            : 'Đảo phương án: Tắt' }}
+                                        </span>
+                                    </span>
+                                    <button type="button" class="stat-tag privacy-toggle"
+                                        [ngClass]="parent_q.private === 1 ? 'tag-private' : 'tag-public'"
+                                        [disabled]="!canAdded || selectCdr?.week === 100"
+                                        [title]="getPrivateToggleTitle(parent_q)"
+                                        (click)="toggleQuestionPrivate(parent_q)">
+                                        <i [class]="parent_q.private === 1 ? 'pi pi-lock' : 'pi pi-globe'"
+                                            class="mr-1 small-icon"></i>
+                                        <span>{{ parent_q.private === 1 ? 'Private' : 'Public' }}</span>
+                                        <i class="pi pi-arrows-h ml-1 small-icon" *ngIf="canAdded && selectCdr?.week !== 100"></i>
+                                    </button>
+                                    <span class="stat-tag tag-bloom">
+                                        {{parent_q.cdr | showlabel : chuan_dau_ra: 'id' : 'label'}}
+                                    </span>
+                                </div>
+                                <button *ngIf="parent_q.status !== 1 && canAdded" [matMenuTriggerFor]="menuQuestion"
+                                    class="btn btn-link btn-sm ml-2 text-muted" aria-label="Thao tác câu hỏi">
+                                    <i class="pi pi-ellipsis-v"></i>
+                                </button>
+                                <mat-menu #menuQuestion="matMenu">
+                                    <button (click)="editQuestion(parent_q)" mat-menu-item>
+                                        <i class="menu-icon-edit fa fa-pencil"></i>
+                                        <span>Sửa</span>
+                                    </button>
+                                    <button (click)="deleteQuestion(parent_q)" mat-menu-item>
+                                        <i class="menu-icon-delete fa fa-trash"></i>
+                                        <span>Xóa</span>
+                                    </button>
+                                </mat-menu>
+                            </div>
+                        </div>
+                        <div class="question-item-content">
+                            <div class="question-item-type" [ngSwitch]="parent_q.question_type">
+                                <div class="question-item-type-radio-and-checkbox" *ngSwitchCase="'radio'">
+                                    <app-question-type-radio-and-checkbox [av]="selectedCourse.av"
+                                        [courseQuestion]="parent_q">
+                                    </app-question-type-radio-and-checkbox>
+                                </div>
+                                <div class="question-item-type-radio-and-checkbox" *ngSwitchCase="'checkbox'">
+                                    <app-question-type-radio-and-checkbox [av]="selectedCourse.av"
+                                        [courseQuestion]="parent_q">
+                                    </app-question-type-radio-and-checkbox>
+                                </div>
+                                <div class="question-item-type-radio-and-checkbox" *ngSwitchCase="'inputbox'">
+                                    <app-question-type-inputbox [av]="selectedCourse.av" [courseQuestion]="parent_q">
+                                    </app-question-type-inputbox>
+                                </div>
+                                <div class="question-item-type-radio-and-checkbox" *ngSwitchCase="'reorder_words'">
+                                    <app-question-type-reorder-words [av]="selectedCourse.av"
+                                        [courseQuestion]="parent_q">
+                                    </app-question-type-reorder-words>
+                                </div>
+                                <div class="question-item-type-radio-and-checkbox" *ngSwitchCase="'arrange_paragraphs'">
+                                    <app-question-type-arrange-paragraphs [av]="selectedCourse.av"
+                                        [courseQuestion]="parent_q">
+                                    </app-question-type-arrange-paragraphs>
+                                </div>
+                                <div class="question-item-type-radio-and-checkbox" *ngSwitchCase="'drag_drop'">
+                                    <app-question-type-drag-drop [av]="selectedCourse.av" [courseQuestion]="parent_q">
+                                    </app-question-type-drag-drop>
+                                </div>
+                                <div class="question-item-type-radio-and-checkbox" *ngSwitchCase="'group-input'">
+                                    <app-question-type-group-input [av]="selectedCourse.av" [courseQuestion]="parent_q">
+                                    </app-question-type-group-input>
+                                </div>
+                                <div class="question-item-type-radio-and-checkbox" *ngSwitchCase="'group-radio'">
+                                    <app-question-type-group-radio [av]="selectedCourse.av" [courseQuestion]="parent_q">
+                                    </app-question-type-group-radio>
+                                </div>
+                                <div class="question-item-type-radio-and-checkbox" *ngSwitchCase="'grouping'">
+                                    <app-question-type-grouping [av]="selectedCourse.av" [courseQuestion]="parent_q">
+                                    </app-question-type-grouping>
+                                </div>
+                            </div>
+                        </div>
+                        <app-nhanxet-question *ngIf="parent_q['comments'] && parent_q['comments'].length"
+                            [question_input]="parent_q" [course_input]="selectedCourse">
+                        </app-nhanxet-question>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <ng-template #noContent>
+            <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted opacity-5">
+                <p class="no-content-message">Vui lòng chọn CDR</p>
+            </div>
+        </ng-template>
+    </div>
+</div>
+
+<ng-template #templateCreateQuestion let-c="close" let-d="dismiss">
+    <div class="ovic-over-right-section">
+        <div class="ovic-over-right-section__head">
+            <h3 *ngIf="selectCdr" class="ovic-over-right-section__header create-drawer-title">
+                <span class="create-drawer-cdr-name">
+                    {{ selectCdr.kyhieu}}{{selectCdr.week !== 100?' - ' + selectCdr['cdr_name']:''}}
+                </span>|
+                <div *ngIf="activeLevelId" class="stats-container header-tag-teampalte create-drawer-stats">
+                    <span class="stat-tag tag-bloom" *ngIf="activeLevelId">
+                        {{activeLevelId | showlabel: chuan_dau_ra: 'id' :'label'}}
+                    </span>
+                    <span class="stat-tag tag-public">
+                        <i class="pi pi-globe"></i> Public:
+                        <b>{{selectCdr?.question_inserted?.public?.[activeLevelId] || '-'}}</b>
+                    </span>
+
+                    <span class="stat-tag tag-private">
+                        <i class="pi pi-lock"></i> Private:
+                        <b>{{selectCdr?.question_inserted?.private?.[activeLevelId] || '-'}}</b>
+                    </span>
+
+                    <span class="stat-tag tag-pending">
+                        <i class="pi pi-clock"></i> Chờ duyệt:
+                        <b>{{selectCdr?.question_inserted?.pending?.[activeLevelId] || '-'}}</b>
+                    </span>
+
+                    <span class="stat-tag tag-approved">
+                        <i class="pi pi-check-circle"></i> Đã duyệt:
+                        <b>{{selectCdr?.question_inserted?.approved?.[activeLevelId] || '-'}}</b>
+                    </span>
+                    <span *ngIf="!unLimitQuestion" class="stat-tag tag-total">
+                        <i class="pi pi-database"></i> Total:
+                        <b>
+                            {{getTotalQuestionInsetedCdr(selectCdr,activeLevelId)?getTotalQuestionInsetedCdr(selectCdr,activeLevelId):'-'}}/{{selectCdr['cdr_cauhoi'][activeLevelId.toString()]}}
+                        </b>
+                    </span>
+                </div>
+            </h3>
+            <button class="btn ovic-over-right-section__close-button" (click)="closeAddQuestionForm()"></button>
+        </div>
+        <div class="ovic-over-right-section__body footer-no-hint create-drawer-body create-question-tab-body">
+            <!-- <app-text-import-question></app-text-import-question> -->
+            <p-tabView styleClass="create-question-tabs" [activeIndex]="createQuestionTabIndex"
+                (onChange)="onCreateQuestionTabChange($event.index)">
+                <p-tabPanel [header]="!isUpdated ? 'Tạo câu hỏi' : 'Sửa câu hỏi'">
+                    <app-cauhoi-tracnghiem-create-form #createQuestionForm *ngIf="openTemplateAdd"
+                        [unLimitQuestion]="unLimitQuestion"
+                        [testFormat]="selectedCourse && selectedCourse.av === 1 ? 'tienganh' : 'monkhac'"
+                        [dataCdr]="list_plan"
+                        [CdrSelected]="!isUpdated ? {cdrPlan: selectCdr,cdrLvl:activeLevelId}: null"
+                        [update]="isUpdated ?{cdrPlan: selectCdr,cdrLvl:activeLevelId, question:selectQuestion}: null"
+                        (testPreview)="showCreateQuestionPreview($event)" (close)="closeAddQuestionForm()">
+                    </app-cauhoi-tracnghiem-create-form>
+                </p-tabPanel>
+                <p-tabPanel header="Kiểm thử">
+                    <div class="create-question-test-tab">
+                        <app-question-test-preview *ngIf="createQuestionPreview; else emptyCreateQuestionPreview"
+                            [question]="createQuestionPreview"
+                            [testFormat]="selectedCourse && selectedCourse.av === 1 ? 'tienganh' : 'monkhac'"
+                            (close)="closeCreateQuestionPreview()">
+                        </app-question-test-preview>
+                        <ng-template #emptyCreateQuestionPreview>
+                            <div class="create-question-test-empty">
+                                <p class="alert alert-secondary m-0 primary-font --fs-14">Chọn tab Kiểm thử để xem trước
+                                    câu hỏi.</p>
+                            </div>
+                        </ng-template>
+                    </div>
+                </p-tabPanel>
+            </p-tabView>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #templateTextImportQuestion let-c="close" let-d="dismiss">
+    <div class="ovic-over-right-section">
+        <div class="ovic-over-right-section__head">
+            <h3 *ngIf="selectCdr" class="ovic-over-right-section__header create-drawer-title">
+                <span class="create-drawer-cdr-name">
+                    {{ selectCdr.kyhieu}}{{selectCdr.week !== 100?' - ' + selectCdr['cdr_name']:''}}
+                </span>|
+                <div *ngIf="activeLevelId" class="stats-container header-tag-teampalte create-drawer-stats">
+                    <span class="stat-tag tag-bloom" *ngIf="activeLevelId">
+                        {{activeLevelId | showlabel: chuan_dau_ra: 'id' :'label'}}
+                    </span>
+                    <span class="stat-tag tag-public">
+                        <i class="pi pi-globe"></i> Public:
+                        <b>{{selectCdr?.question_inserted?.public?.[activeLevelId] || '-'}}</b>
+                    </span>
+
+                    <span class="stat-tag tag-private">
+                        <i class="pi pi-lock"></i> Private:
+                        <b>{{selectCdr?.question_inserted?.private?.[activeLevelId] || '-'}}</b>
+                    </span>
+
+                    <span class="stat-tag tag-pending">
+                        <i class="pi pi-clock"></i> Chờ duyệt:
+                        <b>{{selectCdr?.question_inserted?.pending?.[activeLevelId] || '-'}}</b>
+                    </span>
+
+                    <span class="stat-tag tag-approved">
+                        <i class="pi pi-check-circle"></i> Đã duyệt:
+                        <b>{{selectCdr?.question_inserted?.approved?.[activeLevelId] || '-'}}</b>
+                    </span>
+                    <span *ngIf="!unLimitQuestion" class="stat-tag tag-total">
+                        <i class="pi pi-database"></i> Total:
+                        <b>
+                            {{getTotalQuestionInsetedCdr(selectCdr,activeLevelId)?getTotalQuestionInsetedCdr(selectCdr,activeLevelId):'-'}}/{{selectCdr['cdr_cauhoi'][activeLevelId.toString()]}}
+                        </b>
+                    </span>
+                </div>
+            </h3>
+            <button class="btn ovic-over-right-section__close-button" (click)="closeAddQuestionForm()"></button>
+        </div>
+        <div class="ovic-over-right-section__body footer-no-hint create-drawer-body">
+            <app-text-import-question [selectedCourse]="selectedCourse" [chuan_dau_ra]="chuan_dau_ra"
+                [activeLevelId]="activeLevelId" [selectCdr]="selectCdr" [list_plan]="list_plan">
+            </app-text-import-question>
+        </div>
+    </div>
+</ng-template>

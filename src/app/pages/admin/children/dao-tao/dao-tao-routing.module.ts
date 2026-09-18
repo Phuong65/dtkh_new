@@ -38,7 +38,8 @@ const routes: Routes = [
             },
             {
                 path: 'cauhoi-tracnghiem',
-                loadComponent: () => import('./children/cauhoi-tracnghiem/cauhoi-tracnghiem.component')
+                loadComponent: () => import('./children/cauhoi-tracnghiem/cauhoi-tracnghiem.component'),
+            
             },
             {
                 path: 'cauhoi-thuchanh-kthp',

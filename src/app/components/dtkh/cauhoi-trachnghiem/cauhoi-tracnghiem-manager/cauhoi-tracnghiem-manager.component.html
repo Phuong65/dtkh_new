@@ -1,0 +1,482 @@
+<section class="admin-section--table position-relative">
+    @if (state() === 'loading') {
+    <app-loading-progress heading="Loading..." backdropFilter="none"></app-loading-progress>
+    }
+    <div class="admin-wrap-table">
+        @if (state() !== 'error') {
+        <!-- ── Header / Filter bar ── -->
+        <div class="admin-wrap-table__head d-flex flex-wrap">
+            <h4 class="admin-wrap-table__heading">
+                <svg>
+                    <use href="fonts/custom-icon.svg#custom-folder-open-2"></use>
+                </svg>
+                Câu hỏi trắc nghiệp
+            </h4>
+        </div>
+        }
+
+    </div>
+    <div class="layout_component_container " [class.close-left-body]="isLeftPanelCollapsed()">
+
+        <div class="layout_component_container-course position-relative">
+            <button type="button" class="btn btn-success button-close-left-body"
+                [attr.aria-label]="isLeftPanelCollapsed() ? 'Mở danh sách môn học' : 'Thu gọn danh sách môn học'"
+                (click)="toggleLeftPanel()">
+                <i [class]="isLeftPanelCollapsed() ? 'pi pi-angle-double-right' : 'pi pi-angle-double-left'"></i>
+            </button>
+
+            <div class="course-search">
+                <div class="course-search__input-wrapper">
+                    <i class="pi pi-search course-search__icon"></i>
+                    <input #courseSearch class="course-search__input" type="search" placeholder="Nhấn Enter để tìm kiếm"
+                        [value]="searchCourse()" (keyup.enter)="onSearchCourse(courseSearch.value)" autocomplete="off">
+                    @if (searchCourse()) {
+                    <button type="button" class="course-search__clear" (click)="clearSearch(courseSearch)"
+                        aria-label="Xóa tìm kiếm">
+                        <i class="pi pi-times" style="color:#fff;"></i>
+                    </button>
+                    }
+                </div>
+
+                @if (routerAdmin || routerDaotao || routerKhaothi) {
+                <div style="margin-top: 5px;">
+                    <p-select
+                        [options]="list_donvi_chuyenmon"
+                        [(ngModel)]="categoryFilter"
+                        optionLabel="title"
+                        optionValue="id"
+                        placeholder="--- chọn khoa ---"
+                        [filter]="true"
+                        filterBy="title"
+                        [showClear]="true"
+                        panelStyleClass="w-100"
+                        (onChange)="onChangeFilterChuyenmon($event)">
+                    </p-select>
+                </div>
+                }
+            </div>
+
+            <div class="course-list">
+                <div class="course-selection-list">
+                    @for (course of courses(); track course.id) {
+                    <div class="course-option" [class.course-option--selected]="selectedCourse()?.id === course.id"
+                        (click)="selectCourse(course)">
+                        <div class="course-option__content">
+                            <div class="course-option__main">
+                                <span class="course-option__title">{{ course.title }}</span>
+                                <span class="course-option__code">{{ course.maso }}</span>
+                            </div>
+                            <div class="course-option__meta">
+                                @if (course.creator_name) {
+                                <span class="course-option__creator">
+                                    <i class="pi pi-user"></i>
+                                    {{ course.creator_name }}
+                                </span>
+                                }
+                                @if (course.info_) {
+                                <span class="course-option__info">{{ course.info_ }}</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    } @empty {
+                    <div class="course-list__empty">
+                        <i class="pi pi-folder-open"></i>
+                        <p>Không tìm thấy môn học</p>
+                        <span class="course-list__empty-hint">Thử thay đổi từ khóa tìm kiếm</span>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <div class="page-layout-set">
+                <p-paginator #paginator [rows]="coursePageSize" [totalRecords]="totalCourses()" [pageLinkSize]="3"
+                    (onPageChange)="onPageChange($event)"></p-paginator>
+            </div>
+        </div>
+        <div class="layout_component_container-noidung mat-tab-chuandaura">
+            @if (selectedCourse(); as course) {
+            <section class="table-container">
+                @if (isLoading()) {
+                <div class="text-empty">Đang tải dữ liệu...</div>
+                }
+                <header class="table-header-title">
+                    <span class="flex-grow-1">Danh sách câu hỏi theo CDR — {{ course.title }}</span>
+                    @if (!hasKthpPlan() && canAdd) {
+                    <button type="button" class="btn btn-success"
+                        ngbTooltip="Tạo ngân hàng câu hỏi thi kết thúc học phần" (click)="openKthpAllocation()">
+                        <i class="fa fa-plus"></i>
+                        KTHP
+                    </button>
+                    }
+                </header>
+
+                <div class="table-responsive border-0">
+                    <table class="table table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th class="bg-soft-blue text-dark main-col gray-200">Bài học / CDR / Mức độ</th>
+                                <th class="text-center bg-soft-blue gray-200">Public</th>
+                                <th class="text-center bg-soft-orange col-private-main gray-200">Private</th>
+                                <th class="text-center bg-soft-green gray-200">Đã duyệt</th>
+                                <th class="text-center bg-soft-red gray-200">Chưa duyệt</th>
+                                <th class="text-center bg-soft-gray gray-200">Tổng số</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (plan of plans(); track plan.id) {
+                            <tr class="lesson-row">
+                                <td class="font-weight-bold">
+                                    <div class="d-flex align-items-center">
+                                        <button type="button" class="btn-toggle me-2" (click)="togglePlan(plan)">
+                                            <i
+                                                [class]="plan.isExpanded ? 'fas fa-minus-square' : 'fas fa-plus-square'"></i>
+                                        </button>
+                                        <span class="flex-grow-1">
+                                            {{ plan.week === 100 ? 'Câu hỏi thi kết thúc học phần' : 'Bài ' + plan.week
+                                            }}
+                                        </span>
+                                        @if (plan.week === 100 && canAdd) {
+                                        <button type="button" class="btn btn-icon btn-transparent btn-success"
+                                            ngbTooltip="Bổ sung số lượng câu hỏi KTHP"
+                                            (click)="openKthpAllocation(plan)">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-icon btn-transparent btn-danger ms-1"
+                                            ngbTooltip="Hủy số lượng câu hỏi chưa nhập"
+                                            (click)="resetKthpAllocation(plan)">
+                                            <i class="fa fa-repeat"></i>
+                                        </button>
+                                        }
+                                        <button type="button" class="btn btn-icon btn-transparent btn-success ms-1"
+                                            ngbTooltip="Thêm câu hỏi" (click)="moveToAddQuestion(plan)">
+                                            <i class="fa fa-external-link"></i>
+                                        </button>
+                                        @if (canDelete) {
+                                        <button type="button" class="btn btn-icon btn-transparent btn-danger ms-1"
+                                            ngbTooltip="Xóa câu hỏi chưa duyệt của bài"
+                                            (click)="openDeleteQuestionsByLesson($event, plan)">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                        }
+                                    </div>
+                                </td>
+                                <td class="text-center bg-soft-blue">{{ getTotalQuestionPlanByKey(plan, 'public') || '-'
+                                    }}</td>
+                                <td class="text-center bg-soft-orange col-private-lesson">{{
+                                    getTotalQuestionPlanByKey(plan, 'private') || '-' }}</td>
+                                <td class="text-center bg-soft-green">{{ getTotalQuestionPlanByKey(plan, 'approved') ||
+                                    '-' }}</td>
+                                <td class="text-center bg-soft-red">{{ getTotalQuestionPlanByKey(plan, 'pending') || '-'
+                                    }}</td>
+                                <td class="text-center">
+                                    @if (getTotalPlanQuestionLimit(plan)) {
+                                    {{ getTotalQuestionPlan(plan) || '-' }}@if (!unLimitQuestion) { /{{
+                                    getTotalPlanQuestionLimit(plan) }} }
+                                    } @else { - }
+                                </td>
+                            </tr>
+
+                            @if (plan.isExpanded) {
+                            @for (child of questionChildren(plan); track child.id) {
+                            <tr class="group-row">
+                                <td class="pl-4 font-italic true-blue">
+                                    <div class="question-scope-row">
+                                        <span>{{ plan.week === 100 ? child.kyhieu : child.kyhieu + ' - ' +
+                                            child.cdr_name }}</span>
+                                        @if (canDelete) {
+                                        <button type="button"
+                                            class="btn btn-icon btn-transparent btn-danger question-scope-delete"
+                                            ngbTooltip="Xóa câu hỏi chưa duyệt của CDR"
+                                            (click)="openDeleteQuestionsByCdr($event, child)">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                        }
+                                    </div>
+                                </td>
+                                <td class="text-center bg-soft-blue">{{ getTotalQuestionByKey(child, 'public') || '-' }}
+                                </td>
+                                <td class="text-center bg-soft-orange col-private-group">{{ getTotalQuestionByKey(child,
+                                    'private') || '-' }}</td>
+                                <td class="text-center bg-soft-green">{{ getTotalQuestionByKey(child, 'approved') || '-'
+                                    }}</td>
+                                <td class="text-center bg-soft-red">{{ getTotalQuestionByKey(child, 'pending') || '-' }}
+                                </td>
+                                <td class="text-center">
+                                    @if (getTotalCdrQuestionLimit(child)) {
+                                    {{ child.question_inserted_total || '-' }}@if (!unLimitQuestion) { /{{
+                                    getTotalCdrQuestionLimit(child) }} }
+                                    } @else { - }
+                                </td>
+                            </tr>
+
+                            @for (level of chuanDauRa; track level.id) {
+                            @if (child.cdr_cauhoi?.[level.id]) {
+                            <tr class="level-row">
+                                <td class="pl-5 level-label">{{ level.label }}</td>
+                                <td class="text-center bg-soft-blue">{{ child.question_inserted?.public?.[level.id] ||
+                                    '-' }}</td>
+                                <td class="text-center bg-soft-orange col-private-level">{{
+                                    child.question_inserted?.private?.[level.id] || '-' }}</td>
+                                <td class="text-center bg-soft-green">{{ child.question_inserted?.approved?.[level.id]
+                                    || '-' }}</td>
+                                <td class="text-center bg-soft-red">{{ child.question_inserted?.pending?.[level.id] ||
+                                    '-' }}</td>
+                                <td class="text-center">
+                                    {{ getTotalQuestionInserted(child, level.id) || '-' }}@if (!unLimitQuestion) { /{{
+                                    child.cdr_cauhoi?.[level.id] }} }
+                                </td>
+                            </tr>
+                            }
+                            }
+                            }
+                            }
+                            } @empty {
+                            <tr>
+                                <td colspan="6" class="text-center p-3">Chưa có kế hoạch câu hỏi.</td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            } @else {
+            <div class="layout_component_container__error d-flex justify-content-center align-items-center w-100 h-100">
+                <p class="alert alert-secondary m-0 primary-font --fs-14">Vui lòng chọn môn học</p>
+            </div>
+            }
+        </div>
+
+    </div>
+</section>
+
+
+
+<!-- <div class="layout_component_container" [class.close-left-body]="isLeftPanelCollapsed()">
+    <div class="layout_component_container-course position-relative">
+        <button
+            type="button"
+            class="btn btn-success button-close-left-body"
+            [attr.aria-label]="isLeftPanelCollapsed() ? 'Mở danh sách môn học' : 'Thu gọn danh sách môn học'"
+            (click)="toggleLeftPanel()"
+        >
+            <i [class]="isLeftPanelCollapsed() ? 'pi pi-angle-double-right' : 'pi pi-angle-double-left'"></i>
+        </button>
+
+        <div class="search-layout">
+            <input
+                #courseSearch
+                class="ovic-input-field"
+                type="search"
+                placeholder="Nhập tên rồi nhấn Enter"
+                [value]="searchCourse()"
+                (keyup.enter)="onSearchCourse(courseSearch.value)"
+            >
+        </div>
+
+        <div class="list-course-layout">
+            <mat-selection-list
+                class="selection-list-mat"
+                [multiple]="false"
+                (selectionChange)="onSelectCourse($event)"
+            >
+                @for (course of courses(); track course.id) {
+                    <mat-list-option [value]="course" [selected]="selectedCourse()?.id === course.id">
+                        <div matListItemTitle>{{ course.title }} ({{ course.maso }})</div>
+                        <div matListItemLine>{{ course.creator_name }}{{ course.info_ }}</div>
+                    </mat-list-option>
+                } @empty {
+                    <p class="text-empty">Không có môn học.</p>
+                }
+            </mat-selection-list>
+        </div>
+
+        <div class="page-layout-set">
+            <p-paginator
+                #paginator
+                [rows]="coursePageSize"
+                [totalRecords]="totalCourses()"
+                (onPageChange)="onPageChange($event)"
+            ></p-paginator>
+        </div>
+    </div>
+
+    <div class="layout_component_container-noidung mat-tab-chuandaura">
+        @if (selectedCourse(); as course) {
+            <section class="table-container">
+                @if (isLoading()) {
+                    <div class="text-empty">Đang tải dữ liệu...</div>
+                }
+                <header class="table-header-title">
+                    <span class="flex-grow-1">Danh sách câu hỏi theo CDR — {{ course.title }}</span>
+                    @if (!hasKthpPlan() && canAdd) {
+                        <button
+                            type="button"
+                            class="btn btn-success"
+                            ngbTooltip="Tạo ngân hàng câu hỏi thi kết thúc học phần"
+                            (click)="openKthpAllocation()"
+                        >
+                            <i class="fa fa-plus"></i>
+                            KTHP
+                        </button>
+                    }
+                </header>
+
+                <div class="table-responsive border-0">
+                    <table class="table table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th class="bg-soft-blue text-dark main-col gray-200">Bài học / CDR / Mức độ</th>
+                                <th class="text-center bg-soft-blue gray-200">Public</th>
+                                <th class="text-center bg-soft-orange col-private-main gray-200">Private</th>
+                                <th class="text-center bg-soft-green gray-200">Đã duyệt</th>
+                                <th class="text-center bg-soft-red gray-200">Chưa duyệt</th>
+                                <th class="text-center bg-soft-gray gray-200">Tổng số</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (plan of plans(); track plan.id) {
+                                <tr class="lesson-row">
+                                    <td class="font-weight-bold">
+                                        <div class="d-flex align-items-center">
+                                            <button type="button" class="btn-toggle me-2" (click)="togglePlan(plan)">
+                                                <i [class]="plan.isExpanded ? 'fas fa-minus-square' : 'fas fa-plus-square'"></i>
+                                            </button>
+                                            <span class="flex-grow-1">
+                                                {{ plan.week === 100 ? 'Câu hỏi thi kết thúc học phần' : 'Bài ' + plan.week }}
+                                            </span>
+                                            @if (plan.week === 100 && canAdd) {
+                                                <button type="button" class="btn btn-icon btn-transparent btn-success" ngbTooltip="Bổ sung số lượng câu hỏi KTHP" (click)="openKthpAllocation(plan)">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-icon btn-transparent btn-danger ms-1" ngbTooltip="Hủy số lượng câu hỏi chưa nhập" (click)="resetKthpAllocation(plan)">
+                                                    <i class="fa fa-repeat"></i>
+                                                </button>
+                                            }
+                                            <button type="button" class="btn btn-icon btn-transparent btn-success ms-1" ngbTooltip="Thêm câu hỏi" (click)="moveToAddQuestion(plan)">
+                                                <i class="fa fa-external-link"></i>
+                                            </button>
+                                            @if (canDelete) {
+                                                <button type="button" class="btn btn-icon btn-transparent btn-danger ms-1" ngbTooltip="Xóa câu hỏi chưa duyệt của bài" (click)="openDeleteQuestionsByLesson($event, plan)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="text-center bg-soft-blue">{{ getTotalQuestionPlanByKey(plan, 'public') || '-' }}</td>
+                                    <td class="text-center bg-soft-orange col-private-lesson">{{ getTotalQuestionPlanByKey(plan, 'private') || '-' }}</td>
+                                    <td class="text-center bg-soft-green">{{ getTotalQuestionPlanByKey(plan, 'approved') || '-' }}</td>
+                                    <td class="text-center bg-soft-red">{{ getTotalQuestionPlanByKey(plan, 'pending') || '-' }}</td>
+                                    <td class="text-center">
+                                        @if (getTotalPlanQuestionLimit(plan)) {
+                                            {{ getTotalQuestionPlan(plan) || '-' }}@if (!unLimitQuestion) { /{{ getTotalPlanQuestionLimit(plan) }} }
+                                        } @else { - }
+                                    </td>
+                                </tr>
+
+                                @if (plan.isExpanded) {
+                                    @for (child of questionChildren(plan); track child.id) {
+                                        <tr class="group-row">
+                                            <td class="pl-4 font-italic true-blue">
+                                                <div class="question-scope-row">
+                                                    <span>{{ plan.week === 100 ? child.kyhieu : child.kyhieu + ' - ' + child.cdr_name }}</span>
+                                                    @if (canDelete) {
+                                                        <button type="button" class="btn btn-icon btn-transparent btn-danger question-scope-delete" ngbTooltip="Xóa câu hỏi chưa duyệt của CDR" (click)="openDeleteQuestionsByCdr($event, child)">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td class="text-center bg-soft-blue">{{ getTotalQuestionByKey(child, 'public') || '-' }}</td>
+                                            <td class="text-center bg-soft-orange col-private-group">{{ getTotalQuestionByKey(child, 'private') || '-' }}</td>
+                                            <td class="text-center bg-soft-green">{{ getTotalQuestionByKey(child, 'approved') || '-' }}</td>
+                                            <td class="text-center bg-soft-red">{{ getTotalQuestionByKey(child, 'pending') || '-' }}</td>
+                                            <td class="text-center">
+                                                @if (getTotalCdrQuestionLimit(child)) {
+                                                    {{ child.question_inserted_total || '-' }}@if (!unLimitQuestion) { /{{ getTotalCdrQuestionLimit(child) }} }
+                                                } @else { - }
+                                            </td>
+                                        </tr>
+
+                                        @for (level of chuanDauRa; track level.id) {
+                                            @if (child.cdr_cauhoi?.[level.id]) {
+                                                <tr class="level-row">
+                                                    <td class="pl-5 level-label">{{ level.label }}</td>
+                                                    <td class="text-center bg-soft-blue">{{ child.question_inserted?.public?.[level.id] || '-' }}</td>
+                                                    <td class="text-center bg-soft-orange col-private-level">{{ child.question_inserted?.private?.[level.id] || '-' }}</td>
+                                                    <td class="text-center bg-soft-green">{{ child.question_inserted?.approved?.[level.id] || '-' }}</td>
+                                                    <td class="text-center bg-soft-red">{{ child.question_inserted?.pending?.[level.id] || '-' }}</td>
+                                                    <td class="text-center">
+                                                        {{ getTotalQuestionInserted(child, level.id) || '-' }}@if (!unLimitQuestion) { /{{ child.cdr_cauhoi?.[level.id] }} }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    }
+                                }
+                            } @empty {
+                                <tr><td colspan="6" class="text-center p-3">Chưa có kế hoạch câu hỏi.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        } @else {
+            <div class="layout_component_container__error d-flex justify-content-center align-items-center w-100 h-100">
+                <p class="alert alert-secondary m-0 primary-font --fs-14">Vui lòng chọn môn học</p>
+            </div>
+        }
+    </div>
+</div>
+
+<ng-template #autoCdrQuestion let-close="close" let-dismiss="dismiss">
+    <div class="ovic-over-right-section">
+        <div class="ovic-over-right-section__head">
+            <h3 class="ovic-over-right-section__header">Thiết lập số lượng câu hỏi thi KTHP</h3>
+            <button type="button" class="ovic-over-right-section__close-button" aria-label="Đóng" (click)="dismiss()"></button>
+        </div>
+        <div class="ovic-over-right-section__body users-layout-form">
+            <p class="alert alert-warning">
+                Mức yêu cầu tối thiểu {{ selectedCourse()?.params?.cdr }} phải đạt 50%; mức thấp hơn không quá 40%; mức cao hơn không quá 10%.
+            </p>
+            <table class="table-add-cdr-last-exam">
+                <thead>
+                    <tr>
+                        @for (level of chuanDauRa; track level.id) {
+                            <th [class.disabled-label-table]="level.disabled" [class.activity-label-table]="!level.disabled">{{ level.label }}</th>
+                        }
+                        <th>Tổng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        @for (level of chuanDauRa; track level.id) {
+                            <td>
+                                @if (!level.disabled) {
+                                    <div class="p-inputgroup" [class.require-cdr-backgroud-color]="allocationRequiresReview[level.id]">
+                                        <input
+                                            #allocationInput
+                                            class="ovic-input-field no-border-left-right text-center"
+                                            type="number"
+                                            min="0"
+                                            [value]="allocation[level.id] ?? 0"
+                                            (input)="allocation[level.id] = +allocationInput.value; updateAllocation()"
+                                        >
+                                        <span class="p-inputgroup-addon">{{ allocationPercent(level.id) }}%</span>
+                                    </div>
+                                }
+                            </td>
+                        }
+                        <td class="text-center">{{ totalAllocation() }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="mt-3">
+                <p-checkbox [(ngModel)]="hasAcceptedAllocation" [binary]="true" label="Tôi chắc chắn với phân bổ số lượng câu hỏi như trên"></p-checkbox>
+            </div>
+        </div>
+        <div class="ovic-over-right-section__foot-wrap-buttons flex-footer-right">
+            <button type="button" class="btn btn-primary" [disabled]="!hasAcceptedAllocation" (click)="saveKthpAllocation(close)">Lưu lại</button>
+        </div>
+    </div>
+</ng-template> -->

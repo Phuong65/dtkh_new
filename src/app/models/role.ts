@@ -9,7 +9,7 @@ export interface Role {
 }
 
 export type PickRole = Pick<Role, 'id' | 'description' | 'name' | 'ordering' | 'title'>;
-export type SysRoleName = 'administrator' | 'daotao_ld';
+export type SysRoleName = 'administrator' | 'daotao_ld'| 'truong_ld'|'daotao_troly'|'khoa_ld'|'teacher' |'bomon_ld'|'khaothi_ld'|'khaothi_hdthi_chutich' |'cthssv_ld';
 
 export interface RoleDashboardMenu {
     id        : string;

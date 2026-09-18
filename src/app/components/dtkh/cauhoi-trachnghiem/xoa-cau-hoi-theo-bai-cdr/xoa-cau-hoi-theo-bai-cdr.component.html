@@ -1,0 +1,118 @@
+<div class="delete-modal" role="dialog" aria-labelledby="delete-dialog-title">
+    <div class="modal-header delete-modal-header">
+        <div class="delete-header-content">
+            <span class="delete-header-icon" aria-hidden="true">
+                <i class="fa fa-trash"></i>
+            </span>
+            <div>
+                <span class="delete-modal-eyebrow">Thao tác không thể hoàn tác</span>
+                <h4 id="delete-dialog-title" class="modal-title">Xóa câu hỏi theo {{scopeLabel}}</h4>
+            </div>
+        </div>
+        <button type="button" class="delete-close-button" aria-label="Đóng hộp thoại" [disabled]="submitting"
+            (click)="activeModal.dismiss()">
+            <i class="fa fa-times" aria-hidden="true"></i>
+            <span>Đóng</span>
+        </button>
+    </div>
+
+    <div class="modal-body delete-modal-body">
+        <section class="delete-warning" role="alert" aria-labelledby="delete-warning-title">
+            <span class="delete-warning-icon" aria-hidden="true">
+                <i class="fa fa-exclamation-triangle"></i>
+            </span>
+            <div>
+                <strong id="delete-warning-title">Dữ liệu bị xóa sẽ không thể khôi phục</strong>
+                <p id="delete-warning-text">
+                    Chỉ các nhóm có câu hỏi cha chưa từng được duyệt mới bị xóa. Nhóm đã duyệt
+                    được giữ nguyên.
+                </p>
+            </div>
+        </section>
+
+        <section class="delete-section" aria-labelledby="delete-scope-title">
+            <div class="delete-section-heading">
+                <i class="fa fa-crosshairs" aria-hidden="true"></i>
+                <h5 id="delete-scope-title">Phạm vi thao tác</h5>
+            </div>
+            <dl class="delete-scope-info">
+                <div>
+                    <dt>Môn học</dt>
+                    <dd>{{courseTitle}}</dd>
+                </div>
+                <div>
+                    <dt>{{scopeLabel}}</dt>
+                    <dd>{{targetLabel}}</dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="delete-section" aria-labelledby="delete-summary-title">
+            <div class="delete-section-heading">
+                <i class="fa fa-bar-chart" aria-hidden="true"></i>
+                <h5 id="delete-summary-title">Dữ liệu ảnh hưởng</h5>
+            </div>
+            <div class="delete-summary">
+                <article class="delete-summary-item delete-summary-danger">
+                    <span class="delete-summary-icon" aria-hidden="true">
+                        <i class="fa fa-trash"></i>
+                    </span>
+                    <div class="delete-summary-content">
+                        <span class="delete-summary-label">Sẽ xóa vĩnh viễn</span>
+                        <strong class="delete-summary-value">{{deletableGroupCount}} nhóm</strong>
+                        <small>{{deletableRecordCount}} bản ghi câu hỏi cha/con</small>
+                    </div>
+                </article>
+                <article class="delete-summary-item delete-summary-protected">
+                    <span class="delete-summary-icon" aria-hidden="true">
+                        <i class="fa fa-shield"></i>
+                    </span>
+                    <div class="delete-summary-content">
+                        <span class="delete-summary-label">Được bảo vệ</span>
+                        <strong class="delete-summary-value">{{protectedGroupCount}} nhóm</strong>
+                        <small>{{protectedRecordCount}} bản ghi đã duyệt</small>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <label class="delete-agreement" [class.delete-agreement-disabled]="submitting">
+            <input type="checkbox" [(ngModel)]="accepted" [disabled]="submitting"
+                aria-describedby="delete-warning-text">
+            <span class="delete-agreement-icon" aria-hidden="true">
+                <i class="fa fa-check"></i>
+            </span>
+            <span class="delete-agreement-content">
+                <strong>Tôi đã đọc và hiểu cảnh báo</strong>
+                <small>Tôi đồng ý xóa vĩnh viễn các câu hỏi đủ điều kiện trong phạm vi trên.</small>
+            </span>
+        </label>
+
+        <div *ngIf="submitting" class="delete-processing" role="status" aria-live="polite">
+            <span class="delete-spinner" aria-hidden="true"></span>
+            <div>
+                <strong>Đang xóa dữ liệu...</strong>
+                <small>Vui lòng giữ hộp thoại mở cho đến khi hoàn tất.</small>
+            </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="delete-error" role="alert">
+            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            <span>{{errorMessage}}</span>
+        </div>
+    </div>
+
+    <div class="modal-footer delete-modal-footer">
+        <button type="button" class="delete-button delete-cancel-button" [disabled]="submitting"
+            (click)="activeModal.dismiss()">
+            <i class="fa fa-times" aria-hidden="true"></i>
+            <span>Hủy thao tác</span>
+        </button>
+        <button type="button" class="delete-button delete-confirm-button"
+            [disabled]="!accepted || !deletableGroupCount || submitting" (click)="confirmDelete()">
+            <span *ngIf="submitting" class="delete-button-spinner" aria-hidden="true"></span>
+            <i *ngIf="!submitting" class="fa fa-trash" aria-hidden="true"></i>
+            <span>{{submitting ? 'Đang xóa...' : 'Xóa vĩnh viễn ' + deletableGroupCount + ' nhóm'}}</span>
+        </button>
+    </div>
+</div>

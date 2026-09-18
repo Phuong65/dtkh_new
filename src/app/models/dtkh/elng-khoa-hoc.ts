@@ -1,7 +1,7 @@
-import { key_server } from '@env';
+
+import { User } from '../user';
 import { OvicFileStore } from './file-store';
-import { DocumentFileAndLink } from '../components/form-document-file-and-link/form-document-file-and-link.component';
-import { User } from '@core/models/user';
+
 export interface ElnKhoaHoc {
     dot_capnhat?: string;
     id?: number;
@@ -28,6 +28,7 @@ export interface ElnKhoaHoc {
     currency_price: string;
     currency_discount: string;
     creator_name: string;
+    info_?: string;
     feature: number;
     decuong: OvicFileStore[];
     sobaigiang: number;
@@ -64,7 +65,7 @@ export interface CourseParams {
     tuhoc?: number;
 }
 
-export function getExamFormat() {
+export function getExamFormat(serverKey: string = '') {
     let exam = [
         { id: 'et_1', key: 'TRACNGHIEM', label: 'Trắc nghiệm' },
         { id: 'et_2', key: 'THUCHANH', label: 'Thực hành' },
@@ -77,7 +78,7 @@ export function getExamFormat() {
         { id: 'et_9', key: 'DUAN', label: 'Tiểu luận' },
     ];
 
-    switch (key_server) {
+    switch (serverKey) {
         case 'hvu':
             exam = [
                 { id: 'et_1', key: 'TRACNGHIEM', label: 'Trắc nghiệm' },
@@ -97,3 +98,10 @@ export const EXAMFORMAT = getExamFormat();
 
 
 
+export interface DocumentFileAndLink {
+    ordering: number;
+    type: 'link' | 'file';
+    title: string;
+    link?: string;
+    file?: File;
+}

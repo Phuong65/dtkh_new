@@ -310,3 +310,19 @@ export const UserLanguage : UserLanguage[] = [
 	{ value : 'zh' , label : '中国人' , tran2vn : 'Tiếng Trung' }
 ]
 
+// --------------- new ver ---------------
+export const CHUAN_DAU_RA = [
+    { id: 1, label: 'Biết', disabled: false, isActive: true },
+    { id: 2, label: 'Hiểu', disabled: false, isActive: false },
+    { id: 3, label: 'Vận dụng', disabled: false, isActive: false },
+    { id: 4, label: 'Phân tích', disabled: false, isActive: false },
+    { id: 5, label: 'Đánh giá', disabled: false, isActive: false },
+    { id: 6, label: 'Sáng tạo', disabled: false, isActive: false },
+]
+
+export const LARGE_MODAL_OPTIONS: any = {
+    scrollable: true,
+    size: 'xl',
+    windowClass: 'modal-xxl ovic-modal-class',
+    centered: true
+};
